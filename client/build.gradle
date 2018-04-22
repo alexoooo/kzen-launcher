@@ -3,9 +3,12 @@ apply plugin: 'kotlin-dce-js'
 apply plugin: 'com.moowork.node'
 
 dependencies {
+    def kotlinxHtmlVersion = "0.6.9"
+
     expectedBy project(':common')
 
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-js', version: kotlinVersion
+    compile "org.jetbrains.kotlinx:kotlinx-html-js:${kotlinxHtmlVersion}"
 
     testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test-js', version: kotlinVersion
 }
