@@ -11,7 +11,7 @@ import kotlin.browser.document
 fun main(args: Array<String>) {
     val message = document.create.div {
         p {
-            +"ff: ${getAnswer()}"
+            +"Fooo: ${getAnswer()}"
         }
     }
 
