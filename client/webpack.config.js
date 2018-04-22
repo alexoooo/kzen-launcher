@@ -5,6 +5,8 @@ const path = require("path");
 
 const dist = path.resolve(__dirname, "build/dist");
 
+// TODO: hot-reload without extraneous node.js http proxy
+
 module.exports = {
     entry: {
         main: "main"
