@@ -31,7 +31,7 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            title: 'Your app'
+            title: 'Kzen Launcher'
         }),
         new UglifyJSPlugin({
             sourceMap: false,
