@@ -14,6 +14,7 @@ class RestApi(
     fun counterRouter() = router {
         GET("/test", counterHandler::get)
 
+        GET("/", counterHandler::resource)
         GET("/**", counterHandler::resource)
 
 

@@ -48,7 +48,16 @@ class CounterHandler {
     // TODO: is this secure?
     fun resource(serverRequest: ServerRequest): Mono<ServerResponse> {
         val excludingInitialSlash = serverRequest.path().substring(1)
-        val path = Paths.get(excludingInitialSlash).normalize()
+
+        val resolvedPath =
+                if (excludingInitialSlash == "") {
+                    "index.html"
+                }
+                else {
+                    excludingInitialSlash
+                }
+
+        val path = Paths.get(resolvedPath).normalize()
 
         if (! isResourceAllowed(path)) {
             return ServerResponse
@@ -84,7 +93,7 @@ class CounterHandler {
                 val resourceUrl = Resources.getResource(resourceLocation.path)
                 return Resources.toByteArray(resourceUrl)
             }
-            catch (ignored: IOException) {}
+            catch (ignored: Exception) {}
         }
 
         for (root in resourceDirectories) {
