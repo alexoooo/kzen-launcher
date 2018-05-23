@@ -17,14 +17,14 @@ import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAd
 
 @Configuration
 class RestApi(
-        private val counterHandler: RestHandler
+        private val restHandler: RestHandler
 ) {
     @Bean
     fun counterRouter() = router {
-        GET("/test", counterHandler::get)
+        GET("/rs/query/archetype", restHandler::archetypes)
 
-        GET("/", counterHandler::resource)
-        GET("/**", counterHandler::resource)
+        GET("/", restHandler::resource)
+        GET("/**", restHandler::resource)
     }
 
 

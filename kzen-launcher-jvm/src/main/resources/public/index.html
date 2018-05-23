@@ -11,7 +11,9 @@
     <script type="text/javascript" src="main.bundle.js"></script>
 
 
-    <div class="events"></div>
+    <div id="root"></div>
+
+    <div id="events"></div>
     <script>
         const clientWebSocket = new WebSocket("ws://localhost:8080/event-emitter");
         clientWebSocket.onopen = function() {
@@ -32,7 +34,7 @@
             events(error.data);
         };
         function events(responseEvent) {
-            document.querySelector(".events").innerHTML += responseEvent + "<br>";
+            document.querySelector("#events").innerHTML += responseEvent + "<br>";
         }
     </script>
 </body>

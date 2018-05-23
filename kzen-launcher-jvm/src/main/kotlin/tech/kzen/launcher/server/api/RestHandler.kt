@@ -39,10 +39,9 @@ class RestHandler {
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    fun get(serverRequest: ServerRequest): Mono<ServerResponse> =
-            ServerResponse
-                    .ok()
-                    .body(Mono.just("Foo: ${getAnswer()}"))
+    fun archetypes(serverRequest: ServerRequest): Mono<ServerResponse> =
+            ServerResponse.ok().body(Mono.just(
+                    "[\"https://raw.githubusercontent.com/alexoooo/kzen-repo/master/artifacts/tech/kzen/project/kzen-project/0.0.1/kzen-project-0.0.1.zip\"]"))
 
 
     //-----------------------------------------------------------------------------------------------------------------
