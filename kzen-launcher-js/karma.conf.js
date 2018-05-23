@@ -23,7 +23,7 @@ module.exports = function (config) {
         singleRun: true,
         reportSlowerThan: 500,
         preprocessors: {
-            'build/**/*.js': ['browserify'],
+            'build/**/*.js': ['browserify']
         }
     })
 };

@@ -8,7 +8,6 @@ import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.body
 import reactor.core.publisher.Mono
 import tech.kzen.launcher.common.getAnswer
-import java.io.IOException
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
@@ -16,7 +15,7 @@ import java.nio.file.Paths
 
 
 @Component
-class CounterHandler {
+class RestHandler {
     //-----------------------------------------------------------------------------------------------------------------
     companion object {
         val classPathRoots = listOf(
@@ -24,16 +23,18 @@ class CounterHandler {
 
         val resourceDirectories = listOf<Path>(
                 // IntelliJ and typical commandline working dir is project root
-                Paths.get("server/src/main/resources/public/"),
-                Paths.get("client/build/dist/"),
+                Paths.get("kzen-launcher-jvm/src/main/resources/public/"),
+                Paths.get("kzen-launcher-js/build/dist/"),
 
                 // Eclipse default active working directory is the module
                 Paths.get("src/main/resources/public/"),
-                Paths.get("../client/build/dist/"))
+                Paths.get("../kzen-launcher-js/build/dist/"))
 
         val allowedExtensions = listOf(
                 "html",
-                "js")
+                "js",
+                "css",
+                "ico")
     }
 
 

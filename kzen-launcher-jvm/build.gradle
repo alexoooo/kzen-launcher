@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '2.0.1.RELEASE'
+        springBootVersion = '2.0.2.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -33,15 +33,17 @@ apply plugin: 'io.spring.dependency-management'
 
 
 dependencies {
-    expectedBy project(':common')
-    compile project(":client")
+    expectedBy project(':kzen-launcher-common')
+    compile project(":kzen-launcher-js")
 
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: kotlinVersion
     compile("org.jetbrains.kotlin:kotlin-reflect")
-//    compile('org.springframework.boot:spring-boot-starter-web')
+
     compile('org.springframework.boot:spring-boot-starter-webflux')
+//    compile("org.springframework.boot:spring-boot-starter-websocket")
+
     compile('com.fasterxml.jackson.module:jackson-module-kotlin')
-    compile "com.google.guava:guava:24.1-jre"
+    compile "com.google.guava:guava:25.0-jre"
 
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('io.projectreactor:reactor-test')
@@ -65,27 +67,8 @@ compileTestKotlin {
     }
 }
 
-////publishing {
-////    publications {
-////        mavenJava(MavenPublication) {
-////            from components.java
-////        }
-////    }
-////}
-//uploadArchives {
-//    repositories {
-//        mavenDeployer {
-//            mavenLocal()
-////            repository(url: "file:///~/repo/")
-//        }
-//    }
-//}processResources {
-//    from ('frontend/dist/') {
-//        into 'public'
-//    }
-
 processResources {
-    from ('../client/build/dist/') {
+    from ('../kzen-launcher-js/build/dist/') {
         into 'public'
     }
 }

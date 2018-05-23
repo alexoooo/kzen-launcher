@@ -1,6 +1,8 @@
 {
   "name": "client",
-  "dependencies": {},
+  "dependencies": {
+    "webstomp-client": "1.2.0"
+  },
   "devDependencies": {
     "browser-sync": "2.23.6",
     "browser-sync-webpack-plugin": "2.0.1",

@@ -5,7 +5,7 @@ apply plugin: 'com.moowork.node'
 dependencies {
     def kotlinxHtmlVersion = "0.6.9"
 
-    expectedBy project(':common')
+    expectedBy project(':kzen-launcher-common')
 
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-js', version: kotlinVersion
     compile "org.jetbrains.kotlinx:kotlinx-html-js:${kotlinxHtmlVersion}"

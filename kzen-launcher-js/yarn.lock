@@ -5706,6 +5706,10 @@ webpack@3.11.0:
     webpack-sources "^1.0.1"
     yargs "^8.0.2"
 
+webstomp-client@1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/webstomp-client/-/webstomp-client-1.2.0.tgz#454da66c2ff86c4a876f04218b6d9de8946e596b"
+
 when@^3.7.7:
   version "3.7.8"
   resolved "https://registry.yarnpkg.com/when/-/when-3.7.8.tgz#c7130b6a7ea04693e842cdc9e7a1f2aa39a39f82"
