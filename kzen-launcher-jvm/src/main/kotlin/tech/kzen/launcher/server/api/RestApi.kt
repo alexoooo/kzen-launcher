@@ -9,10 +9,7 @@ import java.util.HashMap
 import org.springframework.web.reactive.socket.WebSocketHandler
 import org.springframework.web.reactive.HandlerMapping
 import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter
-
-
-
-
+import tech.kzen.launcher.common.CommonApi
 
 
 @Configuration
@@ -21,7 +18,8 @@ class RestApi(
 ) {
     @Bean
     fun counterRouter() = router {
-        GET("/rs/query/archetype", restHandler::archetypes)
+        GET(CommonApi.archetypes, restHandler::archetypes)
+        GET(CommonApi.createProject, restHandler::create)
 
         GET("/", restHandler::resource)
         GET("/**", restHandler::resource)

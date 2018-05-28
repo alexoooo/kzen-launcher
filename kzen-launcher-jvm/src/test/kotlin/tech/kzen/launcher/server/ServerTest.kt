@@ -1,6 +1,6 @@
 package tech.kzen.launcher.server
 
-import tech.kzen.launcher.common.getAnswer
+import tech.kzen.launcher.platform.getAnswer
 import org.junit.Assert.assertEquals
 import kotlin.test.Test
 

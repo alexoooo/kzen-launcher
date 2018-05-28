@@ -2,7 +2,7 @@
 
 package tech.kzen.launcher.client
 
-import tech.kzen.launcher.common.getAnswer
+import tech.kzen.launcher.platform.getAnswer
 import kotlin.browser.window
 import kotlin.js.Promise
 import kotlin.test.Ignore

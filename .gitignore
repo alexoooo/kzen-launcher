@@ -1,7 +1,8 @@
 node_modules/
 build/
-.gradle
+.gradle/
+proj/
 
 .directory
-.idea
+.idea/
 *.iml

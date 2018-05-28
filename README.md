@@ -1,12 +1,12 @@
 # kzen-launcher
 UI for selecting projects
 
-Dev mode:
+Dev mode (two processes for client refresh, and server from IDE):
+> > run KzenLauncherApp from IDE
+>
 > > ./gradlew -t kzen-launcher-js:watch
 >
 > > cd kzen-launcher-js && yarn run start 
->
-> > run KzenLauncherApp from IDE
 
 Dist:
 > ./gradlew assemble

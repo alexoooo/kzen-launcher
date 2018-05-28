@@ -1,5 +1,6 @@
 package tech.kzen.launcher.common
 
+import tech.kzen.launcher.platform.getAnswer
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
