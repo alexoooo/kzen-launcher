@@ -9,9 +9,9 @@ import kotlin.js.Promise
 
 external fun encodeURIComponent(str: String): String
 
-
+private val spaRoot = window.location.pathname.substringBeforeLast("/")
 val restApi = ClientRestApi(
-        baseUrl = "",
+        baseUrl = spaRoot,
         baseWsUrl = getWsServer()
 )
 
@@ -23,6 +23,8 @@ private fun getWsServer(): String {
 
 
 suspend fun httpGet(url: String): String = suspendCoroutine { c ->
+    console.log("^^^ httpGet", url)
+
     val xhr = XMLHttpRequest()
     xhr.onreadystatechange = {
         if (xhr.readyState == XMLHttpRequest.DONE) {

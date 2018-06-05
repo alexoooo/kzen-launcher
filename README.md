@@ -9,7 +9,7 @@ Dev mode (two processes for client refresh, and server from IDE):
 > > cd kzen-launcher-js && yarn run start 
 
 Dist:
-> ./gradlew assemble
+> ./gradlew build
 >
 > java -jar kzen-launcher-jvm/build/libs/kzen-launcher-jvm-*.jar
 

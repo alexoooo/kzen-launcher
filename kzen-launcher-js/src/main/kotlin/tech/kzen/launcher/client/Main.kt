@@ -11,14 +11,31 @@ import kotlin.browser.window
 
 
 fun main(args: Array<String>) {
+    val pathname = window.location.pathname
+    val withoutFile = pathname.substringBeforeLast("/")
+    console.log("^^^^", withoutFile)
+
     window.onload = {
         async {
-            val artifacts = restApi.artifacts()
+            val artifacts = restApi.listArtifacts()
+            console.log("$$ artifacts: $artifacts")
 
-            render(document.getElementById("root")!!) {
+            val projects = restApi.listProjects()
+            console.log("$$ projects: $projects")
+
+            val rootElement = document.getElementById("root")
+                    ?: throw IllegalStateException("'root' element not found")
+
+            render(rootElement) {
                 div {
                     child(ProjectCreate::class) {
-                        attrs.projects = artifacts
+                        attrs.artifacts = artifacts
+                    }
+                }
+
+                div {
+                    child(ProjectList::class) {
+                        attrs.projects = projects
                     }
                 }
             }

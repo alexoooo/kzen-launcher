@@ -1,8 +1,6 @@
 package tech.kzen.launcher.client.components
 
-import kotlinext.js.jsObject
 import kotlinx.html.InputType
-import kotlinx.html.id
 import kotlinx.html.js.onChangeFunction
 import kotlinx.html.js.onClickFunction
 import org.w3c.dom.HTMLInputElement
@@ -19,7 +17,7 @@ class ProjectCreate(
 
     //-----------------------------------------------------------------------------------------------------------------
     class Props(
-            var projects: Map<String, String>
+            var artifacts: Map<String, String>
     ) : RProps
 
 
@@ -31,22 +29,26 @@ class ProjectCreate(
 
     //-----------------------------------------------------------------------------------------------------------------
     override fun State.init(props: Props) {
-//        console.log("init: props.projects - ${props.projects}")
+        console.log("init: props.projects - ${props.artifacts}")
 
-        name = "New project name"
-        type = props.projects.keys.iterator().next()
+        name = "new-project-name"
+        type = props.artifacts.keys.iterator().next()
     }
 
 
 
     //-----------------------------------------------------------------------------------------------------------------
     private fun onNameChange(projectName: String) {
+        console.log("%%%%5 onNameChange", projectName)
+
         setState {
             name = projectName
         }
     }
 
     private fun onTypeChange(projectType: String) {
+        console.log("%%%%5 onTypeChange", projectType)
+
         setState {
             type = projectType
         }
@@ -65,6 +67,8 @@ class ProjectCreate(
 
     //-----------------------------------------------------------------------------------------------------------------
     override fun RBuilder.render() {
+        console.log("render: ${props.artifacts} | ${state.name} | ${state.type}")
+
         fieldSet {
             legend {
                 +"Create new project"
@@ -88,22 +92,54 @@ class ProjectCreate(
 
             div {
                 +"Type:"
-                for (projectType in props.projects.keys) {
-                    div {
-                        input(type = InputType.radio) {
-                            attrs {
-                                checked = (state.type == projectType)
-                                onChangeFunction = { onTypeChange(projectType) }
-                            }
+
+                console.log("######## state.type: ${state.type}")
+
+                br {}
+                select {
+                    attrs {
+                        value = state.type
+                        onChangeFunction = {
+                            val value: String =
+                                    it.target!!.asDynamic().value as? String
+                                    ?: throw IllegalStateException("Archetype name string expected")
+                            onTypeChange(value)
                         }
-                        label {
+
+                        // TODO: why is this necessary (or error otherwise)
+                        multiple = true
+                    }
+////
+                    for (projectType in props.artifacts.keys) {
+                        option {
                             attrs {
-                                onChangeFunction = { onTypeChange(projectType) }
+                                value = projectType
+                                onChangeFunction = {
+                                    console.log("#!#@! option onChangeFunction", it.currentTarget)
+                                }
                             }
+
                             +projectType
                         }
                     }
                 }
+//                for (projectType in props.projects.keys) {
+//                    div {
+//                        input(type = InputType.radio) {
+//                            attrs {
+////                                key = projectType
+//                                checked = (state.type == projectType)
+//                                onChangeFunction = { onTypeChange(projectType) }
+//                            }
+//                        }
+//                        label {
+//                            attrs {
+//                                onChangeFunction = { onTypeChange(projectType) }
+//                            }
+//                            +projectType
+//                        }
+//                    }
+//                }
             }
 
 

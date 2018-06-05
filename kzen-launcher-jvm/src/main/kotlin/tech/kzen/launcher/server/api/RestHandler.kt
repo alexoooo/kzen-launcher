@@ -6,9 +6,11 @@ import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.body
-import tech.kzen.launcher.server.service.ProjectService
+import tech.kzen.launcher.server.project.ProjectCreator
 import reactor.core.publisher.Mono
 import tech.kzen.launcher.common.CommonApi
+import tech.kzen.launcher.server.archetype.ArchetypeRepo
+import tech.kzen.launcher.server.project.ProjectRepo
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
@@ -17,7 +19,9 @@ import java.nio.file.Paths
 
 @Component
 class RestHandler(
-        val projectService: ProjectService
+        val archetypeRepo: ArchetypeRepo,
+        val projectRepo: ProjectRepo,
+        val projectCreator: ProjectCreator
 ) {
     //-----------------------------------------------------------------------------------------------------------------
     companion object {
@@ -39,34 +43,48 @@ class RestHandler(
                 "css",
                 "ico")
 
-        private const val automationProject = "automation"
-        private const val automationVersion = "0.0.2"
-        private val automationUrl = URI("https://raw.githubusercontent.com/alexoooo/kzen-repo/master/artifacts/" +
-                "tech/kzen/project/kzen-project/$automationVersion/kzen-project-$automationVersion.zip")
+//        private const val automationProject = "automation"
+//        private const val automationVersion = "0.0.2"
+//        private val automationUrl = URI("https://raw.githubusercontent.com/alexoooo/kzen-repo/master/artifacts/" +
+//                "tech/kzen/project/kzen-project/$automationVersion/kzen-project-$automationVersion.zip")
     }
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    fun archetypes(serverRequest: ServerRequest): Mono<ServerResponse> =
-            ServerResponse.ok().body(Mono.just(
-                    "{" +
-                            "\"$automationProject\":" +
-                            "\"$automationUrl\"" +
-                    "}"))
+    fun listArchetypes(serverRequest: ServerRequest): Mono<ServerResponse> {
+        val archetypes = archetypeRepo.all()
+
+        val json = archetypes.entries
+                .joinToString(prefix = "{", postfix = "}") {
+                    "\"${it.key}\":\"${it.value.artifact}\""
+                }
+
+        return ServerResponse.ok().body(Mono.just(json))
+    }
 
 
-    fun create(serverRequest: ServerRequest): Mono<ServerResponse> {
+    fun listProjects(serverRequest: ServerRequest): Mono<ServerResponse> {
+        val projects = projectRepo.all()
+
+        val json = projects.entries
+                .joinToString(prefix = "{", postfix = "}") {
+                    "\"${it.key}\":\"${it.value.home}\""
+                }
+
+        return ServerResponse.ok().body(Mono.just(json))
+    }
+
+
+    fun createProject(serverRequest: ServerRequest): Mono<ServerResponse> {
 //        val path = serverRequest.path()
 //        val projectName = path.substringAfterLast('/')
 
         val projectName = serverRequest.queryParam(CommonApi.createProjectName).get()
 
         val archetypeName = serverRequest.queryParam(CommonApi.createProjectType).get()
-        if (archetypeName != automationProject) {
-            return ServerResponse.badRequest().body(Mono.just("unknown project type: $archetypeName"))
-        }
 
-        projectService.create(projectName, automationUrl)
+        val projectHome = projectCreator.create(projectName, archetypeName)
+        projectRepo.add(projectName, projectHome)
 
         return ServerResponse.ok().build()
     }

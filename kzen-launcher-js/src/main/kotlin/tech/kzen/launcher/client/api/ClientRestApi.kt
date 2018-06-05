@@ -9,10 +9,24 @@ import kotlin.js.Json
 
 
 class ClientRestApi(private val baseUrl: String, private val baseWsUrl: String) {
-    suspend fun artifacts(): Map<String, String> {
-        val artifactList = httpGet("$baseUrl${CommonApi.archetypes}")
+    suspend fun listArtifacts(): Map<String, String> {
+        val artifactList = httpGet("$baseUrl${CommonApi.listArchetypes}")
 
         val artifacts = JSON.parse<Json>(artifactList)
+
+        val nameToUrl = mutableMapOf<String, String>()
+        for (property in artifacts.getOwnPropertyNames()) {
+            nameToUrl[property] = artifacts[property] as String
+        }
+
+        return nameToUrl
+    }
+
+
+    suspend fun listProjects(): Map<String, String> {
+        val projectList = httpGet("$baseUrl${CommonApi.listProjects}")
+
+        val artifacts = JSON.parse<Json>(projectList)
 
         val nameToUrl = mutableMapOf<String, String>()
         for (property in artifacts.getOwnPropertyNames()) {

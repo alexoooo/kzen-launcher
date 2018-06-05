@@ -1,25 +1,25 @@
-package tech.kzen.launcher.server.service
+package tech.kzen.launcher.server.project
 
 import com.google.common.io.ByteStreams
+import com.google.common.io.MoreFiles
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import tech.kzen.launcher.server.archetype.ArchetypeRepo
+import tech.kzen.launcher.server.environment.LauncherEnvironment
 import java.io.*
-import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
-import java.nio.file.StandardOpenOption
 import java.nio.file.attribute.PosixFilePermission
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipEntry
 
 
 @Component
-class ProjectService {
+class ProjectCreator(
+        val archetypeRepo: ArchetypeRepo
+) {
     companion object {
-        private val logger = LoggerFactory.getLogger(ProjectService::class.java)!!
-
-        private val projectHome = Paths.get("proj")!!
+        private val logger = LoggerFactory.getLogger(ProjectCreator::class.java)!!
 
 
         // https://askubuntu.com/questions/638796/what-is-meaning-of-755-permissions-in-samba-share
@@ -37,22 +37,37 @@ class ProjectService {
 
 
     fun create(
-            name: String, download: URI
-    ) {
-        val path = projectHome.resolve(name)
+            name: String, archetypeName: String
+    ): Path {
+        val home = LauncherEnvironment.projectHome.resolve(name)
 
-        check(! Files.exists(path), {"already exists: $path"})
+        check(! Files.exists(home), {"already exists: $home"})
 
-        logger.info("downloading: {}", download)
+        val archetypeInfo = archetypeRepo.get(archetypeName)
+        val archetypeBytes = Files.readAllBytes(archetypeInfo.artifact)
 
-        val downloadBytes = download
-                .toURL()
-                .openStream()
-                .use { ByteStreams.toByteArray(it) }
+        val artifactExtension = MoreFiles.getFileExtension(archetypeInfo.artifact)
 
-        logger.info("download complete: {}", downloadBytes.size)
+        when (artifactExtension) {
+            "zip" -> {
+                extractGradle(home, archetypeBytes)
+            }
 
-        unzip(ByteArrayInputStream(downloadBytes), path)
+            "jar" -> {
+                Files.createDirectories(home)
+                Files.write(home.resolve("main.jar"), archetypeBytes)
+            }
+
+            else ->
+                    throw IllegalStateException("Unknown archetype: ${archetypeInfo.artifact}")
+        }
+
+        return home
+    }
+
+
+    private fun extractGradle(path: Path, archetypeBytes: ByteArray) {
+        unzip(ByteArrayInputStream(archetypeBytes), path)
 
         val gradleWrapper = path.resolve("gradlew")
 
@@ -60,6 +75,7 @@ class ProjectService {
             Files.setPosixFilePermissions(gradleWrapper, executablePermissions)
         }
     }
+
 
 
     private fun unzip(zipFile: InputStream, destDirectory: Path) {

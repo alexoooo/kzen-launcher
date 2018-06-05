@@ -18,8 +18,10 @@ class RestApi(
 ) {
     @Bean
     fun counterRouter() = router {
-        GET(CommonApi.archetypes, restHandler::archetypes)
-        GET(CommonApi.createProject, restHandler::create)
+        GET(CommonApi.listArchetypes, restHandler::listArchetypes)
+
+        GET(CommonApi.listProjects, restHandler::listProjects)
+        GET(CommonApi.createProject, restHandler::createProject)
 
         GET("/", restHandler::resource)
         GET("/**", restHandler::resource)

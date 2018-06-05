@@ -53,7 +53,8 @@ module.exports = {
                 removeComments: false,
                 removeEmptyAttributes: false
             },
-            hash: false
+            hash: false,
+            filename: 'index-generated.html'
         }),
         new BrowserSyncPlugin({
             host: 'localhost',
