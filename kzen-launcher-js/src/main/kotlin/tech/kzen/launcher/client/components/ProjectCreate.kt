@@ -7,7 +7,7 @@ import org.w3c.dom.HTMLInputElement
 import react.*
 import react.dom.*
 import tech.kzen.launcher.client.api.async
-import tech.kzen.launcher.client.api.restApi
+import tech.kzen.launcher.client.api.clientRestApi
 
 
 @Suppress("unused")
@@ -59,7 +59,7 @@ class ProjectCreate(
         console.log("onSubmit: props - ${state.name} | ${state.type}")
 
         async {
-            restApi.createProject(state.name, state.type)
+            clientRestApi.createProject(state.name, state.type)
         }
     }
 
@@ -123,30 +123,12 @@ class ProjectCreate(
                         }
                     }
                 }
-//                for (projectType in props.projects.keys) {
-//                    div {
-//                        input(type = InputType.radio) {
-//                            attrs {
-////                                key = projectType
-//                                checked = (state.type == projectType)
-//                                onChangeFunction = { onTypeChange(projectType) }
-//                            }
-//                        }
-//                        label {
-//                            attrs {
-//                                onChangeFunction = { onTypeChange(projectType) }
-//                            }
-//                            +projectType
-//                        }
-//                    }
-//                }
             }
 
 
             div {
                 input (type = InputType.button) {
                     attrs {
-//                        value = "Create - ${state.name} - ${state.type}"
                         value = "Create"
 
                         onClickFunction = { onSubmit() }

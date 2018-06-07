@@ -9,11 +9,15 @@ import kotlin.js.Promise
 
 external fun encodeURIComponent(str: String): String
 
+
 private val spaRoot = window.location.pathname.substringBeforeLast("/")
-val restApi = ClientRestApi(
+val clientRestApi = ClientRestApi(
         baseUrl = spaRoot,
         baseWsUrl = getWsServer()
 )
+
+val shellRestApi = ShellRestApi()
+
 
 private fun getWsServer(): String {
     val location = window.location

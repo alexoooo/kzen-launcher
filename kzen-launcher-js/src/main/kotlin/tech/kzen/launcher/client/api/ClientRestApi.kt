@@ -44,6 +44,13 @@ class ClientRestApi(private val baseUrl: String, private val baseWsUrl: String) 
     }
 
 
+    suspend fun startProject(name: String, location: String) {
+        val encodedName = encodeURIComponent(name)
+        val encodedLocation = encodeURIComponent(location)
+        httpGet("$baseUrl${CommonApi.createProject}?name=$encodedName&location=$encodedLocation")
+    }
+
+
 //    suspend fun scan(): List<ProjectPath> {
 //        val scanText = httpGet("$baseUrl/scan")
 ////        println("scanText: $scanText")

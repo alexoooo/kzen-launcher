@@ -4,25 +4,22 @@ package tech.kzen.launcher.client.components
 import kotlinx.html.InputType
 import kotlinx.html.js.onClickFunction
 import react.*
-import react.dom.div
-import react.dom.fieldSet
-import react.dom.input
-import react.dom.legend
+import react.dom.*
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.shellRestApi
 
 
 @Suppress("unused")
-class ProjectList : RComponent<ProjectList.Props, RState>() {
+class ProjectRunning : RComponent<ProjectRunning.Props, RState>() {
     //-----------------------------------------------------------------------------------------------------------------
-    class Props(var projects: Map<String, String>) : RProps
+    class Props(var projects: List<String>) : RProps
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    private fun onStart(name: String, location: String) {
-        console.log("onStart: name - $name | location - $location")
+    private fun onStop(name: String) {
+        console.log("onStop: name - $name")
         async {
-            shellRestApi.startProject(name, location)
+            shellRestApi.stopProject(name)
         }
     }
 
@@ -31,19 +28,20 @@ class ProjectList : RComponent<ProjectList.Props, RState>() {
     override fun RBuilder.render() {
         fieldSet {
             legend {
-                +"Available projects"
+                +"Running projects"
             }
 
             for (project in props.projects) {
                 div {
-//                    +("${project.key}: ${project.value}")
-                    +(project.key)
+                    a(href = "/$project/") {
+                        +(project)
+                    }
 
                     input (type = InputType.button) {
                         attrs {
-                            value = "Run"
+                            value = "Stop"
                             onClickFunction = {
-                                onStart(project.key, project.value)
+                                onStop(project)
                             }
                         }
                     }
