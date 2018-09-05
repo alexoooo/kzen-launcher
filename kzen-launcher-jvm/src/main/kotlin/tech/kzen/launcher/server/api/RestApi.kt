@@ -23,6 +23,9 @@ class RestApi(
         GET(CommonApi.listProjects, restHandler::listProjects)
         GET(CommonApi.createProject, restHandler::createProject)
 
+        // Used for inline testing
+        GET("/shell/project", restHandler::runningProjectsDummy)
+
         GET("/", restHandler::resource)
         GET("/**", restHandler::resource)
     }

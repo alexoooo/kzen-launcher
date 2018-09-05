@@ -51,6 +51,12 @@ class RestHandler(
 
 
     //-----------------------------------------------------------------------------------------------------------------
+    fun runningProjectsDummy(serverRequest: ServerRequest): Mono<ServerResponse> {
+        return ServerResponse.ok().body(Mono.just("[]"))
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
     fun listArchetypes(serverRequest: ServerRequest): Mono<ServerResponse> {
         val archetypes = archetypeRepo.all()
 

@@ -36,18 +36,19 @@ class ArchetypeRepo {
         private const val pathProperty = "path"
 
 
-        private const val automationVersion = "0.0.3"
-        private const val artifactPrefix = "https://raw.githubusercontent.com/alexoooo/kzen-repo/master/artifacts"
-        private const val projectVersionsRoot = "$artifactPrefix/tech/kzen/project/kzen-project"
-        private const val projectRoot = "$projectVersionsRoot/$automationVersion"
+        // TODO: read from resource, or dynamically
+        private const val projectVersion = "0.0.5"
+
+        private const val artifactPrefix =
+            "https://github.com/alexoooo/kzen-project/releases/download/v$projectVersion"
 
         private const val automationZipName = "automation-zip"
-        private const val automationZipArtifact = "kzen-project-$automationVersion.zip"
-        private val automationZipLocation = URI("$projectRoot/$automationZipArtifact")
+        private const val automationZipArtifact = "kzen-project-$projectVersion.zip"
+        private val automationZipLocation = URI("$artifactPrefix/$automationZipArtifact")
 
         private const val automationJarName = "automation-jar"
-        private const val automationJarArtifact = "kzen-project-jvm-$automationVersion.jar"
-        private val automationJarLocation = URI("$projectRoot/$automationJarArtifact")
+        private const val automationJarArtifact = "kzen-project-jvm-$projectVersion.jar"
+        private val automationJarLocation = URI("$artifactPrefix/$automationJarArtifact")
     }
 
 
