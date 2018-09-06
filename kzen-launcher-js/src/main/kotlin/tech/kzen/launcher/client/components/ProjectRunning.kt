@@ -12,7 +12,10 @@ import tech.kzen.launcher.client.api.shellRestApi
 @Suppress("unused")
 class ProjectRunning : RComponent<ProjectRunning.Props, RState>() {
     //-----------------------------------------------------------------------------------------------------------------
-    class Props(var projects: List<String>) : RProps
+    class Props(
+            var projects: List<String>?,
+            var didStop: (() -> Unit)?
+    ) : RProps
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -20,6 +23,8 @@ class ProjectRunning : RComponent<ProjectRunning.Props, RState>() {
         console.log("onStop: name - $name")
         async {
             shellRestApi.stopProject(name)
+
+            props.didStop?.invoke()
         }
     }
 
@@ -31,18 +36,28 @@ class ProjectRunning : RComponent<ProjectRunning.Props, RState>() {
                 +"Running projects"
             }
 
-            for (project in props.projects) {
-                div {
-                    a(href = "/$project/") {
-                        +(project)
-                    }
+            if (props.projects != null) {
+                renderList(props.projects!!)
+            }
+            else {
+                +"Loading..."
+            }
+        }
+    }
 
-                    input (type = InputType.button) {
-                        attrs {
-                            value = "Stop"
-                            onClickFunction = {
-                                onStop(project)
-                            }
+
+    private fun RBuilder.renderList(projects: List<String>) {
+        for (project in projects) {
+            div {
+                a(href = "/$project/") {
+                    +(project)
+                }
+
+                input (type = InputType.button) {
+                    attrs {
+                        value = "Stop"
+                        onClickFunction = {
+                            onStop(project)
                         }
                     }
                 }

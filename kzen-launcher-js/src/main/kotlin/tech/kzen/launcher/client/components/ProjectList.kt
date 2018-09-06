@@ -15,7 +15,10 @@ import tech.kzen.launcher.client.api.shellRestApi
 @Suppress("unused")
 class ProjectList : RComponent<ProjectList.Props, RState>() {
     //-----------------------------------------------------------------------------------------------------------------
-    class Props(var projects: Map<String, String>) : RProps
+    class Props(
+            var projects: Map<String, String>?,
+            var didStart: (() -> Unit)?
+    ) : RProps
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -23,6 +26,7 @@ class ProjectList : RComponent<ProjectList.Props, RState>() {
         console.log("onStart: name - $name | location - $location")
         async {
             shellRestApi.startProject(name, location)
+            props.didStart?.invoke()
         }
     }
 
@@ -34,17 +38,27 @@ class ProjectList : RComponent<ProjectList.Props, RState>() {
                 +"Available projects"
             }
 
-            for (project in props.projects) {
-                div {
-//                    +("${project.key}: ${project.value}")
-                    +(project.key)
+            val projects = props.projects
+            if (projects != null) {
+                renderProjects(projects)
+            }
+            else {
+                +"Loading..."
+            }
+        }
+    }
 
-                    input (type = InputType.button) {
-                        attrs {
-                            value = "Run"
-                            onClickFunction = {
-                                onStart(project.key, project.value)
-                            }
+
+    private fun RBuilder.renderProjects(projects: Map<String, String>) {
+        for (project in projects) {
+            div {
+                +(project.key)
+
+                input (type = InputType.button) {
+                    attrs {
+                        value = "Run"
+                        onClickFunction = {
+                            onStart(project.key, project.value)
                         }
                     }
                 }

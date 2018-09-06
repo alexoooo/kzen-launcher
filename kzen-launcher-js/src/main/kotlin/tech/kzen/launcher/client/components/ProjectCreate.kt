@@ -17,13 +17,14 @@ class ProjectCreate(
 
     //-----------------------------------------------------------------------------------------------------------------
     class Props(
-            var artifacts: Map<String, String>
+            var artifacts: Map<String, String>?,
+            var didCreate: (() -> Unit)?
     ) : RProps
 
 
     class State(
             var name: String,
-            var type: String
+            var type: String?
     ) : RState
 
 
@@ -32,9 +33,18 @@ class ProjectCreate(
         console.log("init: props.projects - ${props.artifacts}")
 
         name = "new-project-name"
-        type = props.artifacts.keys.iterator().next()
+        type = props.artifacts?.keys?.iterator()?.next()
     }
 
+
+
+    override fun componentDidUpdate(prevProps: Props, prevState: State, snapshot: Any) {
+        if (state.type == null && props.artifacts != null) {
+            setState {
+                type = props.artifacts!!.keys.iterator().next()
+            }
+        }
+    }
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -59,7 +69,9 @@ class ProjectCreate(
         console.log("onSubmit: props - ${state.name} | ${state.type}")
 
         async {
-            clientRestApi.createProject(state.name, state.type)
+            check(state.type != null) {"Type missing"}
+            clientRestApi.createProject(state.name, state.type!!)
+            props.didCreate?.invoke()
         }
     }
 
@@ -74,57 +86,13 @@ class ProjectCreate(
                 +"Create new project"
             }
 
-
             div {
-                +"Name:"
-                input (type = InputType.text) {
-                    attrs {
-                        value = state.name
-
-                        onChangeFunction = {
-                            val target = it.target as HTMLInputElement
-                            onNameChange(target.value)
-                        }
-                    }
-                }
+                renderName()
             }
 
-
             div {
-                +"Type:"
-
-                console.log("######## state.type: ${state.type}")
-
-                br {}
-                select {
-                    attrs {
-                        value = state.type
-                        onChangeFunction = {
-                            val value: String =
-                                    it.target!!.asDynamic().value as? String
-                                    ?: throw IllegalStateException("Archetype name string expected")
-                            onTypeChange(value)
-                        }
-
-                        // TODO: why is this necessary (or error otherwise)
-                        multiple = true
-                    }
-////
-                    for (projectType in props.artifacts.keys) {
-                        option {
-                            attrs {
-                                value = projectType
-                                onChangeFunction = {
-                                    console.log("#!#@! option onChangeFunction", it.currentTarget)
-                                }
-                            }
-
-                            +projectType
-                        }
-                    }
-                }
+                renderTypeSelect()
             }
-
 
             div {
                 input (type = InputType.button) {
@@ -132,6 +100,64 @@ class ProjectCreate(
                         value = "Create"
 
                         onClickFunction = { onSubmit() }
+                    }
+                }
+            }
+        }
+    }
+
+
+    private fun RBuilder.renderName() {
+        +"Name:"
+
+        input (type = InputType.text) {
+            attrs {
+                value = state.name
+
+                onChangeFunction = {
+                    val target = it.target as HTMLInputElement
+                    onNameChange(target.value)
+                }
+            }
+        }
+    }
+
+
+    private fun RBuilder.renderTypeSelect() {
+        +"Type:"
+
+        br {}
+
+        if (props.artifacts == null || state.type == null) {
+            +"Loading..."
+        }
+        else {
+            console.log("######## state.type: ${state.type}")
+
+            select {
+                attrs {
+                    value = state.type!!
+                    onChangeFunction = {
+                        val value: String =
+                                it.target!!.asDynamic().value as? String
+                                        ?: throw IllegalStateException("Archetype name string expected")
+                        onTypeChange(value)
+                    }
+
+                    // TODO: why is this necessary (or error otherwise)
+                    multiple = true
+                }
+////
+                for (projectType in props.artifacts!!.keys) {
+                    option {
+                        attrs {
+                            value = projectType
+                            onChangeFunction = {
+                                console.log("#!#@! option onChangeFunction", it.currentTarget)
+                            }
+                        }
+
+                        +projectType
                     }
                 }
             }

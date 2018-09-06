@@ -4,7 +4,6 @@ package tech.kzen.launcher.client.api
 import kotlinext.js.getOwnPropertyNames
 import tech.kzen.launcher.common.CommonApi
 import kotlin.js.Json
-//import kotlinx.serialization.json.JSON as KJSON
 
 
 
@@ -49,30 +48,6 @@ class ClientRestApi(private val baseUrl: String, private val baseWsUrl: String) 
         val encodedLocation = encodeURIComponent(location)
         httpGet("$baseUrl${CommonApi.createProject}?name=$encodedName&location=$encodedLocation")
     }
-
-
-//    suspend fun scan(): List<ProjectPath> {
-//        val scanText = httpGet("$baseUrl/scan")
-////        println("scanText: $scanText")
-//
-//        val builder = mutableListOf<ProjectPath>()
-//
-//        JSON.parse<Array<Json>>(scanText)
-//                .map { it["relativeLocation"] as String }
-//                .mapTo(builder) { ProjectPath(it) }
-//
-//        return builder
-//
-////        val parsed = JSON.parse<List<ProjectPath>>(scanText)
-////        console.log("parsed", parsed)
-//
-//        //val parsed: List<ProjectPath> = JSON.parse(scanText)
-//        //println("parsed: $parsed")
-////        return parsed
-//
-////        return listOf(
-////                ProjectPath("notation.yaml"))
-//    }
 }
 
 

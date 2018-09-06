@@ -1,3 +1,3 @@
 package tech.kzen.launcher.platform
 
-actual fun getAnswer() = 42
+//actual fun getAnswer() = 42

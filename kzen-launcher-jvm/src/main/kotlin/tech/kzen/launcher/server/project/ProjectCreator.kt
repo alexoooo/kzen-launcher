@@ -41,7 +41,7 @@ class ProjectCreator(
     ): Path {
         val home = LauncherEnvironment.projectHome.resolve(name)
 
-        check(! Files.exists(home), {"already exists: $home"})
+        check(! Files.exists(home)) {"already exists: $home"}
 
         val archetypeInfo = archetypeRepo.get(archetypeName)
         val archetypeBytes = Files.readAllBytes(archetypeInfo.artifact)
@@ -100,22 +100,4 @@ class ProjectCreator(
             zipIn.closeEntry()
         }
     }
-
-
-//    /**
-//     * Extracts a zip entry (file entry)
-//     * @param zipIn
-//     * @param filePath
-//     * @throws IOException
-//     */
-//    @Throws(IOException::class)
-//    private fun extractFile(zipIn: ZipInputStream, filePath: String) {
-//        val bos = BufferedOutputStream(FileOutputStream(filePath))
-//        val bytesIn = ByteArray(BUFFER_SIZE)
-//        var read = 0
-//        while ((read = zipIn.read(bytesIn)) != -1) {
-//            bos.write(bytesIn, 0, read)
-//        }
-//        bos.close()
-//    }
 }
