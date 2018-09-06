@@ -78,8 +78,11 @@ class RestHandler(
 
         val json = projects.entries
                 .joinToString(prefix = "{", postfix = "}") {
+                    val path = it.value.home
+                    val normalized = path.toString().replace('\\', '/')
+
                     // TODO: JSON encoding
-                    "\"${it.key}\":\"${it.value.home}\""
+                    "\"${it.key}\":\"$normalized\""
                 }
 
         return ServerResponse.ok().body(Mono.just(json))
