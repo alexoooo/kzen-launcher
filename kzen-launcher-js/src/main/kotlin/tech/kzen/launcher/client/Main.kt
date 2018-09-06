@@ -17,7 +17,6 @@ fun main(args: Array<String>) {
             val rootElement = document.getElementById("root")
                     ?: throw IllegalStateException("'root' element not found")
 
-
             render(rootElement) {
                 child(ProjectLauncher::class) {}
             }

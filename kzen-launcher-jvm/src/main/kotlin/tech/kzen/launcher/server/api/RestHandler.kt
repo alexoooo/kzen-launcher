@@ -62,7 +62,11 @@ class RestHandler(
 
         val json = archetypes.entries
                 .joinToString(prefix = "{", postfix = "}") {
-                    "\"${it.key}\":\"${it.value.artifact}\""
+                    val path = it.value.artifact
+                    val normalized = path.toString().replace('\\', '/')
+
+                    // TODO: JSON encoding
+                    "\"${it.key}\":\"$normalized\""
                 }
 
         return ServerResponse.ok().body(Mono.just(json))
@@ -74,6 +78,7 @@ class RestHandler(
 
         val json = projects.entries
                 .joinToString(prefix = "{", postfix = "}") {
+                    // TODO: JSON encoding
                     "\"${it.key}\":\"${it.value.home}\""
                 }
 
