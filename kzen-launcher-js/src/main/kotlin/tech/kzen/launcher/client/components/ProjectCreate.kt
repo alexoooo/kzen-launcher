@@ -1,5 +1,6 @@
 package tech.kzen.launcher.client.components
 
+import kotlinx.css.Color
 import kotlinx.html.InputType
 import kotlinx.html.js.onChangeFunction
 import kotlinx.html.js.onClickFunction
@@ -8,12 +9,19 @@ import react.*
 import react.dom.*
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.clientRestApi
+import tech.kzen.launcher.client.wrap.*
+import kotlin.js.json
 
 
 @Suppress("unused")
 class ProjectCreate(
         props: ProjectCreate.Props
 ) : RComponent<ProjectCreate.Props, ProjectCreate.State>(props) {
+    //-----------------------------------------------------------------------------------------------------------------
+    companion object {
+        private const val defaultName = "new-project-name"
+    }
+
 
     //-----------------------------------------------------------------------------------------------------------------
     class Props(
@@ -32,7 +40,7 @@ class ProjectCreate(
     override fun State.init(props: Props) {
         console.log("init: props.projects - ${props.artifacts}")
 
-        name = "new-project-name"
+        name = defaultName
         type = props.artifacts?.keys?.iterator()?.next()
     }
 
@@ -49,7 +57,7 @@ class ProjectCreate(
 
     //-----------------------------------------------------------------------------------------------------------------
     private fun onNameChange(projectName: String) {
-        console.log("%%%%5 onNameChange", projectName)
+//        console.log("%%%%5 onNameChange", projectName)
 
         setState {
             name = projectName
@@ -57,7 +65,7 @@ class ProjectCreate(
     }
 
     private fun onTypeChange(projectType: String) {
-        console.log("%%%%5 onTypeChange", projectType)
+//        console.log("%%%%5 onTypeChange", projectType)
 
         setState {
             type = projectType
@@ -71,6 +79,11 @@ class ProjectCreate(
         async {
             check(state.type != null) {"Type missing"}
             clientRestApi.createProject(state.name, state.type!!)
+
+            setState {
+                name = defaultName
+            }
+
             props.didCreate?.invoke()
         }
     }
@@ -81,25 +94,35 @@ class ProjectCreate(
     override fun RBuilder.render() {
         console.log("render: ${props.artifacts} | ${state.name} | ${state.type}")
 
-        fieldSet {
-            legend {
-                +"Create new project"
+        child(MaterialCard::class) {
+            attrs {
+                style = reactStyle {
+                    backgroundColor = Color("rgb(225, 225, 225)")
+                }
             }
 
-            div {
-                renderName()
+            child(MaterialCardContent::class) {
+                h1 {
+                    +"Create New Project"
+                }
             }
 
-            div {
-                renderTypeSelect()
-            }
+            child(MaterialCardContent::class) {
+                div {
+                    renderName()
+                }
 
-            div {
-                input (type = InputType.button) {
-                    attrs {
-                        value = "Create"
+                div {
+                    renderTypeSelect()
+                }
 
-                        onClickFunction = { onSubmit() }
+                div {
+                    input (type = InputType.button) {
+                        attrs {
+                            value = "Create"
+
+                            onClickFunction = { onSubmit() }
+                        }
                     }
                 }
             }
@@ -108,13 +131,14 @@ class ProjectCreate(
 
 
     private fun RBuilder.renderName() {
-        +"Name:"
-
-        input (type = InputType.text) {
+        child(MaterialTextField::class) {
             attrs {
+//                fullWidth = true
+
+                label = "Project Name"
                 value = state.name
 
-                onChangeFunction = {
+                onChange = {
                     val target = it.target as HTMLInputElement
                     onNameChange(target.value)
                 }
@@ -124,15 +148,46 @@ class ProjectCreate(
 
 
     private fun RBuilder.renderTypeSelect() {
-        +"Type:"
-
-        br {}
+        +"Bar:"
+//
+//        br {}
 
         if (props.artifacts == null || state.type == null) {
             +"Loading..."
         }
         else {
-            console.log("######## state.type: ${state.type}")
+//            console.log("######## state.type: ${state.type}")
+
+//            div {
+//                child(MaterialInputLabel::class) {
+//                    attrs {
+//                        htmlFor = "type-select"
+//                    }
+//
+//                    +"Project Type"
+//                }
+//
+//
+//                child(MaterialSelect::class) {
+//                    attrs {
+//                        inputProps = json(
+//                                "id" to "type-select",
+//                                "name" to "type-select"
+//                        )
+//                    }
+//
+//                    child(MaterialMenuItem::class) {
+//                        +"Foo"
+//                    }
+//                    child(MaterialMenuItem::class) {
+//                        +"Bar"
+//                    }
+//                    child(MaterialMenuItem::class) {
+//                        +"Baz"
+//                    }
+//                }
+//            }
+
 
             select {
                 attrs {
@@ -147,7 +202,7 @@ class ProjectCreate(
                     // TODO: why is this necessary (or error otherwise)
                     multiple = true
                 }
-////
+
                 for (projectType in props.artifacts!!.keys) {
                     option {
                         attrs {

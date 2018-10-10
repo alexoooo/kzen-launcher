@@ -10,6 +10,7 @@ dependencies {
     compile "org.jetbrains.kotlinx:kotlinx-html-js:$kotlinxHtmlVersion"
     compile "org.jetbrains:kotlin-react:$reactVersion"
     compile "org.jetbrains:kotlin-react-dom:$reactDomVersion"
+    compile "org.jetbrains:kotlin-styled:$kotlinStyledVersion"
 
     testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test-js', version: kotlinVersion
 }
@@ -23,13 +24,13 @@ compileKotlin2Js {
         metaInfo = true
         sourceMap = true
         sourceMapEmbedSources = 'always'
-        moduleKind = 'umd'
+        moduleKind = 'commonjs'
         main = 'tech.kzen.launcher.client.Main'
     }
 }
 
 compileTestKotlin2Js {
-    kotlinOptions.moduleKind = 'umd'
+    kotlinOptions.moduleKind = 'commonjs'
 }
 
 // Downloads JS dependencies:

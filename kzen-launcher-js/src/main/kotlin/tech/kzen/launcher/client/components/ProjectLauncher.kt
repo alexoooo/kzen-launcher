@@ -6,6 +6,8 @@ import react.dom.div
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.clientRestApi
 import tech.kzen.launcher.client.api.shellRestApi
+import tech.kzen.launcher.client.wrap.MaterialCard
+import tech.kzen.launcher.client.wrap.MaterialCardContent
 
 
 class ProjectLauncher(
@@ -60,7 +62,7 @@ class ProjectLauncher(
 
         if (needArtifacts) {
             val response = clientRestApi.listArtifacts()
-            console.log("$$ artifacts: $response")
+//            console.log("$$ artifacts: $response")
 
             setState {
                 artifacts = response
@@ -69,7 +71,7 @@ class ProjectLauncher(
 
         if (needProjects) {
             val response = clientRestApi.listProjects()
-            console.log("$$ projects: $response")
+//            console.log("$$ projects: $response")
 
             setState {
                 projects = response
@@ -78,7 +80,7 @@ class ProjectLauncher(
 
         if (needRunningProjects) {
             val response = shellRestApi.runningProjects()
-            console.log("$$ running: $response")
+//            console.log("$$ running: $response")
 
             setState {
                 runningProjects = response

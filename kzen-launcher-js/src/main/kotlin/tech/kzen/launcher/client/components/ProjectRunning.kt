@@ -1,12 +1,19 @@
 package tech.kzen.launcher.client.components
 
 
+import kotlinx.css.Color
+import kotlinx.css.em
 import kotlinx.html.InputType
 import kotlinx.html.js.onClickFunction
 import react.*
 import react.dom.*
+import styled.css
+import styled.styledSpan
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.shellRestApi
+import tech.kzen.launcher.client.wrap.MaterialCard
+import tech.kzen.launcher.client.wrap.MaterialCardContent
+import tech.kzen.launcher.client.wrap.reactStyle
 
 
 @Suppress("unused")
@@ -20,7 +27,7 @@ class ProjectRunning : RComponent<ProjectRunning.Props, RState>() {
 
     //-----------------------------------------------------------------------------------------------------------------
     private fun onStop(name: String) {
-        console.log("onStop: name - $name")
+//        console.log("onStop: name - $name")
         async {
             shellRestApi.stopProject(name)
 
@@ -31,33 +38,53 @@ class ProjectRunning : RComponent<ProjectRunning.Props, RState>() {
 
     //-----------------------------------------------------------------------------------------------------------------
     override fun RBuilder.render() {
-        fieldSet {
-            legend {
-                +"Running projects"
+        child(MaterialCard::class) {
+            attrs {
+                style = reactStyle {
+                    backgroundColor = Color("rgb(225, 225, 225)")
+                }
             }
 
-            if (props.projects != null) {
-                renderList(props.projects!!)
+            child(MaterialCardContent::class) {
+                h1 {
+                    +"Running Projects"
+                }
             }
-            else {
-                +"Loading..."
+
+            child(MaterialCardContent::class) {
+                if (props.projects != null) {
+                    renderList(props.projects!!)
+                }
+                else {
+                    +"Loading..."
+                }
             }
         }
     }
 
 
     private fun RBuilder.renderList(projects: List<String>) {
-        for (project in projects) {
-            div {
-                a(href = "/$project/") {
-                    +(project)
+        if (projects.isEmpty()) {
+            styledSpan {
+                css {
+                    fontSize = 1.5.em
                 }
+                +"None, start one in Available Projects"
+            }
+        }
+        else {
+            for (project in projects) {
+                div {
+                    a(href = "/$project/") {
+                        +(project)
+                    }
 
-                input (type = InputType.button) {
-                    attrs {
-                        value = "Stop"
-                        onClickFunction = {
-                            onStop(project)
+                    input (type = InputType.button) {
+                        attrs {
+                            value = "Stop"
+                            onClickFunction = {
+                                onStop(project)
+                            }
                         }
                     }
                 }

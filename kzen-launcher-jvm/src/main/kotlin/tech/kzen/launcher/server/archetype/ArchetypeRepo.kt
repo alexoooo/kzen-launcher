@@ -37,7 +37,7 @@ class ArchetypeRepo {
 
 
         // TODO: read from resource, or dynamically
-        private const val projectVersion = "0.0.5"
+        private const val projectVersion = "0.2.0"
 
         private const val artifactPrefix =
             "https://github.com/alexoooo/kzen-project/releases/download/v$projectVersion"

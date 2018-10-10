@@ -1,15 +1,16 @@
 package tech.kzen.launcher.client.components
 
 
+import kotlinx.css.Color
 import kotlinx.html.InputType
 import kotlinx.html.js.onClickFunction
 import react.*
-import react.dom.div
-import react.dom.fieldSet
-import react.dom.input
-import react.dom.legend
+import react.dom.*
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.shellRestApi
+import tech.kzen.launcher.client.wrap.MaterialCard
+import tech.kzen.launcher.client.wrap.MaterialCardContent
+import tech.kzen.launcher.client.wrap.reactStyle
 
 
 @Suppress("unused")
@@ -33,17 +34,27 @@ class ProjectList : RComponent<ProjectList.Props, RState>() {
 
     //-----------------------------------------------------------------------------------------------------------------
     override fun RBuilder.render() {
-        fieldSet {
-            legend {
-                +"Available projects"
+        child(MaterialCard::class) {
+            attrs {
+                style = reactStyle {
+                    backgroundColor = Color("rgb(225, 225, 225)")
+                }
             }
 
-            val projects = props.projects
-            if (projects != null) {
-                renderProjects(projects)
+            child(MaterialCardContent::class) {
+                h1 {
+                    +"Available Project"
+                }
             }
-            else {
-                +"Loading..."
+
+            child(MaterialCardContent::class) {
+                val projects = props.projects
+                if (projects != null) {
+                    renderProjects(projects)
+                }
+                else {
+                    +"Loading..."
+                }
             }
         }
     }
