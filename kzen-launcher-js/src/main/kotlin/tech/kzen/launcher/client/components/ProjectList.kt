@@ -43,7 +43,7 @@ class ProjectList : RComponent<ProjectList.Props, RState>() {
 
             child(MaterialCardContent::class) {
                 h1 {
-                    +"Available Project"
+                    +"Available Projects"
                 }
             }
 

@@ -31,11 +31,6 @@ module.exports = {
         ]
     },
     plugins: [
-//        new HtmlWebpackPlugin({
-//            // TODO: do we have to include this?
-//            title: 'Kzen Launcher',
-//            filename: 'index-generated.html'
-//        }),
         new UglifyJSPlugin({
             sourceMap: false,
             minimize: true,

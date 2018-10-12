@@ -69,7 +69,7 @@ class ProjectRunning : RComponent<ProjectRunning.Props, RState>() {
                 css {
                     fontSize = 1.5.em
                 }
-                +"None, start one in Available Projects"
+                +"None, start one in Available Projects (below)"
             }
         }
         else {

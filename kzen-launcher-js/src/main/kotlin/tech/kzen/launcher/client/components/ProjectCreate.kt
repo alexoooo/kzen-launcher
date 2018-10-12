@@ -1,12 +1,15 @@
 package tech.kzen.launcher.client.components
 
 import kotlinx.css.Color
+import kotlinx.css.em
 import kotlinx.html.InputType
 import kotlinx.html.js.onChangeFunction
 import kotlinx.html.js.onClickFunction
 import org.w3c.dom.HTMLInputElement
 import react.*
 import react.dom.*
+import styled.css
+import styled.styledDiv
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.clientRestApi
 import tech.kzen.launcher.client.wrap.*
@@ -65,7 +68,7 @@ class ProjectCreate(
     }
 
     private fun onTypeChange(projectType: String) {
-//        console.log("%%%%5 onTypeChange", projectType)
+        console.log("%%%%5 onTypeChange", projectType)
 
         setState {
             type = projectType
@@ -82,6 +85,7 @@ class ProjectCreate(
 
             setState {
                 name = defaultName
+                type = null
             }
 
             props.didCreate?.invoke()
@@ -148,7 +152,7 @@ class ProjectCreate(
 
 
     private fun RBuilder.renderTypeSelect() {
-        +"Bar:"
+//        +"asdasd:"
 //
 //        br {}
 
@@ -157,65 +161,64 @@ class ProjectCreate(
         }
         else {
 //            console.log("######## state.type: ${state.type}")
-
-//            div {
-//                child(MaterialInputLabel::class) {
-//                    attrs {
-//                        htmlFor = "type-select"
-//                    }
-//
-//                    +"Project Type"
-//                }
-//
-//
-//                child(MaterialSelect::class) {
-//                    attrs {
-//                        inputProps = json(
-//                                "id" to "type-select",
-//                                "name" to "type-select"
-//                        )
-//                    }
-//
-//                    child(MaterialMenuItem::class) {
-//                        +"Foo"
-//                    }
-//                    child(MaterialMenuItem::class) {
-//                        +"Bar"
-//                    }
-//                    child(MaterialMenuItem::class) {
-//                        +"Baz"
-//                    }
-//                }
-//            }
-
-
-            select {
-                attrs {
-                    value = state.type!!
-                    onChangeFunction = {
-                        val value: String =
-                                it.target!!.asDynamic().value as? String
-                                        ?: throw IllegalStateException("Archetype name string expected")
-                        onTypeChange(value)
-                    }
-
-                    // TODO: why is this necessary (or error otherwise)
-                    multiple = true
+            styledDiv {
+                css {
+                    width = 32.em
                 }
 
-                for (projectType in props.artifacts!!.keys) {
-                    option {
-                        attrs {
-                            value = projectType
-                            onChangeFunction = {
-                                console.log("#!#@! option onChangeFunction", it.currentTarget)
-                            }
-                        }
+//                console.log("^^^^^ ReactSelect::class - default", ReactSelect::class)
 
-                        +projectType
+                val selectOptions = props
+                        .artifacts!!
+                        .keys
+                        .map { ReactSelectOption(it, it) }
+                        .toTypedArray()
+
+                child(ReactSelect::class) {
+                    attrs {
+                        value = selectOptions.find { it.value == state.type }
+
+                        options = selectOptions
+
+                        onChange = {
+//                            console.log("CHANGED!!!! -", it)
+                            onTypeChange(it.value)
+                        }
                     }
                 }
             }
+
+            br {}
+            br {}
+            br {}
+
+//            select {
+//                attrs {
+//                    value = state.type!!
+//                    onChangeFunction = {
+//                        val value: String =
+//                                it.target!!.asDynamic().value as? String
+//                                        ?: throw IllegalStateException("Archetype name string expected")
+//                        onTypeChange(value)
+//                    }
+//
+//                    // TODO: why is this necessary (or error otherwise)
+//                    multiple = true
+//                }
+//
+//                for (projectType in props.artifacts!!.keys) {
+//                    option {
+//                        attrs {
+//                            value = projectType
+//                            onChangeFunction = {
+//                                console.log("#!#@! option onChangeFunction", it.currentTarget)
+//                            }
+//                        }
+//
+//                        +projectType
+//                    }
+//                }
+//            }
         }
     }
 }
