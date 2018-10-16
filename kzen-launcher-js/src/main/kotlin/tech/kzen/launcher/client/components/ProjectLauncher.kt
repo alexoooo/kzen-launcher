@@ -1,13 +1,21 @@
 package tech.kzen.launcher.client.components
 
+import kotlinx.css.Color
+import kotlinx.css.em
+import kotlinx.css.margin
 import react.*
 import react.dom.br
 import react.dom.div
+import react.dom.h1
+import styled.css
+import styled.styledDiv
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.clientRestApi
 import tech.kzen.launcher.client.api.shellRestApi
 import tech.kzen.launcher.client.wrap.MaterialCard
 import tech.kzen.launcher.client.wrap.MaterialCardContent
+import tech.kzen.launcher.client.wrap.MaterialDivider
+import tech.kzen.launcher.client.wrap.reactStyle
 
 
 class ProjectLauncher(
@@ -96,38 +104,52 @@ class ProjectLauncher(
 
     //-----------------------------------------------------------------------------------------------------------------
     override fun RBuilder.render() {
-        div {
-            child(ProjectRunning::class) {
-                attrs.projects = state.runningProjects
-                attrs.didStop = {
-                    state.runningProjects = null
-                    loadFromServerIfRequired()
+        styledDiv {
+            child(MaterialCard::class) {
+                attrs {
+                    style = reactStyle {
+                        backgroundColor = Color.white
+                        margin(1.em)
+                    }
+
+                    raised = true
                 }
-            }
-        }
 
-        br {}
 
-        div {
-            child(ProjectCreate::class) {
-                attrs.artifacts = state.artifacts
-                attrs.didCreate = {
-                    state.projects = null
-                    loadFromServerIfRequired()
+                child(MaterialCardContent::class) {
+                    child(ProjectRunning::class) {
+                        attrs.projects = state.runningProjects
+                        attrs.didStop = {
+                            state.runningProjects = null
+                            loadFromServerIfRequired()
+                        }
+                    }
                 }
-            }
-        }
 
-        br {}
+                child(MaterialDivider::class) {}
 
-        div {
-            child(ProjectList::class) {
-                attrs.projects = state.projects
-                        ?.filterKeys { ! (state.runningProjects?.contains(it) ?: false) }
+                child(MaterialCardContent::class) {
+                    child(ProjectCreate::class) {
+                        attrs.artifacts = state.artifacts
+                        attrs.didCreate = {
+                            state.projects = null
+                            loadFromServerIfRequired()
+                        }
+                    }
+                }
 
-                attrs.didStart = {
-                    state.runningProjects = null
-                    loadFromServerIfRequired()
+                child(MaterialDivider::class) {}
+
+                child(MaterialCardContent::class) {
+                    child(ProjectList::class) {
+                        attrs.projects = state.projects
+                                ?.filterKeys { ! (state.runningProjects?.contains(it) ?: false) }
+
+                        attrs.didStart = {
+                            state.runningProjects = null
+                            loadFromServerIfRequired()
+                        }
+                    }
                 }
             }
         }

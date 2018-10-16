@@ -22,6 +22,8 @@ external class ReactSelect : Component<ReactSelectProps, RState> {
 
 
 external interface ReactSelectProps : RProps {
+    var id: String
+
     var value: ReactSelectOption?
 
     var options: Array<ReactSelectOption>

@@ -10,7 +10,7 @@ import kotlin.browser.window
 fun main(args: Array<String>) {
     val pathname = window.location.pathname
     val withoutFile = pathname.substringBeforeLast("/")
-    console.log("^^^^", withoutFile)
+//    console.log("^^^^", withoutFile)
 
     window.onload = {
         async {

@@ -1,8 +1,12 @@
 package tech.kzen.launcher.client.components
 
 import kotlinx.css.Color
+import kotlinx.css.Display
+import kotlinx.css.Float
+import kotlinx.css.LinearDimension
 import kotlinx.css.em
 import kotlinx.html.InputType
+import kotlinx.html.id
 import kotlinx.html.js.onChangeFunction
 import kotlinx.html.js.onClickFunction
 import org.w3c.dom.HTMLInputElement
@@ -98,36 +102,35 @@ class ProjectCreate(
     override fun RBuilder.render() {
         console.log("render: ${props.artifacts} | ${state.name} | ${state.type}")
 
-        child(MaterialCard::class) {
-            attrs {
-                style = reactStyle {
-                    backgroundColor = Color("rgb(225, 225, 225)")
+        h2 {
+            +"Create New Project"
+        }
+
+        div {
+            styledDiv {
+                css {
+                    display = Display.inlineBlock
                 }
+
+                renderName()
             }
 
-            child(MaterialCardContent::class) {
-                h1 {
-                    +"Create New Project"
+            styledDiv {
+                css {
+                    display = Display.inlineBlock
+                    marginLeft = 1.em
                 }
+
+                renderTypeSelect()
             }
+        }
 
-            child(MaterialCardContent::class) {
-                div {
-                    renderName()
-                }
+        div {
+            input (type = InputType.button) {
+                attrs {
+                    value = "Create"
 
-                div {
-                    renderTypeSelect()
-                }
-
-                div {
-                    input (type = InputType.button) {
-                        attrs {
-                            value = "Create"
-
-                            onClickFunction = { onSubmit() }
-                        }
-                    }
+                    onClickFunction = { onSubmit() }
                 }
             }
         }
@@ -137,9 +140,13 @@ class ProjectCreate(
     private fun RBuilder.renderName() {
         child(MaterialTextField::class) {
             attrs {
+                style = reactStyle {
+                    width = 24.em
+                }
+
 //                fullWidth = true
 
-                label = "Project Name"
+                label = "Name"
                 value = state.name
 
                 onChange = {
@@ -160,12 +167,23 @@ class ProjectCreate(
             +"Loading..."
         }
         else {
+
+//            div {
+//
+//                div {
+//                    attrs {
+//                        id = "foo-bar"
+//                    }
+//                    +"foo bar"
+//                }
+//            }
+
+
 //            console.log("######## state.type: ${state.type}")
             styledDiv {
                 css {
-                    width = 32.em
+                    width = 24.em
                 }
-
 //                console.log("^^^^^ ReactSelect::class - default", ReactSelect::class)
 
                 val selectOptions = props
@@ -174,8 +192,20 @@ class ProjectCreate(
                         .map { ReactSelectOption(it, it) }
                         .toTypedArray()
 
+                child(MaterialInputLabel::class) {
+                    attrs {
+                        htmlFor = "foo-bar"
+
+                        style = reactStyle {
+                            fontSize = 0.8.em
+                        }
+                    }
+                    +"Type"
+                }
+
                 child(ReactSelect::class) {
                     attrs {
+                        id = "foo-bar"
                         value = selectOptions.find { it.value == state.type }
 
                         options = selectOptions
@@ -187,38 +217,6 @@ class ProjectCreate(
                     }
                 }
             }
-
-            br {}
-            br {}
-            br {}
-
-//            select {
-//                attrs {
-//                    value = state.type!!
-//                    onChangeFunction = {
-//                        val value: String =
-//                                it.target!!.asDynamic().value as? String
-//                                        ?: throw IllegalStateException("Archetype name string expected")
-//                        onTypeChange(value)
-//                    }
-//
-//                    // TODO: why is this necessary (or error otherwise)
-//                    multiple = true
-//                }
-//
-//                for (projectType in props.artifacts!!.keys) {
-//                    option {
-//                        attrs {
-//                            value = projectType
-//                            onChangeFunction = {
-//                                console.log("#!#@! option onChangeFunction", it.currentTarget)
-//                            }
-//                        }
-//
-//                        +projectType
-//                    }
-//                }
-//            }
         }
     }
 }

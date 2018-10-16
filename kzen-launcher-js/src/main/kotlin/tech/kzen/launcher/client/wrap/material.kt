@@ -77,6 +77,13 @@ external interface CardProps : RProps {
 
 
 
+@JsName("Divider")
+external class MaterialDivider : Component<RProps, RState> {
+    override fun render(): ReactElement?
+}
+
+
+
 @JsName("CardContent")
 external class MaterialCardContent : Component<RProps, RState> {
     override fun render(): ReactElement?
@@ -95,6 +102,7 @@ external class MaterialTextField : Component<MaterialTextFieldProps, RState> {
 }
 
 external interface MaterialTextFieldProps : RProps {
+    var style: Json
     var onChange: (e: Event) -> Unit
 
     var onKeyDown: (e: KeyboardEvent) -> Unit
@@ -127,6 +135,7 @@ external class MaterialInputLabel : Component<MaterialInputLabelProps, RState> {
 
 external interface MaterialInputLabelProps : RProps {
     var htmlFor: String
+    var style: Json
 }
 
 

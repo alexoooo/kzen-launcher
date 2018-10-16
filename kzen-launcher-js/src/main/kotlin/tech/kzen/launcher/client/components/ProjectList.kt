@@ -34,28 +34,16 @@ class ProjectList : RComponent<ProjectList.Props, RState>() {
 
     //-----------------------------------------------------------------------------------------------------------------
     override fun RBuilder.render() {
-        child(MaterialCard::class) {
-            attrs {
-                style = reactStyle {
-                    backgroundColor = Color("rgb(225, 225, 225)")
-                }
-            }
+        h2 {
+            +"Available Projects"
+        }
 
-            child(MaterialCardContent::class) {
-                h1 {
-                    +"Available Projects"
-                }
-            }
-
-            child(MaterialCardContent::class) {
-                val projects = props.projects
-                if (projects != null) {
-                    renderProjects(projects)
-                }
-                else {
-                    +"Loading..."
-                }
-            }
+        val projects = props.projects
+        if (projects != null) {
+            renderProjects(projects)
+        }
+        else {
+            +"Loading..."
         }
     }
 

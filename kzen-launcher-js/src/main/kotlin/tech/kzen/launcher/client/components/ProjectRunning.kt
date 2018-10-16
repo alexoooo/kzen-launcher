@@ -8,6 +8,7 @@ import kotlinx.html.js.onClickFunction
 import react.*
 import react.dom.*
 import styled.css
+import styled.styledH2
 import styled.styledSpan
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.shellRestApi
@@ -38,27 +39,19 @@ class ProjectRunning : RComponent<ProjectRunning.Props, RState>() {
 
     //-----------------------------------------------------------------------------------------------------------------
     override fun RBuilder.render() {
-        child(MaterialCard::class) {
-            attrs {
-                style = reactStyle {
-                    backgroundColor = Color("rgb(225, 225, 225)")
-                }
+        styledH2 {
+            css {
+
             }
 
-            child(MaterialCardContent::class) {
-                h1 {
-                    +"Running Projects"
-                }
-            }
+            +"Running Projects"
+        }
 
-            child(MaterialCardContent::class) {
-                if (props.projects != null) {
-                    renderList(props.projects!!)
-                }
-                else {
-                    +"Loading..."
-                }
-            }
+        if (props.projects != null) {
+            renderList(props.projects!!)
+        }
+        else {
+            +"Loading..."
         }
     }
 
