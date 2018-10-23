@@ -1,13 +1,16 @@
 package tech.kzen.launcher.client.components
 
 import kotlinx.css.Color
+import kotlinx.css.FontWeight
 import kotlinx.css.em
 import kotlinx.css.margin
 import react.*
+import styled.css
 import styled.styledDiv
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.clientRestApi
 import tech.kzen.launcher.client.api.shellRestApi
+import tech.kzen.launcher.client.service.ErrorBus
 import tech.kzen.launcher.client.wrap.MaterialCard
 import tech.kzen.launcher.client.wrap.MaterialCardContent
 import tech.kzen.launcher.client.wrap.MaterialDivider
@@ -17,23 +20,33 @@ import tech.kzen.launcher.common.dto.ProjectDetail
 
 class ProjectLauncher(
         props: ProjectLauncher.Props
-): RComponent<ProjectLauncher.Props, ProjectLauncher.State>(props) {
+):
+        RComponent<ProjectLauncher.Props, ProjectLauncher.State>(props),
+        ErrorBus.Subscriber
+{
     //-----------------------------------------------------------------------------------------------------------------
     class Props(
 
-    ) : RProps
+    ): RProps
 
     class State(
             var artifacts: Map<String, String>?,
             var projects: List<ProjectDetail>?,
             var runningProjects: List<String>?,
-            var loading: Boolean = false
-    ) : RState
+            var loading: Boolean = false,
+            var message: String? = null
+    ): RState
 
 
     //-----------------------------------------------------------------------------------------------------------------
     override fun componentDidMount() {
         loadFromServerIfRequired()
+        ErrorBus.subscribe(this)
+    }
+
+
+    override fun componentWillUnmount() {
+        ErrorBus.unSubscribe(this)
     }
 
 
@@ -42,6 +55,20 @@ class ProjectLauncher(
     }
 
 
+    //-----------------------------------------------------------------------------------------------------------------
+    override fun onSuccess() {
+        setState {
+            message = null
+        }
+    }
+    override fun onError(errorMessage: String) {
+        setState {
+            message = errorMessage
+        }
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
     private fun loadFromServerIfRequired() {
         if (state.loading) {
             return
@@ -101,6 +128,18 @@ class ProjectLauncher(
 
     //-----------------------------------------------------------------------------------------------------------------
     override fun RBuilder.render() {
+        if (state.message != null) {
+            styledDiv {
+                css {
+                    color = Color.darkRed
+                    fontWeight = FontWeight.bolder
+                }
+
+                +"Error: ${state.message}"
+            }
+        }
+
+
         styledDiv {
             child(MaterialCard::class) {
                 attrs {
@@ -111,7 +150,6 @@ class ProjectLauncher(
 
                     raised = true
                 }
-
 
                 child(MaterialCardContent::class) {
                     child(ProjectRunning::class) {
