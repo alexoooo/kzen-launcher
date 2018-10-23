@@ -108,17 +108,19 @@ class ProjectCreate(
 
         div {
             styledDiv {
-                css {
-                    display = Display.inlineBlock
-                }
+//                css {
+//                    display = Display.inlineBlock
+//                }
 
                 renderName()
             }
 
             styledDiv {
                 css {
-                    display = Display.inlineBlock
-                    marginLeft = 1.em
+//                    display = Display.inlineBlock
+//                    marginLeft = 1.em
+                    marginTop = 1.em
+                    marginBottom = 1.em
                 }
 
                 renderTypeSelect()
@@ -126,12 +128,13 @@ class ProjectCreate(
         }
 
         div {
-            input (type = InputType.button) {
+            child(MaterialButton::class) {
                 attrs {
-                    value = "Create"
-
-                    onClickFunction = { onSubmit() }
+                    variant = "outlined"
+                    onClick = ::onSubmit
                 }
+
+                +"Create"
             }
         }
     }
@@ -168,17 +171,6 @@ class ProjectCreate(
         }
         else {
 
-//            div {
-//
-//                div {
-//                    attrs {
-//                        id = "foo-bar"
-//                    }
-//                    +"foo bar"
-//                }
-//            }
-
-
 //            console.log("######## state.type: ${state.type}")
             styledDiv {
                 css {
@@ -192,9 +184,11 @@ class ProjectCreate(
                         .map { ReactSelectOption(it, it) }
                         .toTypedArray()
 
+                val selectId = "foo-bar"
+
                 child(MaterialInputLabel::class) {
                     attrs {
-                        htmlFor = "foo-bar"
+                        htmlFor = selectId
 
                         style = reactStyle {
                             fontSize = 0.8.em
@@ -205,7 +199,7 @@ class ProjectCreate(
 
                 child(ReactSelect::class) {
                     attrs {
-                        id = "foo-bar"
+                        id = selectId
                         value = selectOptions.find { it.value == state.type }
 
                         options = selectOptions
@@ -214,6 +208,9 @@ class ProjectCreate(
 //                            console.log("CHANGED!!!! -", it)
                             onTypeChange(it.value)
                         }
+
+//                        components = json(
+//                                "Control" to ::materialReactSelectController)
                     }
                 }
             }

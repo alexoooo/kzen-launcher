@@ -77,13 +77,31 @@ class ProjectRepo {
     fun remove(name: String) {
         val previous = read()
 
+        removeAndWrite(name, previous)
+    }
+
+
+    fun delete(name: String) {
+        val previous = read()
+
         val location = previous[name]?.home
                 ?: throw IllegalArgumentException("Project not found: $name")
 
-        Files.deleteIfExists(location)
+//        if (Files.exists(location)) {
+//            location.toFile().deleteRecursively()
+//        }
+        location.toFile().deleteRecursively()
 
+        removeAndWrite(name, previous)
+    }
+
+
+    private fun removeAndWrite(
+            name: String,
+            previous: ImmutableMap<String, ProjectInfo>
+    ) {
         val next = ImmutableMap.copyOf(
-                Maps.filterKeys(previous, { it != name}))
+                Maps.filterKeys(previous) { it != name})
 
         write(next)
     }

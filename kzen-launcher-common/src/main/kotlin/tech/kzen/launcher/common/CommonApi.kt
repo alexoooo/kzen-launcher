@@ -6,7 +6,9 @@ object CommonApi {
 
 //    fun createProject(path)
     val createProject = "/rs/command/project/create"
-    val createProjectName = "name"
+    val removeProject = "/rs/command/project/remove"
+    val deleteProject = "/rs/command/project/delete"
+    val projectName = "name"
     val createProjectType = "type"
 
     val listProjects = "/rs/query/project"

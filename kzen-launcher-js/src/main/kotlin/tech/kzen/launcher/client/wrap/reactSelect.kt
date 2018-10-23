@@ -15,6 +15,9 @@ import kotlin.js.Json
 //@JsModule("react-select")
 //@JsName("Select")
 //@JsName("SelectBase")
+
+
+// see: https://codesandbox.io/s/ly87zo23kl
 @JsName("default")
 external class ReactSelect : Component<ReactSelectProps, RState> {
     override fun render(): ReactElement?
@@ -29,6 +32,8 @@ external interface ReactSelectProps : RProps {
     var options: Array<ReactSelectOption>
 
     var onChange: (ReactSelectOption) -> Unit
+
+    var components: Json
 
 //    var id: String
 //    var variant: String

@@ -9,6 +9,7 @@ import org.springframework.web.reactive.function.server.body
 import tech.kzen.launcher.server.project.ProjectCreator
 import reactor.core.publisher.Mono
 import tech.kzen.launcher.common.CommonApi
+import tech.kzen.launcher.common.util.IoUtil
 import tech.kzen.launcher.server.archetype.ArchetypeRepo
 import tech.kzen.launcher.server.project.ProjectRepo
 import java.net.URI
@@ -65,8 +66,7 @@ class RestHandler(
                     val path = it.value.artifact
                     val normalized = path.toString().replace('\\', '/')
 
-                    // TODO: JSON encoding
-                    "\"${it.key}\":\"$normalized\""
+                    "${IoUtil.escapeJsonString(it.key)}:${IoUtil.escapeJsonString(normalized)}"
                 }
 
         return ServerResponse.ok().body(Mono.just(json))
@@ -77,12 +77,20 @@ class RestHandler(
         val projects = projectRepo.all()
 
         val json = projects.entries
-                .joinToString(prefix = "{", postfix = "}") {
+                .joinToString(prefix = "[", postfix = "]") {
                     val path = it.value.home
                     val normalized = path.toString().replace('\\', '/')
 
-                    // TODO: JSON encoding
-                    "\"${it.key}\":\"$normalized\""
+                    val exists = Files.exists(path)
+
+                    val body = mapOf(
+                            "name" to it.key,
+                            "path" to normalized,
+                            "exists" to exists)
+
+                    body.entries.joinToString(prefix = "{", postfix = "}") {entry ->
+                        "${IoUtil.escapeJsonString(entry.key)}: ${IoUtil.escapeJson(entry.value)}"
+                    }
                 }
 
         return ServerResponse.ok().body(Mono.just(json))
@@ -93,12 +101,30 @@ class RestHandler(
 //        val path = serverRequest.path()
 //        val projectName = path.substringAfterLast('/')
 
-        val projectName = serverRequest.queryParam(CommonApi.createProjectName).get()
+        val projectName = serverRequest.queryParam(CommonApi.projectName).get()
 
         val archetypeName = serverRequest.queryParam(CommonApi.createProjectType).get()
 
         val projectHome = projectCreator.create(projectName, archetypeName)
         projectRepo.add(projectName, projectHome)
+
+        return ServerResponse.ok().build()
+    }
+
+
+    fun removeProject(serverRequest: ServerRequest): Mono<ServerResponse> {
+        val projectName = serverRequest.queryParam(CommonApi.projectName).get()
+
+        projectRepo.remove(projectName)
+
+        return ServerResponse.ok().build()
+    }
+
+
+    fun deleteProject(serverRequest: ServerRequest): Mono<ServerResponse> {
+        val projectName = serverRequest.queryParam(CommonApi.projectName).get()
+
+        projectRepo.delete(projectName)
 
         return ServerResponse.ok().build()
     }

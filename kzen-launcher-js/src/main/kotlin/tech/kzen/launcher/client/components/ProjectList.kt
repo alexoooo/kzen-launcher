@@ -2,23 +2,30 @@ package tech.kzen.launcher.client.components
 
 
 import kotlinx.css.Color
+import kotlinx.css.FontWeight
+import kotlinx.css.em
 import kotlinx.html.InputType
 import kotlinx.html.js.onClickFunction
 import react.*
 import react.dom.*
+import styled.css
+import styled.styledDiv
+import styled.styledSpan
 import tech.kzen.launcher.client.api.async
+import tech.kzen.launcher.client.api.clientRestApi
 import tech.kzen.launcher.client.api.shellRestApi
-import tech.kzen.launcher.client.wrap.MaterialCard
-import tech.kzen.launcher.client.wrap.MaterialCardContent
-import tech.kzen.launcher.client.wrap.reactStyle
+import tech.kzen.launcher.client.wrap.*
+import tech.kzen.launcher.common.dto.ProjectDetail
 
 
 @Suppress("unused")
 class ProjectList : RComponent<ProjectList.Props, RState>() {
     //-----------------------------------------------------------------------------------------------------------------
     class Props(
-            var projects: Map<String, String>?,
-            var didStart: (() -> Unit)?
+            var projects: List<ProjectDetail>?,
+            var didStart: (() -> Unit)?,
+            var didRemove: (() -> Unit)?,
+            var didDelete: (() -> Unit)?
     ) : RProps
 
 
@@ -28,6 +35,24 @@ class ProjectList : RComponent<ProjectList.Props, RState>() {
         async {
             shellRestApi.startProject(name, location)
             props.didStart?.invoke()
+        }
+    }
+
+
+    private fun onRemove(name: String) {
+        console.log("onRemove: name - $name")
+        async {
+            clientRestApi.removeProject(name)
+            props.didRemove?.invoke()
+        }
+    }
+
+
+    private fun onDelete(name: String) {
+        console.log("onDelete: name - $name")
+        async {
+            clientRestApi.deleteProject(name)
+            props.didDelete?.invoke()
         }
     }
 
@@ -48,16 +73,77 @@ class ProjectList : RComponent<ProjectList.Props, RState>() {
     }
 
 
-    private fun RBuilder.renderProjects(projects: Map<String, String>) {
+    private fun RBuilder.renderProjects(projects: List<ProjectDetail>) {
         for (project in projects) {
-            div {
-                +(project.key)
+            child(MaterialDivider::class) {}
 
-                input (type = InputType.button) {
-                    attrs {
-                        value = "Run"
-                        onClickFunction = {
-                            onStart(project.key, project.value)
+            styledDiv {
+                css {
+                    marginBottom = 1.em
+
+                    if (! project.exists) {
+                        opacity = 0.5
+                    }
+                }
+
+
+                styledDiv {
+                    css {
+                        fontWeight = FontWeight.bold
+                    }
+
+                    +(project.name)
+
+                    if (! project.exists) {
+                        +" (missing)"
+                    }
+                }
+
+
+                styledSpan {
+                    css {
+                        fontFamily = "monospace"
+                    }
+
+                    +(project.path)
+                }
+
+
+                styledDiv {
+                    child(MaterialButton::class) {
+                        attrs {
+                            variant = "outlined"
+                            onClick = {
+                                onStart(project.name, project.path)
+                            }
+                        }
+
+                        +"Run"
+                    }
+
+
+                    if (project.exists) {
+                        child(MaterialButton::class) {
+                            attrs {
+                                variant = "outlined"
+                                onClick = {
+                                    onDelete(project.name)
+                                }
+                            }
+
+                            +"Delete"
+                        }
+                    }
+                    else {
+                        child(MaterialButton::class) {
+                            attrs {
+                                variant = "outlined"
+                                onClick = {
+                                    onRemove(project.name)
+                                }
+                            }
+
+                            +"Remove"
                         }
                     }
                 }

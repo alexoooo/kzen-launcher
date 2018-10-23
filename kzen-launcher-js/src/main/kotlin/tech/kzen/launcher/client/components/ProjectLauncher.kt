@@ -4,10 +4,6 @@ import kotlinx.css.Color
 import kotlinx.css.em
 import kotlinx.css.margin
 import react.*
-import react.dom.br
-import react.dom.div
-import react.dom.h1
-import styled.css
 import styled.styledDiv
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.clientRestApi
@@ -16,6 +12,7 @@ import tech.kzen.launcher.client.wrap.MaterialCard
 import tech.kzen.launcher.client.wrap.MaterialCardContent
 import tech.kzen.launcher.client.wrap.MaterialDivider
 import tech.kzen.launcher.client.wrap.reactStyle
+import tech.kzen.launcher.common.dto.ProjectDetail
 
 
 class ProjectLauncher(
@@ -28,7 +25,7 @@ class ProjectLauncher(
 
     class State(
             var artifacts: Map<String, String>?,
-            var projects: Map<String, String>?,
+            var projects: List<ProjectDetail>?,
             var runningProjects: List<String>?,
             var loading: Boolean = false
     ) : RState
@@ -143,10 +140,20 @@ class ProjectLauncher(
                 child(MaterialCardContent::class) {
                     child(ProjectList::class) {
                         attrs.projects = state.projects
-                                ?.filterKeys { ! (state.runningProjects?.contains(it) ?: false) }
+                                ?.filter{ ! (state.runningProjects?.contains(it.name) ?: false) }
 
                         attrs.didStart = {
                             state.runningProjects = null
+                            loadFromServerIfRequired()
+                        }
+
+                        attrs.didRemove = {
+                            state.projects = null
+                            loadFromServerIfRequired()
+                        }
+
+                        attrs.didDelete = {
+                            state.projects = null
                             loadFromServerIfRequired()
                         }
                     }

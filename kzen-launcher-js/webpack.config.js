@@ -42,7 +42,7 @@ module.exports = {
         }),
         new BrowserSyncPlugin({
             host: 'localhost',
-            port: 8080,
+            port: 8081,
             server: {
                 baseDir: ['./build/dist']
             }

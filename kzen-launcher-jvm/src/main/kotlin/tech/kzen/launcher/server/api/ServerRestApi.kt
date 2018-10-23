@@ -13,7 +13,7 @@ import tech.kzen.launcher.common.CommonApi
 
 
 @Configuration
-class RestApi(
+class ServerRestApi(
         private val restHandler: RestHandler
 ) {
     @Bean
@@ -22,6 +22,8 @@ class RestApi(
 
         GET(CommonApi.listProjects, restHandler::listProjects)
         GET(CommonApi.createProject, restHandler::createProject)
+        GET(CommonApi.removeProject, restHandler::removeProject)
+        GET(CommonApi.deleteProject, restHandler::deleteProject)
 
         // Used for inline testing
         GET("/shell/project", restHandler::runningProjectsDummy)
