@@ -19,7 +19,7 @@ buildscript {
 
 subprojects {
     group = 'tech.kzen.launcher'
-    version = '0.0.6'
+    version = '0.2.0'
 
     repositories {
         mavenLocal()
