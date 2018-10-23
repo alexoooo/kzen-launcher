@@ -65,7 +65,17 @@ class ProjectList : RComponent<ProjectList.Props, RState>() {
 
         val projects = props.projects
         if (projects != null) {
-            renderProjects(projects)
+            if (projects.isEmpty()) {
+                styledSpan {
+                    css {
+                        fontSize = 1.5.em
+                    }
+                    +"None, please Create New Project (above)"
+                }
+            }
+            else {
+                renderProjects(projects)
+            }
         }
         else {
             +"Loading..."

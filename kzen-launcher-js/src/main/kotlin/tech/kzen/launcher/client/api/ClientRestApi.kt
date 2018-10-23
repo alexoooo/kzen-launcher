@@ -45,19 +45,32 @@ class ClientRestApi(private val baseUrl: String, private val baseWsUrl: String) 
     suspend fun createProject(name: String, type: String) {
         val encodedName = encodeURIComponent(name)
         val encodedType = encodeURIComponent(type)
-        httpGet("$baseUrl${CommonApi.createProject}?name=$encodedName&type=$encodedType")
+
+        httpGet("$baseUrl${CommonApi.createProject}" +
+                "?${CommonApi.projectName}=$encodedName" +
+                "&${CommonApi.createProjectType}=$encodedType")
+    }
+
+
+    suspend fun importProject(path: String) {
+        val encodedPath = encodeURIComponent(path)
+
+        httpGet("$baseUrl${CommonApi.importProject}" +
+                "?${CommonApi.importProjectPath}=$encodedPath")
     }
 
 
     suspend fun removeProject(name: String) {
         val encodedName = encodeURIComponent(name)
-        httpGet("$baseUrl${CommonApi.removeProject}?name=$encodedName")
+        httpGet("$baseUrl${CommonApi.removeProject}" +
+                "?${CommonApi.projectName}=$encodedName")
     }
 
 
     suspend fun deleteProject(name: String) {
         val encodedName = encodeURIComponent(name)
-        httpGet("$baseUrl${CommonApi.deleteProject}?name=$encodedName")
+        httpGet("$baseUrl${CommonApi.deleteProject}" +
+                "?${CommonApi.projectName}=$encodedName")
     }
 
 

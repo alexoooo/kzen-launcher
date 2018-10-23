@@ -22,6 +22,7 @@ class ServerRestApi(
 
         GET(CommonApi.listProjects, restHandler::listProjects)
         GET(CommonApi.createProject, restHandler::createProject)
+        GET(CommonApi.importProject, restHandler::importProject)
         GET(CommonApi.removeProject, restHandler::removeProject)
         GET(CommonApi.deleteProject, restHandler::deleteProject)
 

@@ -36,7 +36,7 @@ class ArchetypeRepo {
         private const val pathProperty = "path"
 
 
-        // TODO: read from resource, or dynamically
+        // TODO: read artifacts from resource, or lookup dynamically
         private const val projectVersion = "0.2.0"
 
         private const val artifactPrefix =

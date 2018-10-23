@@ -98,14 +98,24 @@ class RestHandler(
 
 
     fun createProject(serverRequest: ServerRequest): Mono<ServerResponse> {
-//        val path = serverRequest.path()
-//        val projectName = path.substringAfterLast('/')
-
         val projectName = serverRequest.queryParam(CommonApi.projectName).get()
 
         val archetypeName = serverRequest.queryParam(CommonApi.createProjectType).get()
 
         val projectHome = projectCreator.create(projectName, archetypeName)
+        projectRepo.add(projectName, projectHome)
+
+        return ServerResponse.ok().build()
+    }
+
+
+    fun importProject(serverRequest: ServerRequest): Mono<ServerResponse> {
+        val projectPath = serverRequest.queryParam(CommonApi.importProjectPath).get()
+
+        val projectHome = Paths.get(projectPath)
+
+        val projectName = projectHome.fileName.toString()
+
         projectRepo.add(projectName, projectHome)
 
         return ServerResponse.ok().build()

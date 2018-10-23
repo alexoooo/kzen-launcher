@@ -1,14 +1,6 @@
 package tech.kzen.launcher.client.components
 
-import kotlinx.css.Color
-import kotlinx.css.Display
-import kotlinx.css.Float
-import kotlinx.css.LinearDimension
-import kotlinx.css.em
-import kotlinx.html.InputType
-import kotlinx.html.id
-import kotlinx.html.js.onChangeFunction
-import kotlinx.html.js.onClickFunction
+import kotlinx.css.*
 import org.w3c.dom.HTMLInputElement
 import react.*
 import react.dom.*
@@ -17,7 +9,6 @@ import styled.styledDiv
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.clientRestApi
 import tech.kzen.launcher.client.wrap.*
-import kotlin.js.json
 
 
 @Suppress("unused")
@@ -27,6 +18,7 @@ class ProjectCreate(
     //-----------------------------------------------------------------------------------------------------------------
     companion object {
         private const val defaultName = "new-project-name"
+        private const val defaultPath = "../kzen-proj/existing-project-name"
     }
 
 
@@ -39,15 +31,17 @@ class ProjectCreate(
 
     class State(
             var name: String,
-            var type: String?
+            var type: String?,
+            var path: String
     ) : RState
 
 
     //-----------------------------------------------------------------------------------------------------------------
     override fun State.init(props: Props) {
-        console.log("init: props.projects - ${props.artifacts}")
+//        console.log("init: props.projects - ${props.artifacts}")
 
         name = defaultName
+        path = defaultPath
         type = props.artifacts?.keys?.iterator()?.next()
     }
 
@@ -71,8 +65,9 @@ class ProjectCreate(
         }
     }
 
+
     private fun onTypeChange(projectType: String) {
-        console.log("%%%%5 onTypeChange", projectType)
+//        console.log("%%%%5 onTypeChange", projectType)
 
         setState {
             type = projectType
@@ -80,8 +75,8 @@ class ProjectCreate(
     }
 
 
-    private fun onSubmit() {
-        console.log("onSubmit: props - ${state.name} | ${state.type}")
+    private fun onCreate() {
+//        console.log("onSubmit: props - ${state.name} | ${state.type}")
 
         async {
             check(state.type != null) {"Type missing"}
@@ -97,44 +92,121 @@ class ProjectCreate(
     }
 
 
+    private fun onPathChange(projectPath: String) {
+        setState {
+            path = projectPath
+        }
+    }
+
+
+    private fun onImport() {
+        async {
+            check(state.path.isNotBlank()) {"Path missing"}
+            clientRestApi.importProject(state.path)
+
+            setState {
+                path = defaultPath
+            }
+
+            props.didCreate?.invoke()
+        }
+    }
+
+
 
     //-----------------------------------------------------------------------------------------------------------------
     override fun RBuilder.render() {
         console.log("render: ${props.artifacts} | ${state.name} | ${state.type}")
 
         h2 {
-            +"Create New Project"
+            +"New Project"
         }
 
-        div {
-            styledDiv {
-//                css {
-//                    display = Display.inlineBlock
-//                }
-
-                renderName()
+        styledDiv {
+            css {
+//                backgroundColor = Color.lightGoldenrodYellow
             }
 
             styledDiv {
                 css {
-//                    display = Display.inlineBlock
-//                    marginLeft = 1.em
-                    marginTop = 1.em
-                    marginBottom = 1.em
+//                    backgroundColor = Color.lightCyan
+
+                    display = Display.inlineBlock
                 }
 
-                renderTypeSelect()
+                styledDiv {
+                    renderName()
+                }
+
+                styledDiv {
+                    css {
+                        marginTop = 1.em
+                        marginBottom = 1.em
+                    }
+
+                    renderTypeSelect()
+                }
+
+                div {
+                    child(MaterialButton::class) {
+                        attrs {
+                            variant = "outlined"
+                            onClick = ::onCreate
+                        }
+
+                        +"Create"
+                    }
+                }
             }
-        }
 
-        div {
-            child(MaterialButton::class) {
-                attrs {
-                    variant = "outlined"
-                    onClick = ::onSubmit
+
+            styledDiv {
+                css {
+//                    backgroundColor = Color.lightSteelBlue
+
+                    marginLeft = 2.em
+                    marginRight = 2.em
+                    display = Display.inlineBlock
+
+                    borderLeftWidth = 1.px
+                    borderLeftStyle = BorderStyle.solid
+                    borderLeftColor = Color.lightGray
+
+                    marginTop = 4.em
+                    verticalAlign = VerticalAlign.top
+
+                    height = 3.em
+                }
+                +" "
+            }
+
+
+            styledDiv {
+                css {
+//                    backgroundColor = Color.lightSalmon
+
+                    display = Display.inlineBlock
                 }
 
-                +"Create"
+                styledDiv {
+                    css {
+                        marginTop = 1.5.em
+                        marginBottom = 1.em
+                    }
+
+                    renderPath()
+                }
+
+                div {
+                    child(MaterialButton::class) {
+                        attrs {
+                            variant = "outlined"
+                            onClick = ::onImport
+                        }
+
+                        +"Import"
+                    }
+                }
             }
         }
     }
@@ -184,7 +256,7 @@ class ProjectCreate(
                         .map { ReactSelectOption(it, it) }
                         .toTypedArray()
 
-                val selectId = "foo-bar"
+                val selectId = "material-react-select-id"
 
                 child(MaterialInputLabel::class) {
                     attrs {
@@ -212,6 +284,25 @@ class ProjectCreate(
 //                        components = json(
 //                                "Control" to ::materialReactSelectController)
                     }
+                }
+            }
+        }
+    }
+
+
+    private fun RBuilder.renderPath() {
+        child(MaterialTextField::class) {
+            attrs {
+                style = reactStyle {
+                    width = 36.em
+                }
+
+                label = "Path"
+                value = state.path
+
+                onChange = {
+                    val target = it.target as HTMLInputElement
+                    onPathChange(target.value)
                 }
             }
         }
