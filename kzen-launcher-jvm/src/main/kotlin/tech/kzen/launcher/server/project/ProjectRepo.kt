@@ -110,7 +110,7 @@ class ProjectRepo {
     //-----------------------------------------------------------------------------------------------------------------
     private fun write(archetypes: Map<String, ProjectInfo>) {
         val asJsonValue: Map<String, Any> =
-                Maps.transformValues(archetypes, { unbind(it!!) })
+                Maps.transformValues(archetypes) { unbind(it!!) }
 
         val metadataBytes = parser.writeValueAsBytes(asJsonValue)
 
@@ -161,7 +161,7 @@ class ProjectRepo {
                 ?: throw IllegalArgumentException("Key-value map expected ($name): $jsonNode")
 
         val propertyNames = ImmutableSet.copyOf(properties.fieldNames())
-        check(propertyNames.contains(homeProperty), {"Missing property ($name): $homeProperty"})
+        check(propertyNames.contains(homeProperty)) {"Missing property ($name): $homeProperty"}
 
         val path = properties[homeProperty] as? TextNode
                 ?: throw IllegalStateException("Text expected ($name.$homeProperty): ${properties[homeProperty]}")

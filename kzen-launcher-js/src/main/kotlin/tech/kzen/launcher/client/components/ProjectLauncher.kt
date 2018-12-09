@@ -13,7 +13,6 @@ import tech.kzen.launcher.client.api.shellRestApi
 import tech.kzen.launcher.client.service.ErrorBus
 import tech.kzen.launcher.client.wrap.MaterialCard
 import tech.kzen.launcher.client.wrap.MaterialCardContent
-import tech.kzen.launcher.client.wrap.MaterialDivider
 import tech.kzen.launcher.client.wrap.reactStyle
 import tech.kzen.launcher.common.dto.ProjectDetail
 
@@ -34,7 +33,7 @@ class ProjectLauncher(
             var projects: List<ProjectDetail>?,
             var runningProjects: List<String>?,
             var loading: Boolean = false,
-            var message: String? = null
+            var errorMessage: String? = null
     ): RState
 
 
@@ -58,12 +57,12 @@ class ProjectLauncher(
     //-----------------------------------------------------------------------------------------------------------------
     override fun onSuccess() {
         setState {
-            message = null
+            errorMessage = null
         }
     }
-    override fun onError(errorMessage: String) {
+    override fun onError(message: String) {
         setState {
-            message = errorMessage
+            this.errorMessage = message
         }
     }
 
@@ -128,14 +127,14 @@ class ProjectLauncher(
 
     //-----------------------------------------------------------------------------------------------------------------
     override fun RBuilder.render() {
-        if (state.message != null) {
+        if (state.errorMessage != null) {
             styledDiv {
                 css {
                     color = Color.darkRed
                     fontWeight = FontWeight.bolder
                 }
 
-                +"Error: ${state.message}"
+                +"Error: ${state.errorMessage}"
             }
         }
 

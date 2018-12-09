@@ -12,6 +12,9 @@ import java.nio.file.Path
 import java.nio.file.attribute.PosixFilePermission
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipEntry
+import java.nio.file.FileSystems
+
+
 
 
 @Component
@@ -33,6 +36,9 @@ class ProjectCreator(
 
                 PosixFilePermission.OTHERS_EXECUTE,
                 PosixFilePermission.OTHERS_READ)
+
+
+        private val isPosix = FileSystems.getDefault().supportedFileAttributeViews().contains("posix")
     }
 
 
@@ -71,8 +77,10 @@ class ProjectCreator(
 
         val gradleWrapper = path.resolve("gradlew")
 
-        if (Files.exists(gradleWrapper)) {
-            Files.setPosixFilePermissions(gradleWrapper, executablePermissions)
+        if (isPosix) {
+            if (Files.exists(gradleWrapper)) {
+                Files.setPosixFilePermissions(gradleWrapper, executablePermissions)
+            }
         }
     }
 

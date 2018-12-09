@@ -2,6 +2,7 @@ package tech.kzen.launcher.server.api
 
 import com.google.common.io.MoreFiles
 import com.google.common.io.Resources
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
@@ -38,11 +39,17 @@ class RestHandler(
                 Paths.get("src/main/resources/public/"),
                 Paths.get("../kzen-launcher-js/build/dist/"))
 
+
+        private const val cssExtension = "css"
+
         private val allowedExtensions = listOf(
                 "html",
                 "js",
-                "css",
-                "ico")
+                cssExtension,
+                "ico",
+                "png")
+
+        private val cssMediaType = MediaType.valueOf("text/css")
 
 //        private const val automationProject = "automation"
 //        private const val automationVersion = "0.0.2"
@@ -155,8 +162,9 @@ class RestHandler(
                 }
 
         val path = Paths.get(resolvedPath).normalize()
+        val extension = MoreFiles.getFileExtension(path)
 
-        if (! isResourceAllowed(path)) {
+        if (! isResourceAllowed(path, extension)) {
             return ServerResponse
                     .badRequest()
                     .build()
@@ -167,18 +175,32 @@ class RestHandler(
                         .notFound()
                         .build()
 
-        return ServerResponse
-                .ok()
+        val builder = ServerResponse.ok()
+
+        val responseType: MediaType? = responseType(extension)
+        if (responseType !== null) {
+            builder.contentType(responseType)
+        }
+
+        return builder
                 .body(Mono.just(bytes))
     }
 
 
-    private fun isResourceAllowed(path: Path): Boolean {
+    private fun responseType(extension: String): MediaType? {
+        return when (extension) {
+            cssExtension -> cssMediaType
+
+            else -> null
+        }
+    }
+
+
+    private fun isResourceAllowed(path: Path, extension: String): Boolean {
         if (path.isAbsolute) {
             return false
         }
 
-        val extension = MoreFiles.getFileExtension(path)
         return allowedExtensions.contains(extension)
     }
 
