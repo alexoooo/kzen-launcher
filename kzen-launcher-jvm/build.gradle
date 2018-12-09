@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '2.0.4.RELEASE'
+        springBootVersion = '2.1.1.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -34,7 +34,7 @@ apply plugin: 'io.spring.dependency-management'
 
 dependencies {
     expectedBy project(':kzen-launcher-common')
-    compile project(":kzen-launcher-js")
+//    compile project(":kzen-launcher-js")
 
     compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: kotlinVersion
     compile("org.jetbrains.kotlin:kotlin-reflect")

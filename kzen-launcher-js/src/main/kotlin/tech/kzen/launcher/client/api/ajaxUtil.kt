@@ -3,7 +3,7 @@ package tech.kzen.launcher.client.api
 
 import org.w3c.xhr.XMLHttpRequest
 import kotlin.browser.window
-import kotlin.coroutines.experimental.*
+import kotlin.coroutines.*
 import kotlin.js.Promise
 
 
@@ -51,12 +51,13 @@ fun <T> async(x: suspend () -> T): Promise<T> {
         x.startCoroutine(object : Continuation<T> {
             override val context = EmptyCoroutineContext
 
-            override fun resume(value: T) {
-                resolve(value)
-            }
-
-            override fun resumeWithException(exception: Throwable) {
-                reject(exception)
+            override fun resumeWith(result: Result<T>) {
+                if (result.isSuccess) {
+                    resolve(result.getOrThrow())
+                }
+                else {
+                    reject(result.exceptionOrNull()!!)
+                }
             }
         })
     }

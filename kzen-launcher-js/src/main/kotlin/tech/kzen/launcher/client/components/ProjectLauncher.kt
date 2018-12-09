@@ -145,10 +145,10 @@ class ProjectLauncher(
                 attrs {
                     style = reactStyle {
                         backgroundColor = Color.white
-                        margin(1.em)
+                        margin(2.em)
                     }
 
-                    raised = true
+//                    raised = true
                 }
 
                 child(MaterialCardContent::class) {
@@ -160,8 +160,20 @@ class ProjectLauncher(
                         }
                     }
                 }
+            }
+        }
 
-                child(MaterialDivider::class) {}
+
+        styledDiv {
+            child(MaterialCard::class) {
+                attrs {
+                    style = reactStyle {
+                        backgroundColor = Color.white
+                        margin(2.em)
+                    }
+
+//                    raised = true
+                }
 
                 child(MaterialCardContent::class) {
                     child(ProjectCreate::class) {
@@ -172,8 +184,20 @@ class ProjectLauncher(
                         }
                     }
                 }
+            }
+        }
 
-                child(MaterialDivider::class) {}
+
+        styledDiv {
+            child(MaterialCard::class) {
+                attrs {
+                    style = reactStyle {
+                        backgroundColor = Color.white
+                        margin(2.em)
+                    }
+
+//                    raised = true
+                }
 
                 child(MaterialCardContent::class) {
                     child(ProjectList::class) {

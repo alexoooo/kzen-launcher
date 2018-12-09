@@ -5,17 +5,20 @@ import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.components.ProjectLauncher
 import kotlin.browser.document
 import kotlin.browser.window
+import kotlin.dom.clear
 
 
 fun main(args: Array<String>) {
-    val pathname = window.location.pathname
-    val withoutFile = pathname.substringBeforeLast("/")
+//    val pathname = window.location.pathname
+//    val withoutFile = pathname.substringBeforeLast("/")
 //    console.log("^^^^", withoutFile)
 
     window.onload = {
         async {
             val rootElement = document.getElementById("root")
                     ?: throw IllegalStateException("'root' element not found")
+
+            rootElement.clear()
 
             render(rootElement) {
                 child(ProjectLauncher::class) {}
