@@ -1,9 +1,7 @@
 package tech.kzen.launcher.client.components
 
 
-import kotlinx.css.Color
-import kotlinx.css.FontWeight
-import kotlinx.css.em
+import kotlinx.css.*
 import kotlinx.html.InputType
 import kotlinx.html.js.onClickFunction
 import react.*
@@ -19,19 +17,29 @@ import tech.kzen.launcher.common.dto.ProjectDetail
 
 
 @Suppress("unused")
-class ProjectList : RComponent<ProjectList.Props, RState>() {
+class ProjectList : RComponent<ProjectList.Props, ProjectList.State>() {
     //-----------------------------------------------------------------------------------------------------------------
     class Props(
             var projects: List<ProjectDetail>?,
             var didStart: (() -> Unit)?,
             var didRemove: (() -> Unit)?,
             var didDelete: (() -> Unit)?
-    ) : RProps
+    ): RProps
+
+
+    class State(
+            var starting: Boolean = false
+    ): RState
 
 
     //-----------------------------------------------------------------------------------------------------------------
     private fun onStart(name: String, location: String) {
         console.log("onStart: name - $name | location - $location")
+
+        setState {
+            starting = true
+        }
+
         async {
             shellRestApi.startProject(name, location)
             props.didStart?.invoke()
@@ -120,40 +128,72 @@ class ProjectList : RComponent<ProjectList.Props, RState>() {
 
 
                 styledDiv {
-                    child(MaterialButton::class) {
-                        attrs {
-                            variant = "outlined"
-                            onClick = {
-                                onStart(project.name, project.path)
-                            }
+                    styledDiv {
+                        css {
+                            display = Display.inlineBlock
+//                            position = Position.relative
                         }
 
-                        +"Run"
+                        child(MaterialButton::class) {
+                            attrs {
+                                variant = "outlined"
+                                onClick = {
+                                    onStart(project.name, project.path)
+                                }
+                            }
+
+                            +"Run"
+                        }
+
+//                        styledDiv {
+//                            css {
+//                                float = Float.left
+////                                top = 50.pct
+////                                left = 50.pct
+////                                marginTop = (-12).px
+////                                marginLeft = (-12).px
+//                            }
+//                            child(MaterialCircularProgress::class) {}
+//                        }
                     }
 
 
                     if (project.exists) {
-                        child(MaterialButton::class) {
-                            attrs {
-                                variant = "outlined"
-                                onClick = {
-                                    onDelete(project.name)
-                                }
+                        styledDiv {
+                            css {
+                                display = Display.inlineBlock
+//                            position = Position.relative
                             }
 
-                            +"Delete"
+                            child(MaterialButton::class) {
+                                attrs {
+                                    variant = "outlined"
+                                    onClick = {
+                                        onDelete(project.name)
+                                    }
+                                }
+
+                                +"Delete"
+                            }
                         }
                     }
                     else {
-                        child(MaterialButton::class) {
-                            attrs {
-                                variant = "outlined"
-                                onClick = {
-                                    onRemove(project.name)
-                                }
+                        styledDiv {
+                            css {
+                                display = Display.inlineBlock
+//                            position = Position.relative
                             }
 
-                            +"Remove"
+                            child(MaterialButton::class) {
+                                attrs {
+                                    variant = "outlined"
+                                    onClick = {
+                                        onRemove(project.name)
+                                    }
+                                }
+
+                                +"Remove"
+                            }
                         }
                     }
                 }

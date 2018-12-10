@@ -156,6 +156,16 @@ external class MaterialMenuItem : Component<MaterialMenuItemProps, RState> {
     override fun render(): ReactElement?
 }
 
+
 external interface MaterialMenuItemProps : RProps {
     var value: String
+}
+
+
+@JsName("CircularProgress")
+external class MaterialCircularProgress : Component<MaterialCircularProgressProps, RState> {
+    override fun render(): ReactElement?
+}
+external interface MaterialCircularProgressProps : RProps {
+    var style: Json
 }

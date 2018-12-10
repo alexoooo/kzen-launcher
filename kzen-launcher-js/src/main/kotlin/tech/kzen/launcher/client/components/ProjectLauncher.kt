@@ -13,6 +13,7 @@ import tech.kzen.launcher.client.api.shellRestApi
 import tech.kzen.launcher.client.service.ErrorBus
 import tech.kzen.launcher.client.wrap.MaterialCard
 import tech.kzen.launcher.client.wrap.MaterialCardContent
+import tech.kzen.launcher.client.wrap.MaterialCircularProgress
 import tech.kzen.launcher.client.wrap.reactStyle
 import tech.kzen.launcher.common.dto.ProjectDetail
 

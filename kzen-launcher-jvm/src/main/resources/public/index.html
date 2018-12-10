@@ -27,6 +27,23 @@
         </div>
     </div>
 
+    <script>
+        const vendorBundleJs = 'vendor.bundle.js';
+
+        // https://stackoverflow.com/questions/10926880/using-javascript-to-detect-whether-the-url-exists-before-display-in-iframe
+        const request = new XMLHttpRequest();
+        request.open('GET', vendorBundleJs, false);
+        request.send();
+
+        if (request.status !== 404) {
+            // https://stackoverflow.com/questions/15521343/conditionally-load-javascript-file
+            var js = document.createElement("script");
+            js.type = "text/javascript";
+            js.src = vendorBundleJs;
+            document.getElementsByTagName('head')[0].appendChild(js);
+        }
+    </script>
+
     <!--<div id="events"></div>
     <script>
         const clientWebSocket = new WebSocket("ws://localhost:8080/event-emitter");
