@@ -35,7 +35,7 @@ object IoUtil {
         for (i in 0 until unescaped.length) {
             val ch = unescaped[i]
 
-            val escaped =
+            val escaped: Any =
                     when (ch) {
                         0.toChar() ->
                             throw IllegalArgumentException("Zero char not allowed")
