@@ -10,7 +10,7 @@
     <!-- https://necolas.github.io/normalize.css/latest/normalize.css -->
     <link rel="stylesheet" type="text/css" href="normalize.css">
 
-    <!--<script type="text/javascript" src="vendor.bundle.js" defer></script>-->
+    <script type="text/javascript" src="vendor.bundle.js" defer></script>
     <script type="text/javascript" src="main.bundle.js" defer></script>
 </head>
 <body style="background-color: rgb(225, 225, 225)">
@@ -28,20 +28,33 @@
     </div>
 
     <script>
+        /*
         const vendorBundleJs = 'vendor.bundle.js';
 
         // https://stackoverflow.com/questions/10926880/using-javascript-to-detect-whether-the-url-exists-before-display-in-iframe
         const request = new XMLHttpRequest();
-        request.open('GET', vendorBundleJs, false);
-        request.send();
+        request.onload = () => {
+            if (this.status === 404) {
+                return;
+            }
 
-        if (request.status !== 404) {
             // https://stackoverflow.com/questions/15521343/conditionally-load-javascript-file
             var js = document.createElement("script");
             js.type = "text/javascript";
             js.src = vendorBundleJs;
             document.getElementsByTagName('head')[0].appendChild(js);
-        }
+        };
+        request.open('GET', vendorBundleJs);
+        request.send();
+        */
+
+//        if (request.status !== 404) {
+//            // https://stackoverflow.com/questions/15521343/conditionally-load-javascript-file
+//            var js = document.createElement("script");
+//            js.type = "text/javascript";
+//            js.src = vendorBundleJs;
+//            document.getElementsByTagName('head')[0].appendChild(js);
+//        }
     </script>
 
     <!--<div id="events"></div>

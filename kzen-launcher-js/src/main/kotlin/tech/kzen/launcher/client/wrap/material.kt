@@ -24,6 +24,7 @@ external interface MaterialButtonProps : RProps {
     var style: ButtonStyle
     var size: String
     var onClick: () -> Unit
+    var disabled: Boolean
 }
 
 

@@ -2,6 +2,7 @@ package tech.kzen.launcher.client.components
 
 
 import kotlinx.css.*
+import kotlinx.coroutines.delay
 import kotlinx.html.InputType
 import kotlinx.html.js.onClickFunction
 import react.*
@@ -41,8 +42,14 @@ class ProjectList : RComponent<ProjectList.Props, ProjectList.State>() {
         }
 
         async {
+            delay(1)
+
             shellRestApi.startProject(name, location)
             props.didStart?.invoke()
+
+            setState {
+                starting = false
+            }
         }
     }
 
@@ -71,6 +78,16 @@ class ProjectList : RComponent<ProjectList.Props, ProjectList.State>() {
             +"Available Projects"
         }
 
+        if (state.starting) {
+            styledSpan {
+                css {
+                    float = Float.right
+                    marginTop = (-65).px
+                }
+                child(MaterialCircularProgress::class) {}
+            }
+        }
+
         val projects = props.projects
         if (projects != null) {
             if (projects.isEmpty()) {
@@ -95,39 +112,73 @@ class ProjectList : RComponent<ProjectList.Props, ProjectList.State>() {
         for (project in projects) {
             child(MaterialDivider::class) {}
 
+            renderProject(project)
+        }
+    }
+
+
+    private fun RBuilder.renderProject(project: ProjectDetail) {
+        styledDiv {
+            attrs {
+                key = project.name
+            }
+
+            css {
+                marginBottom = 1.em
+
+                if (! project.exists) {
+                    opacity = 0.5
+                }
+            }
+
+
             styledDiv {
                 css {
-                    marginBottom = 1.em
-
-                    if (! project.exists) {
-                        opacity = 0.5
-                    }
+                    fontWeight = FontWeight.bold
                 }
 
+                +(project.name)
 
+                if (! project.exists) {
+                    +" (missing)"
+                }
+            }
+
+
+            styledSpan {
+                css {
+                    fontFamily = "monospace"
+                }
+
+                +(project.path)
+            }
+
+
+            styledDiv {
                 styledDiv {
                     css {
-                        fontWeight = FontWeight.bold
+                        display = Display.inlineBlock
+//                            position = Position.relative
                     }
 
-                    +(project.name)
+                    child(MaterialButton::class) {
+                        attrs {
+                            variant = "outlined"
+                            onClick = {
+                                onStart(project.name, project.path)
+                            }
 
-                    if (! project.exists) {
-                        +" (missing)"
+                            if (state.starting) {
+                                disabled = true
+                            }
+                        }
+
+                        +"Run"
                     }
                 }
 
 
-                styledSpan {
-                    css {
-                        fontFamily = "monospace"
-                    }
-
-                    +(project.path)
-                }
-
-
-                styledDiv {
+                if (project.exists) {
                     styledDiv {
                         css {
                             display = Display.inlineBlock
@@ -138,62 +189,30 @@ class ProjectList : RComponent<ProjectList.Props, ProjectList.State>() {
                             attrs {
                                 variant = "outlined"
                                 onClick = {
-                                    onStart(project.name, project.path)
+                                    onDelete(project.name)
                                 }
                             }
 
-                            +"Run"
-                        }
-
-//                        styledDiv {
-//                            css {
-//                                float = Float.left
-////                                top = 50.pct
-////                                left = 50.pct
-////                                marginTop = (-12).px
-////                                marginLeft = (-12).px
-//                            }
-//                            child(MaterialCircularProgress::class) {}
-//                        }
-                    }
-
-
-                    if (project.exists) {
-                        styledDiv {
-                            css {
-                                display = Display.inlineBlock
-//                            position = Position.relative
-                            }
-
-                            child(MaterialButton::class) {
-                                attrs {
-                                    variant = "outlined"
-                                    onClick = {
-                                        onDelete(project.name)
-                                    }
-                                }
-
-                                +"Delete"
-                            }
+                            +"Delete"
                         }
                     }
-                    else {
-                        styledDiv {
-                            css {
-                                display = Display.inlineBlock
+                }
+                else {
+                    styledDiv {
+                        css {
+                            display = Display.inlineBlock
 //                            position = Position.relative
-                            }
+                        }
 
-                            child(MaterialButton::class) {
-                                attrs {
-                                    variant = "outlined"
-                                    onClick = {
-                                        onRemove(project.name)
-                                    }
+                        child(MaterialButton::class) {
+                            attrs {
+                                variant = "outlined"
+                                onClick = {
+                                    onRemove(project.name)
                                 }
-
-                                +"Remove"
                             }
+
+                            +"Remove"
                         }
                     }
                 }
