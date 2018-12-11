@@ -5,11 +5,10 @@ import kotlinx.css.*
 import kotlinx.coroutines.delay
 import kotlinx.html.InputType
 import kotlinx.html.js.onClickFunction
+import kotlinx.html.title
 import react.*
 import react.dom.*
-import styled.css
-import styled.styledDiv
-import styled.styledSpan
+import styled.*
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.clientRestApi
 import tech.kzen.launcher.client.api.shellRestApi
@@ -44,11 +43,14 @@ class ProjectList : RComponent<ProjectList.Props, ProjectList.State>() {
         async {
             delay(1)
 
-            shellRestApi.startProject(name, location)
-            props.didStart?.invoke()
-
-            setState {
-                starting = false
+            try {
+                shellRestApi.startProject(name, location)
+                props.didStart?.invoke()
+            }
+            finally {
+                setState {
+                    starting = false
+                }
             }
         }
     }

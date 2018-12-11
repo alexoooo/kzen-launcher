@@ -2,6 +2,7 @@ package tech.kzen.launcher.client.api
 
 
 import kotlinext.js.getOwnPropertyNames
+import tech.kzen.launcher.client.service.ClientRestService
 import tech.kzen.launcher.client.service.ErrorBus
 import tech.kzen.launcher.common.CommonApi
 import tech.kzen.launcher.common.dto.ProjectDetail
@@ -9,9 +10,9 @@ import kotlin.js.Json
 
 
 
-class ClientRestApi(private val baseUrl: String, private val baseWsUrl: String) {
+class ClientProjectRestApi(private val baseUrl: String, private val baseWsUrl: String) {
     suspend fun listArtifacts(): Map<String, String> {
-        val artifactList = getWithErrorIntercept("$baseUrl${CommonApi.listArchetypes}")
+        val artifactList = ClientRestService.getWithErrorIntercept("$baseUrl${CommonApi.listArchetypes}")
 
         val artifacts = JSON.parse<Json>(artifactList)
 
@@ -25,7 +26,7 @@ class ClientRestApi(private val baseUrl: String, private val baseWsUrl: String) 
 
 
     suspend fun listProjects(): List<ProjectDetail> {
-        val projectList = getWithErrorIntercept("$baseUrl${CommonApi.listProjects}")
+        val projectList = ClientRestService.getWithErrorIntercept("$baseUrl${CommonApi.listProjects}")
 
         val projects = JSON.parse<Array<Json>>(projectList)
 
@@ -47,7 +48,7 @@ class ClientRestApi(private val baseUrl: String, private val baseWsUrl: String) 
         val encodedName = encodeURIComponent(name)
         val encodedType = encodeURIComponent(type)
 
-        getWithErrorIntercept("$baseUrl${CommonApi.createProject}" +
+        ClientRestService.getWithErrorIntercept("$baseUrl${CommonApi.createProject}" +
                 "?${CommonApi.projectName}=$encodedName" +
                 "&${CommonApi.createProjectType}=$encodedType")
     }
@@ -56,42 +57,22 @@ class ClientRestApi(private val baseUrl: String, private val baseWsUrl: String) 
     suspend fun importProject(path: String) {
         val encodedPath = encodeURIComponent(path)
 
-        getWithErrorIntercept("$baseUrl${CommonApi.importProject}" +
+        ClientRestService.getWithErrorIntercept("$baseUrl${CommonApi.importProject}" +
                 "?${CommonApi.importProjectPath}=$encodedPath")
     }
 
 
     suspend fun removeProject(name: String) {
         val encodedName = encodeURIComponent(name)
-        getWithErrorIntercept("$baseUrl${CommonApi.removeProject}" +
+        ClientRestService.getWithErrorIntercept("$baseUrl${CommonApi.removeProject}" +
                 "?${CommonApi.projectName}=$encodedName")
     }
 
 
     suspend fun deleteProject(name: String) {
         val encodedName = encodeURIComponent(name)
-        getWithErrorIntercept("$baseUrl${CommonApi.deleteProject}" +
+        ClientRestService.getWithErrorIntercept("$baseUrl${CommonApi.deleteProject}" +
                 "?${CommonApi.projectName}=$encodedName")
-    }
-
-
-//    suspend fun startProject(name: String, location: String) {
-//        val encodedName = encodeURIComponent(name)
-//        val encodedLocation = encodeURIComponent(location)
-//        httpGet("$baseUrl${CommonApi.createProject}?name=$encodedName&location=$encodedLocation")
-//    }
-
-    private suspend fun getWithErrorIntercept(url: String): String {
-        try {
-            val value = httpGet(url)
-            ErrorBus.onSuccess()
-            return value
-        }
-        catch (e: Exception) {
-            console.log("@#!@#!@#!@ getWithErrorIntercept", e)
-            ErrorBus.onError(e.message ?: "failed: $url")
-            throw e
-        }
     }
 }
 

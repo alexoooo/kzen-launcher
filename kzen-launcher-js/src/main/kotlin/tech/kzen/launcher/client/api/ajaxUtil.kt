@@ -11,12 +11,12 @@ external fun encodeURIComponent(str: String): String
 
 
 private val spaRoot = window.location.pathname.substringBeforeLast("/")
-val clientRestApi = ClientRestApi(
+val clientRestApi = ClientProjectRestApi(
         baseUrl = spaRoot,
         baseWsUrl = getWsServer()
 )
 
-val shellRestApi = ShellRestApi()
+val shellRestApi = ClientShellRestApi()
 
 
 private fun getWsServer(): String {

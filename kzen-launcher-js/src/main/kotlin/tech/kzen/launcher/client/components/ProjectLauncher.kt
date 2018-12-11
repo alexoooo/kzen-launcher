@@ -1,20 +1,14 @@
 package tech.kzen.launcher.client.components
 
-import kotlinx.css.Color
-import kotlinx.css.FontWeight
-import kotlinx.css.em
-import kotlinx.css.margin
+import kotlinx.css.*
+import kotlinx.html.title
 import react.*
-import styled.css
-import styled.styledDiv
+import styled.*
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.clientRestApi
 import tech.kzen.launcher.client.api.shellRestApi
 import tech.kzen.launcher.client.service.ErrorBus
-import tech.kzen.launcher.client.wrap.MaterialCard
-import tech.kzen.launcher.client.wrap.MaterialCardContent
-import tech.kzen.launcher.client.wrap.MaterialCircularProgress
-import tech.kzen.launcher.client.wrap.reactStyle
+import tech.kzen.launcher.client.wrap.*
 import tech.kzen.launcher.common.dto.ProjectDetail
 
 
@@ -128,6 +122,87 @@ class ProjectLauncher(
 
     //-----------------------------------------------------------------------------------------------------------------
     override fun RBuilder.render() {
+        renderHeader()
+
+        renderErrorMessage()
+
+        styledDiv {
+            renderRunning()
+        }
+
+        styledDiv {
+            renderCreator()
+        }
+
+        styledDiv {
+            renderList()
+        }
+    }
+
+
+    private fun RBuilder.renderHeader() {
+        child(MaterialAppBar::class) {
+            attrs {
+                position = "sticky"
+
+                style = reactStyle {
+                    backgroundColor = Color.white
+                }
+            }
+
+            child(MaterialToolbar::class) {
+                child(MaterialTypography::class) {
+                    styledSpan {
+                        css {
+                            float = Float.left
+                        }
+
+                        renderLogo()
+                    }
+
+
+                    styledSpan {
+                        css {
+                            marginLeft = 1.em
+                        }
+
+                        styledSpan {
+                            css {
+                                marginTop = 0.5.em
+                                fontStyle = FontStyle.italic
+                                fontSize = 1.5.em
+                                display = Display.inlineBlock
+                            }
+
+                            +"Kzen: Automate all the things, for fun and profit"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    private fun RBuilder.renderLogo() {
+        styledA {
+            attrs {
+                href = "/"
+            }
+
+            styledImg(src = "logo.png") {
+                css {
+                    height = 35.px
+                }
+
+                attrs {
+                    title = "Kzen (home)"
+                }
+            }
+        }
+    }
+
+
+    private fun RBuilder.renderErrorMessage() {
         if (state.errorMessage != null) {
             styledDiv {
                 css {
@@ -138,86 +213,81 @@ class ProjectLauncher(
                 +"Error: ${state.errorMessage}"
             }
         }
+    }
 
 
-        styledDiv {
-            child(MaterialCard::class) {
-                attrs {
-                    style = reactStyle {
-                        backgroundColor = Color.white
-                        margin(2.em)
-                    }
 
-//                    raised = true
+    private fun RBuilder.renderRunning() {
+        child(MaterialCard::class) {
+            attrs {
+                style = reactStyle {
+                    backgroundColor = Color.white
+                    margin(2.em)
                 }
+            }
 
-                child(MaterialCardContent::class) {
-                    child(ProjectRunning::class) {
-                        attrs.projects = state.runningProjects
-                        attrs.didStop = {
-                            state.runningProjects = null
-                            loadFromServerIfRequired()
-                        }
+            child(MaterialCardContent::class) {
+                child(ProjectRunning::class) {
+                    attrs.projects = state.runningProjects
+                    attrs.didStop = {
+                        state.runningProjects = null
+                        loadFromServerIfRequired()
                     }
                 }
             }
         }
+    }
 
 
-        styledDiv {
-            child(MaterialCard::class) {
-                attrs {
-                    style = reactStyle {
-                        backgroundColor = Color.white
-                        margin(2.em)
-                    }
-
-//                    raised = true
+    private fun RBuilder.renderCreator() {
+        child(MaterialCard::class) {
+            attrs {
+                style = reactStyle {
+                    backgroundColor = Color.white
+                    margin(2.em)
                 }
+            }
 
-                child(MaterialCardContent::class) {
-                    child(ProjectCreate::class) {
-                        attrs.artifacts = state.artifacts
-                        attrs.didCreate = {
-                            state.projects = null
-                            loadFromServerIfRequired()
-                        }
+            child(MaterialCardContent::class) {
+                child(ProjectCreate::class) {
+                    attrs.artifacts = state.artifacts
+                    attrs.didCreate = {
+                        state.projects = null
+                        loadFromServerIfRequired()
                     }
                 }
             }
         }
+    }
 
 
-        styledDiv {
-            child(MaterialCard::class) {
-                attrs {
-                    style = reactStyle {
-                        backgroundColor = Color.white
-                        margin(2.em)
+    private fun RBuilder.renderList() {
+        child(MaterialCard::class) {
+            attrs {
+                style = reactStyle {
+                    backgroundColor = Color.white
+                    margin(2.em)
+                }
+            }
+
+            child(MaterialCardContent::class) {
+                child(ProjectList::class) {
+                    attrs.projects = state.projects
+                            ?.filter{ ! (state.runningProjects?.contains(it.name) ?: false) }
+
+                    attrs.didStart = {
+                        state.runningProjects = null
+                        loadFromServerIfRequired()
                     }
 
-//                    raised = true
-                }
+                    attrs.didRemove = {
+                        state.projects = null
+                        loadFromServerIfRequired()
+                    }
 
-                child(MaterialCardContent::class) {
-                    child(ProjectList::class) {
-                        attrs.projects = state.projects
-                                ?.filter{ ! (state.runningProjects?.contains(it.name) ?: false) }
-
-                        attrs.didStart = {
-                            state.runningProjects = null
-                            loadFromServerIfRequired()
-                        }
-
-                        attrs.didRemove = {
-                            state.projects = null
-                            loadFromServerIfRequired()
-                        }
-
-                        attrs.didDelete = {
-                            state.projects = null
-                            loadFromServerIfRequired()
-                        }
+                    attrs.didDelete = {
+                        state.projects = null
+                        loadFromServerIfRequired()
                     }
                 }
             }

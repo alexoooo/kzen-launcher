@@ -170,3 +170,23 @@ external class MaterialCircularProgress : Component<MaterialCircularProgressProp
 external interface MaterialCircularProgressProps : RProps {
     var style: Json
 }
+
+
+
+
+@JsName("AppBar")
+external class MaterialAppBar : Component<AppBarProps, RState> {
+    override fun render(): ReactElement?
+}
+
+
+external interface AppBarProps : RProps {
+    var position: String
+    var style: Json
+}
+
+
+@JsName("Toolbar")
+external class MaterialToolbar : Component<RProps, RState> {
+    override fun render(): ReactElement?
+}
