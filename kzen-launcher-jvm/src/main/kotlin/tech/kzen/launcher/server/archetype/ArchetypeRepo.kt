@@ -150,7 +150,7 @@ class ArchetypeRepo(
     //-----------------------------------------------------------------------------------------------------------------
     private fun write(archetypes: Map<String, ArchetypeInfo>) {
         val asJsonValue: Map<String, Any> =
-                Maps.transformValues(archetypes, { unbind(it!!) })
+                Maps.transformValues(archetypes) { unbind(it!!) }
 
         val metadataBytes = parser.writeValueAsBytes(asJsonValue)
 

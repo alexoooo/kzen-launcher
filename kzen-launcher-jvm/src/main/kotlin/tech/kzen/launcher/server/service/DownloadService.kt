@@ -15,8 +15,7 @@ import javax.net.ssl.*
 class DownloadService {
     //-----------------------------------------------------------------------------------------------------------------
     companion object {
-        private val logger = LoggerFactory.getLogger(ArchetypeRepo::class.java)!!
-
+        private val logger = LoggerFactory.getLogger(DownloadService::class.java)!!
     }
 
 
