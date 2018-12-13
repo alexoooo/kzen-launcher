@@ -5,11 +5,6 @@ buildscript {
             url 'https://plugins.gradle.org/m2/'
         }
         mavenCentral()
-
-//        maven {
-//            url 'file:///~/repo/'
-//        }
-//        mavenLocal()
     }
     dependencies {
         classpath group: 'org.jetbrains.kotlin', name: 'kotlin-gradle-plugin', version: kotlinVersion
@@ -17,9 +12,10 @@ buildscript {
     }
 }
 
+
 subprojects {
     group = 'tech.kzen.launcher'
-    version = '0.3.0'
+    version = '0.3.1'
 
     repositories {
         mavenLocal()

@@ -12,6 +12,7 @@ import com.google.common.io.ByteStreams
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import tech.kzen.launcher.server.environment.LauncherEnvironment
+import tech.kzen.launcher.server.service.DownloadService
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
@@ -20,7 +21,9 @@ import javax.annotation.PostConstruct
 
 
 @Component
-class ArchetypeRepo {
+class ArchetypeRepo(
+        private val downloadService: DownloadService
+) {
     //-----------------------------------------------------------------------------------------------------------------
     companion object {
         private val logger = LoggerFactory.getLogger(ArchetypeRepo::class.java)!!
@@ -37,7 +40,7 @@ class ArchetypeRepo {
 
 
         // TODO: read artifacts from resource, or lookup dynamically
-        private const val projectVersion = "0.3.0"
+        private const val projectVersion = "0.3.1"
 
         private const val artifactPrefix =
             "https://github.com/alexoooo/kzen-project/releases/download/v$projectVersion"
@@ -124,23 +127,16 @@ class ArchetypeRepo {
         Files.deleteIfExists(artifact)
 
         val next = ImmutableMap.copyOf(
-                Maps.filterKeys(previous, { it != name}))
+                Maps.filterKeys(previous) { it != name})
 
         write(next)
     }
 
 
     fun install(name: String, artifact: String, download: URI) {
-        check(! contains(name), {"Already installed: $name"})
+        check(! contains(name)) {"Already installed: $name"}
 
-        logger.info("downloading: {}", download)
-
-        val downloadBytes = download
-                .toURL()
-                .openStream()
-                .use { ByteStreams.toByteArray(it) }
-
-        logger.info("download complete: {}", downloadBytes.size)
+        val downloadBytes = downloadService.download(download)
 
         val destination = archetypeHome.resolve(artifact)
 
