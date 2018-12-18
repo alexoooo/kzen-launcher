@@ -174,7 +174,7 @@ class ProjectLauncher(
                                 display = Display.inlineBlock
                             }
 
-                            +"Kzen: Automate all the things, for fun and profit"
+                            +"Kzen: Automate all the things"
                         }
                     }
                 }
