@@ -8,7 +8,7 @@ import kotlin.browser.window
 import kotlin.dom.clear
 
 
-fun main(args: Array<String>) {
+fun main() {
 //    val pathname = window.location.pathname
 //    val withoutFile = pathname.substringBeforeLast("/")
 //    console.log("^^^^", withoutFile)

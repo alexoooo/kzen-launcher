@@ -10,7 +10,7 @@ import react.ReactElement
 import kotlin.js.Json
 
 
-// TODO: consolidate with
+// TODO: consolidate with materialDsl
 
 @JsName("Button")
 external class MaterialButton : Component<MaterialButtonProps, RState> {
@@ -21,7 +21,7 @@ external interface MaterialButtonProps : RProps {
     var id: String
     var variant: String
     var color: String
-    var style: ButtonStyle
+    var style: Json
     var size: String
     var onClick: () -> Unit
     var disabled: Boolean
@@ -51,11 +51,14 @@ external interface MaterialIconButtonProps : RProps {
 
 
 @JsName("Typography")
-external class MaterialTypography : Component<RProps, RState> {
+external class MaterialTypography : Component<TypographyProps, RState> {
     override fun render(): ReactElement?
 }
 
 
+external interface TypographyProps : RProps {
+    var style: Json
+}
 
 
 @JsName("Card")
@@ -187,6 +190,11 @@ external interface AppBarProps : RProps {
 
 
 @JsName("Toolbar")
-external class MaterialToolbar : Component<RProps, RState> {
+external class MaterialToolbar : Component<ToolbarProps, RState> {
     override fun render(): ReactElement?
 }
+
+external interface ToolbarProps : RProps {
+    var style: Json
+}
+

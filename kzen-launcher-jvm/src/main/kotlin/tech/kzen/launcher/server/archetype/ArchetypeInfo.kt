@@ -4,4 +4,10 @@ import java.nio.file.Path
 
 
 data class ArchetypeInfo(
-        val artifact: Path)
+        var title: String,
+        var description: String,
+        val location: Path
+) {
+
+//    val artifact = archetype.location!!.substringAfterLast('/')
+}

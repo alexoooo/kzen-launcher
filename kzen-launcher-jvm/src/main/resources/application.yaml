@@ -1,10 +1,13 @@
 
-# TODO: use this instead of ArchetypeRepo hard coding
+kzen:
+  archetypes:
+    - name: KzenProjectJar-0.4.0
+      title: "Desktop Automation"
+      description: "Visually control a browser and more"
+      url: https://github.com/alexoooo/kzen-project/releases/download/v0.4.0/kzen-project-jvm-0.4.0.jar
 
-archetypes:
-- https://github.com/alexoooo/kzen-project/releases/download/v0.0.5/kzen-project-jvm-0.0.5.jar
-#- https://github.com/alexoooo/kzen-project/releases/download/v0.0.5/kzen-project-0.0.5.zip
-#- https://github.com/alexoooo/kzen-project/archive/v0.0.5.zip
-#- https://github.com/alexoooo/kzen-project/releases/download/v0.0.4/kzen-project-0.0.4.zip
-#- https://raw.githubusercontent.com/alexoooo/kzen-repo/master/artifacts/tech/kzen/project/kzen-project/0.0.1/kzen-project-0.0.1.zip
+    - name: KzenProjectZip-0.4.0
+      title: "Desktop Automation with Scripting"
+      description: "Includes source code, can be used with IDE (IntelliJ, Eclipse, etc.)"
+      url: https://github.com/alexoooo/kzen-project/releases/download/v0.4.0/kzen-project-0.4.0.zip
 

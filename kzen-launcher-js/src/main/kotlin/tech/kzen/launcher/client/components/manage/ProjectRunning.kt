@@ -1,4 +1,4 @@
-package tech.kzen.launcher.client.components
+package tech.kzen.launcher.client.components.manage
 
 
 import kotlinx.css.Color

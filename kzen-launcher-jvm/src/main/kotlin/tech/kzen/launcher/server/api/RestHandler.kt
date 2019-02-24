@@ -70,7 +70,7 @@ class RestHandler(
 
         val json = archetypes.entries
                 .joinToString(prefix = "{", postfix = "}") {
-                    val path = it.value.artifact
+                    val path = it.value.location
                     val normalized = path.toString().replace('\\', '/')
 
                     "${IoUtil.escapeJsonString(it.key)}:${IoUtil.escapeJsonString(normalized)}"

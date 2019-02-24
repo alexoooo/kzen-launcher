@@ -50,9 +50,9 @@ class ProjectCreator(
         check(! Files.exists(home)) {"already exists: $home"}
 
         val archetypeInfo = archetypeRepo.get(archetypeName)
-        val archetypeBytes = Files.readAllBytes(archetypeInfo.artifact)
+        val archetypeBytes = Files.readAllBytes(archetypeInfo.location)
 
-        val artifactExtension = MoreFiles.getFileExtension(archetypeInfo.artifact)
+        val artifactExtension = MoreFiles.getFileExtension(archetypeInfo.location)
 
         when (artifactExtension) {
             "zip" -> {
@@ -65,7 +65,7 @@ class ProjectCreator(
             }
 
             else ->
-                    throw IllegalStateException("Unknown archetype: ${archetypeInfo.artifact}")
+                    throw IllegalStateException("Unknown archetype: ${archetypeInfo.location}")
         }
 
         return home

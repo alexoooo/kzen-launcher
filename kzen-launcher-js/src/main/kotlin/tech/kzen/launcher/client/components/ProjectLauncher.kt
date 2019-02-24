@@ -7,6 +7,8 @@ import styled.*
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.clientRestApi
 import tech.kzen.launcher.client.api.shellRestApi
+import tech.kzen.launcher.client.components.add.NewProjectScreen
+import tech.kzen.launcher.client.components.manage.ManageProjectsScreen
 import tech.kzen.launcher.client.service.ErrorBus
 import tech.kzen.launcher.client.wrap.*
 import tech.kzen.launcher.common.dto.ProjectDetail
@@ -27,9 +29,20 @@ class ProjectLauncher(
             var artifacts: Map<String, String>?,
             var projects: List<ProjectDetail>?,
             var runningProjects: List<String>?,
+
             var loading: Boolean = false,
-            var errorMessage: String? = null
+            var errorMessage: String? = null,
+
+            var creating: Boolean = false
     ): RState
+
+
+    //-----------------------------------------------------------------------------------------------------------------
+    override fun ProjectLauncher.State.init(props: ProjectLauncher.Props) {
+        artifacts = null
+        projects = null
+        runningProjects = null
+    }
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -55,6 +68,8 @@ class ProjectLauncher(
             errorMessage = null
         }
     }
+
+
     override fun onError(message: String) {
         setState {
             this.errorMessage = message
@@ -73,6 +88,7 @@ class ProjectLauncher(
         }
     }
 
+
     private suspend fun loadFromServerAsync() {
         val needArtifacts = (state.artifacts == null)
         val needProjects = (state.projects == null)
@@ -88,7 +104,7 @@ class ProjectLauncher(
 
         if (needArtifacts) {
             val response = clientRestApi.listArtifacts()
-//            console.log("$$ artifacts: $response")
+            console.log("$$ artifacts: $response")
 
             setState {
                 artifacts = response
@@ -97,7 +113,7 @@ class ProjectLauncher(
 
         if (needProjects) {
             val response = clientRestApi.listProjects()
-//            console.log("$$ projects: $response")
+            console.log("$$ projects: $response")
 
             setState {
                 projects = response
@@ -106,7 +122,7 @@ class ProjectLauncher(
 
         if (needRunningProjects) {
             val response = shellRestApi.runningProjects()
-//            console.log("$$ running: $response")
+            console.log("$$ running: $response")
 
             setState {
                 runningProjects = response
@@ -121,21 +137,46 @@ class ProjectLauncher(
 
 
     //-----------------------------------------------------------------------------------------------------------------
+    private fun onCreateToggle() {
+        setState {
+            creating = ! state.creating
+        }
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
     override fun RBuilder.render() {
         renderHeader()
 
         renderErrorMessage()
 
-        styledDiv {
-            renderRunning()
-        }
+        if (state.creating) {
+            child(NewProjectScreen::class) {
+                attrs {
+                    artifacts = state.artifacts
 
-        styledDiv {
-            renderCreator()
+                    didCreate = {
+                        setState {
+                            projects = null
+                        }
+                        loadFromServerIfRequired()
+                    }
+                }
+            }
         }
+        else {
+//            console.log("^^^^ rendering ", state.projects, state.runningProjects)
 
-        styledDiv {
-            renderList()
+            child(ManageProjectsScreen::class) {
+                attrs {
+                    projects = state.projects
+                    runningProjects = state.runningProjects
+
+                    didChange = {
+                        loadFromServerIfRequired()
+                    }
+                }
+            }
         }
     }
 
@@ -151,7 +192,19 @@ class ProjectLauncher(
             }
 
             child(MaterialToolbar::class) {
+//                attrs {
+//                    style = reactStyle {
+//                        width = 100.pct
+//                    }
+//                }
+
                 child(MaterialTypography::class) {
+                    attrs {
+                        style = reactStyle {
+                            width = 100.pct
+                        }
+                    }
+
                     styledSpan {
                         css {
                             float = Float.left
@@ -159,7 +212,6 @@ class ProjectLauncher(
 
                         renderLogo()
                     }
-
 
                     styledSpan {
                         css {
@@ -176,6 +228,46 @@ class ProjectLauncher(
 
                             +"Kzen: Automate all the things"
                         }
+                    }
+                }
+
+
+                child(MaterialTypography::class) {
+                    attrs {
+                        style = reactStyle {
+                            float = Float.right
+                        }
+                    }
+
+                    child(MaterialButton::class) {
+                        attrs {
+                            variant = "outlined"
+
+                            style = reactStyle {
+                                width = 12.em
+                                backgroundColor = Color("#649fff")
+
+                                color =
+                                        if (state.creating) {
+                                            Color.white
+                                        }
+                                        else {
+                                            Color.black
+                                        }
+                            }
+
+                            onClick = ::onCreateToggle
+                        }
+
+                        child(AddCircleOutlineIcon::class) {
+                            attrs {
+                                style = reactStyle {
+                                    marginRight = 0.25.em
+                                }
+                            }
+                        }
+
+                        +"New Project"
                     }
                 }
             }
@@ -211,85 +303,6 @@ class ProjectLauncher(
                 }
 
                 +"Error: ${state.errorMessage}"
-            }
-        }
-    }
-
-
-
-    private fun RBuilder.renderRunning() {
-        child(MaterialCard::class) {
-            attrs {
-                style = reactStyle {
-                    backgroundColor = Color.white
-                    margin(2.em)
-                }
-            }
-
-            child(MaterialCardContent::class) {
-                child(ProjectRunning::class) {
-                    attrs.projects = state.runningProjects
-                    attrs.didStop = {
-                        state.runningProjects = null
-                        loadFromServerIfRequired()
-                    }
-                }
-            }
-        }
-    }
-
-
-    private fun RBuilder.renderCreator() {
-        child(MaterialCard::class) {
-            attrs {
-                style = reactStyle {
-                    backgroundColor = Color.white
-                    margin(2.em)
-                }
-            }
-
-            child(MaterialCardContent::class) {
-                child(ProjectCreate::class) {
-                    attrs.artifacts = state.artifacts
-                    attrs.didCreate = {
-                        state.projects = null
-                        loadFromServerIfRequired()
-                    }
-                }
-            }
-        }
-    }
-
-
-    private fun RBuilder.renderList() {
-        child(MaterialCard::class) {
-            attrs {
-                style = reactStyle {
-                    backgroundColor = Color.white
-                    margin(2.em)
-                }
-            }
-
-            child(MaterialCardContent::class) {
-                child(ProjectList::class) {
-                    attrs.projects = state.projects
-                            ?.filter{ ! (state.runningProjects?.contains(it.name) ?: false) }
-
-                    attrs.didStart = {
-                        state.runningProjects = null
-                        loadFromServerIfRequired()
-                    }
-
-                    attrs.didRemove = {
-                        state.projects = null
-                        loadFromServerIfRequired()
-                    }
-
-                    attrs.didDelete = {
-                        state.projects = null
-                        loadFromServerIfRequired()
-                    }
-                }
             }
         }
     }

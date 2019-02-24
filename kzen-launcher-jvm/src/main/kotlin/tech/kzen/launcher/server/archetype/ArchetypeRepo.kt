@@ -8,10 +8,10 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableSet
 import com.google.common.collect.Maps
-import com.google.common.io.ByteStreams
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import tech.kzen.launcher.server.environment.LauncherEnvironment
+import tech.kzen.launcher.server.properties.KzenProperties
 import tech.kzen.launcher.server.service.DownloadService
 import java.net.URI
 import java.nio.file.Files
@@ -22,7 +22,8 @@ import javax.annotation.PostConstruct
 
 @Component
 class ArchetypeRepo(
-        private val downloadService: DownloadService
+        private val downloadService: DownloadService,
+        private val kzenProperties: KzenProperties
 ) {
     //-----------------------------------------------------------------------------------------------------------------
     companion object {
@@ -36,22 +37,9 @@ class ArchetypeRepo(
 
         private val parser = ObjectMapper(YAMLFactory())
 
-        private const val pathProperty = "path"
-
-
-        // TODO: read artifacts from resource, or lookup dynamically
-        private const val projectVersion = "0.3.2"
-
-        private const val artifactPrefix =
-            "https://github.com/alexoooo/kzen-project/releases/download/v$projectVersion"
-
-        private const val automationZipName = "automation-zip"
-        private const val automationZipArtifact = "kzen-project-$projectVersion.zip"
-        private val automationZipLocation = URI("$artifactPrefix/$automationZipArtifact")
-
-        private const val automationJarName = "automation-jar"
-        private const val automationJarArtifact = "kzen-project-jvm-$projectVersion.jar"
-        private val automationJarLocation = URI("$artifactPrefix/$automationJarArtifact")
+        private const val titleKey = "title"
+        private const val descriptionKey = "description"
+        private const val locationKey = "location"
     }
 
 
@@ -60,12 +48,19 @@ class ArchetypeRepo(
     fun init() {
         val initial = read()
 
-        if (! initial.containsKey(automationJarName)) {
-            install(automationJarName, automationJarArtifact, automationJarLocation)
-        }
+        for (archetype in kzenProperties.archetypes) {
+            if (! initial.containsKey(archetype.name)) {
+                val artifactName = archetype.url!!.substringAfterLast('/')
+                val locationUri = URI(archetype.url)
 
-        if (! initial.containsKey(automationZipName)) {
-            install(automationZipName, automationZipArtifact, automationZipLocation)
+                val archetypeInfo = ArchetypeInfo(
+                        archetype.title!!,
+                        archetype.description!!,
+                        locate(artifactName)
+                )
+
+                install(archetype.name!!, archetypeInfo, locationUri)
+            }
         }
     }
 
@@ -103,15 +98,12 @@ class ArchetypeRepo(
 //    }
 
 
-    fun add(name: String, root: Path) {
-        val info = ArchetypeInfo(
-                artifact = root)
-
+    fun add(name: String, artifact: ArchetypeInfo) {
         val previous = read()
 
         val next = ImmutableMap.builder<String, ArchetypeInfo>()
                 .putAll(previous)
-                .put(name, info)
+                .put(name, artifact)
                 .build()
 
         write(next)
@@ -121,7 +113,7 @@ class ArchetypeRepo(
     fun remove(name: String) {
         val previous = read()
 
-        val artifact = previous[name]?.artifact
+        val artifact = previous[name]?.location
                 ?: throw IllegalArgumentException("Archetype not found: $name")
 
         Files.deleteIfExists(artifact)
@@ -133,17 +125,24 @@ class ArchetypeRepo(
     }
 
 
-    fun install(name: String, artifact: String, download: URI) {
+    fun locate(artifactName: String): Path {
+        return archetypeHome.resolve(artifactName)
+    }
+
+
+    fun install(
+            name: String,
+            archetypeInfo: ArchetypeInfo,
+            download: URI
+    ) {
         check(! contains(name)) {"Already installed: $name"}
 
         val downloadBytes = downloadService.download(download)
 
-        val destination = archetypeHome.resolve(artifact)
+        Files.createDirectories(archetypeInfo.location.parent)
+        Files.write(archetypeInfo.location, downloadBytes)
 
-        Files.createDirectories(destination.parent)
-        Files.write(destination, downloadBytes)
-
-        add(name, destination)
+        add(name, archetypeInfo)
     }
 
 
@@ -164,7 +163,9 @@ class ArchetypeRepo(
 
     private fun unbind(info: ArchetypeInfo): Map<String, Any> {
         return ImmutableMap.of(
-                pathProperty, info.artifact.toAbsolutePath().normalize().toString())
+                titleKey, info.title,
+                descriptionKey, info.description,
+                locationKey, info.location.toAbsolutePath().normalize().toString())
     }
 
 
@@ -200,14 +201,19 @@ class ArchetypeRepo(
         val properties = jsonNode as? ObjectNode
                 ?: throw IllegalArgumentException("Key-value map expected ($name): $jsonNode")
 
-        val propertyNames = ImmutableSet.copyOf(properties.fieldNames())
-        check(propertyNames.contains(pathProperty), {"Missing property ($name): $pathProperty"})
+        val title = properties[titleKey] as? TextNode
+                ?: throw IllegalStateException("Text expected ($name.$titleKey): ${properties[titleKey]}")
 
-        val path = properties[pathProperty] as? TextNode
-                ?: throw IllegalStateException("Text expected ($name.$pathProperty): ${properties[pathProperty]}")
+        val description = properties[descriptionKey] as? TextNode
+                ?: throw IllegalStateException("Text expected ($name.$descriptionKey): ${properties[descriptionKey]}")
+
+        val location = properties[locationKey] as? TextNode
+                ?: throw IllegalStateException("Text expected ($name.$locationKey): ${properties[locationKey]}")
 
         return ArchetypeInfo(
-                Paths.get(path.textValue()))
+                title.textValue(),
+                description.textValue(),
+                Paths.get(location.textValue()))
     }
 
 

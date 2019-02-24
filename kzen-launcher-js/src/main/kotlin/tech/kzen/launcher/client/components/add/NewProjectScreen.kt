@@ -1,4 +1,4 @@
-package tech.kzen.launcher.client.components
+package tech.kzen.launcher.client.components.add
 
 import kotlinx.css.*
 import org.w3c.dom.HTMLInputElement
@@ -12,9 +12,9 @@ import tech.kzen.launcher.client.wrap.*
 
 
 @Suppress("unused")
-class ProjectCreate(
-        props: ProjectCreate.Props
-) : RComponent<ProjectCreate.Props, ProjectCreate.State>(props) {
+class NewProjectScreen(
+        props: NewProjectScreen.Props
+) : RComponent<NewProjectScreen.Props, NewProjectScreen.State>(props) {
     //-----------------------------------------------------------------------------------------------------------------
     companion object {
         private const val defaultName = "new-project-name"
@@ -116,96 +116,102 @@ class ProjectCreate(
 
     //-----------------------------------------------------------------------------------------------------------------
     override fun RBuilder.render() {
-        console.log("render: ${props.artifacts} | ${state.name} | ${state.type}")
+//        console.log("render: ${props.artifacts} | ${state.name} | ${state.type}")
 
-        h2 {
-            +"New Project"
+        child(MaterialCard::class) {
+            attrs {
+                style = reactStyle {
+                    backgroundColor = Color.white
+                    margin(2.em)
+                }
+            }
+
+            child(MaterialCardContent::class) {
+                h2 {
+                    +"Create"
+                }
+
+                renderCreate()
+            }
         }
 
+        child(MaterialCard::class) {
+            attrs {
+                style = reactStyle {
+                    backgroundColor = Color.white
+                    margin(2.em)
+                }
+            }
+
+            child(MaterialCardContent::class) {
+                h2 {
+                    +"Import"
+                }
+
+                renderImport()
+            }
+        }
+    }
+
+
+    private fun RBuilder.renderCreate() {
         styledDiv {
             css {
-//                backgroundColor = Color.lightGoldenrodYellow
+                display = Display.inlineBlock
+            }
+
+            styledDiv {
+                renderName()
             }
 
             styledDiv {
                 css {
-//                    backgroundColor = Color.lightCyan
-
-                    display = Display.inlineBlock
+                    marginTop = 1.em
+                    marginBottom = 1.em
                 }
 
-                styledDiv {
-                    renderName()
-                }
-
-                styledDiv {
-                    css {
-                        marginTop = 1.em
-                        marginBottom = 1.em
-                    }
-
-                    renderTypeSelect()
-                }
-
-                div {
-                    child(MaterialButton::class) {
-                        attrs {
-                            variant = "outlined"
-                            onClick = ::onCreate
-                        }
-
-                        +"Create"
-                    }
-                }
+                renderTypeSelect()
             }
 
+            div {
+                child(MaterialButton::class) {
+                    attrs {
+                        variant = "outlined"
+                        onClick = ::onCreate
+                    }
+
+                    +"Create"
+                }
+            }
+        }
+    }
+
+
+    private fun RBuilder.renderImport() {
+        styledDiv {
+            css {
+                //                    backgroundColor = Color.lightSalmon
+
+                display = Display.inlineBlock
+            }
 
             styledDiv {
                 css {
-//                    backgroundColor = Color.lightSteelBlue
-
-                    marginLeft = 2.em
-                    marginRight = 2.em
-                    display = Display.inlineBlock
-
-                    borderLeftWidth = 1.px
-                    borderLeftStyle = BorderStyle.solid
-                    borderLeftColor = Color.lightGray
-
-                    marginTop = 4.em
-                    verticalAlign = VerticalAlign.top
-
-                    height = 3.em
+//                    marginTop = 1.5.em
+                    marginBottom = 1.em
                 }
-                +" "
+
+                renderPath()
             }
 
-
-            styledDiv {
-                css {
-//                    backgroundColor = Color.lightSalmon
-
-                    display = Display.inlineBlock
-                }
-
-                styledDiv {
-                    css {
-                        marginTop = 1.5.em
-                        marginBottom = 1.em
+            div {
+                child(MaterialButton::class) {
+                    attrs {
+                        variant = "outlined"
+                        onClick = ::onImport
                     }
 
-                    renderPath()
-                }
-
-                div {
-                    child(MaterialButton::class) {
-                        attrs {
-                            variant = "outlined"
-                            onClick = ::onImport
-                        }
-
-                        +"Import"
-                    }
+                    +"Import"
                 }
             }
         }
@@ -234,22 +240,14 @@ class ProjectCreate(
 
 
     private fun RBuilder.renderTypeSelect() {
-//        +"asdasd:"
-//
-//        br {}
-
         if (props.artifacts == null || state.type == null) {
             +"Loading..."
         }
         else {
-
-//            console.log("######## state.type: ${state.type}")
             styledDiv {
                 css {
                     width = 24.em
                 }
-//                console.log("^^^^^ ReactSelect::class - default", ReactSelect::class)
-
                 val selectOptions = props
                         .artifacts!!
                         .keys
@@ -277,12 +275,8 @@ class ProjectCreate(
                         options = selectOptions
 
                         onChange = {
-//                            console.log("CHANGED!!!! -", it)
                             onTypeChange(it.value)
                         }
-
-//                        components = json(
-//                                "Control" to ::materialReactSelectController)
                     }
                 }
             }

@@ -1,4 +1,4 @@
-package tech.kzen.launcher.client.components
+package tech.kzen.launcher.client.components.manage
 
 
 import kotlinx.css.*
@@ -17,10 +17,13 @@ import tech.kzen.launcher.common.dto.ProjectDetail
 
 
 @Suppress("unused")
-class ProjectList : RComponent<ProjectList.Props, ProjectList.State>() {
+class ProjectList(
+        props: ProjectList.Props
+): RComponent<ProjectList.Props, ProjectList.State>(props) {
     //-----------------------------------------------------------------------------------------------------------------
     class Props(
             var projects: List<ProjectDetail>?,
+
             var didStart: (() -> Unit)?,
             var didRemove: (() -> Unit)?,
             var didDelete: (() -> Unit)?
@@ -97,7 +100,7 @@ class ProjectList : RComponent<ProjectList.Props, ProjectList.State>() {
                     css {
                         fontSize = 1.5.em
                     }
-                    +"None, please Create New Project (above)"
+                    +"None, please add a New Project (top right)"
                 }
             }
             else {
