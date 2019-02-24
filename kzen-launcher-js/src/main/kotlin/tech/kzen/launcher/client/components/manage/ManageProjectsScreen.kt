@@ -21,7 +21,8 @@ class ManageProjectsScreen(
             var projects: List<ProjectDetail>?,
             var runningProjects: List<String>?,
 
-            var didChange: (() -> Unit)?
+            var didAdd: (() -> Unit)?,
+            var didRun: (() -> Unit)?
     ): RProps
 
 
@@ -87,7 +88,7 @@ class ManageProjectsScreen(
 
                         didStop = {
                             state.runningProjects = null
-                            props.didChange?.invoke()
+                            props.didAdd?.invoke()
                         }
                     }
                 }
@@ -112,25 +113,16 @@ class ManageProjectsScreen(
                                 ?.filter{ ! (state.runningProjects?.contains(it.name) ?: false) }
 
                         didStart = {
-                            setState {
-                                runningProjects = null
-                            }
-                            props.didChange?.invoke()
+                            props.didRun?.invoke()
                         }
 
 
                         didRemove = {
-                            setState {
-                                projects = null
-                            }
-                            props.didChange?.invoke()
+                            props.didAdd?.invoke()
                         }
 
                         didDelete = {
-                            setState {
-                                projects = null
-                            }
-                            props.didChange?.invoke()
+                            props.didAdd?.invoke()
                         }
                     }
                 }

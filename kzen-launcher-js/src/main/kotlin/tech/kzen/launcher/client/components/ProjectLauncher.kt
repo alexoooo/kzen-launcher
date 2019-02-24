@@ -104,7 +104,7 @@ class ProjectLauncher(
 
         if (needArtifacts) {
             val response = clientRestApi.listArtifacts()
-            console.log("$$ artifacts: $response")
+//            console.log("$$ artifacts: $response")
 
             setState {
                 artifacts = response
@@ -113,7 +113,7 @@ class ProjectLauncher(
 
         if (needProjects) {
             val response = clientRestApi.listProjects()
-            console.log("$$ projects: $response")
+//            console.log("$$ projects: $response")
 
             setState {
                 projects = response
@@ -122,7 +122,7 @@ class ProjectLauncher(
 
         if (needRunningProjects) {
             val response = shellRestApi.runningProjects()
-            console.log("$$ running: $response")
+//            console.log("$$ running: $response")
 
             setState {
                 runningProjects = response
@@ -157,6 +157,7 @@ class ProjectLauncher(
 
                     didCreate = {
                         setState {
+                            creating = false
                             projects = null
                         }
                         loadFromServerIfRequired()
@@ -172,7 +173,17 @@ class ProjectLauncher(
                     projects = state.projects
                     runningProjects = state.runningProjects
 
-                    didChange = {
+                    didAdd = {
+                        setState {
+                            projects = null
+                        }
+                        loadFromServerIfRequired()
+                    }
+
+                    didRun = {
+                        setState {
+                            runningProjects = null
+                        }
                         loadFromServerIfRequired()
                     }
                 }
