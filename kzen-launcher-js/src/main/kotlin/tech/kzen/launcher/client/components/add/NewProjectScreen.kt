@@ -9,6 +9,8 @@ import styled.styledDiv
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.clientRestApi
 import tech.kzen.launcher.client.wrap.*
+import tech.kzen.launcher.common.dto.ArchetypeDetail
+import kotlin.js.json
 
 
 @Suppress("unused")
@@ -24,7 +26,7 @@ class NewProjectScreen(
 
     //-----------------------------------------------------------------------------------------------------------------
     class Props(
-            var artifacts: Map<String, String>?,
+            var artifacts: List<ArchetypeDetail>?,
             var didCreate: (() -> Unit)?
     ) : RProps
 
@@ -42,7 +44,7 @@ class NewProjectScreen(
 
         name = defaultName
         path = defaultPath
-        type = props.artifacts?.keys?.iterator()?.next()
+        type = props.artifacts?.iterator()?.next()?.name
     }
 
 
@@ -50,7 +52,7 @@ class NewProjectScreen(
     override fun componentDidUpdate(prevProps: Props, prevState: State, snapshot: Any) {
         if (state.type == null && props.artifacts != null) {
             setState {
-                type = props.artifacts!!.keys.iterator().next()
+                type = props.artifacts!!.iterator().next().name
             }
         }
     }
@@ -121,6 +123,8 @@ class NewProjectScreen(
         child(MaterialCard::class) {
             attrs {
                 style = reactStyle {
+                    zIndex = -10
+
                     backgroundColor = Color.white
                     margin(2.em)
                 }
@@ -128,7 +132,7 @@ class NewProjectScreen(
 
             child(MaterialCardContent::class) {
                 h2 {
-                    +"Create"
+                    +"Create New"
                 }
 
                 renderCreate()
@@ -145,7 +149,7 @@ class NewProjectScreen(
 
             child(MaterialCardContent::class) {
                 h2 {
-                    +"Import"
+                    +"Import Existing"
                 }
 
                 renderImport()
@@ -190,8 +194,6 @@ class NewProjectScreen(
     private fun RBuilder.renderImport() {
         styledDiv {
             css {
-                //                    backgroundColor = Color.lightSalmon
-
                 display = Display.inlineBlock
             }
 
@@ -247,11 +249,11 @@ class NewProjectScreen(
             styledDiv {
                 css {
                     width = 24.em
+                    position = Position.relative
                 }
                 val selectOptions = props
                         .artifacts!!
-                        .keys
-                        .map { ReactSelectOption(it, it) }
+                        .map { ReactSelectOption(it.name, it.title + " - " + it.description) }
                         .toTypedArray()
 
                 val selectId = "material-react-select-id"
@@ -273,6 +275,10 @@ class NewProjectScreen(
                         value = selectOptions.find { it.value == state.type }
 
                         options = selectOptions
+
+//                        menuContainerStyle = json(
+//                                "zIndex" to 999
+//                        )
 
                         onChange = {
                             onTypeChange(it.value)

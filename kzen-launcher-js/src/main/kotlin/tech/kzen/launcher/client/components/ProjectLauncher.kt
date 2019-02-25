@@ -11,6 +11,7 @@ import tech.kzen.launcher.client.components.add.NewProjectScreen
 import tech.kzen.launcher.client.components.manage.ManageProjectsScreen
 import tech.kzen.launcher.client.service.ErrorBus
 import tech.kzen.launcher.client.wrap.*
+import tech.kzen.launcher.common.dto.ArchetypeDetail
 import tech.kzen.launcher.common.dto.ProjectDetail
 
 
@@ -26,7 +27,7 @@ class ProjectLauncher(
     ): RProps
 
     class State(
-            var artifacts: Map<String, String>?,
+            var artifacts: List<ArchetypeDetail>?,
             var projects: List<ProjectDetail>?,
             var runningProjects: List<String>?,
 

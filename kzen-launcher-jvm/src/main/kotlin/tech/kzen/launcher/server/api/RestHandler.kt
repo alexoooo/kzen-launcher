@@ -10,6 +10,7 @@ import org.springframework.web.reactive.function.server.body
 import tech.kzen.launcher.server.project.ProjectCreator
 import reactor.core.publisher.Mono
 import tech.kzen.launcher.common.CommonApi
+import tech.kzen.launcher.common.dto.ArchetypeDetail
 import tech.kzen.launcher.common.util.IoUtil
 import tech.kzen.launcher.server.archetype.ArchetypeRepo
 import tech.kzen.launcher.server.project.ProjectRepo
@@ -68,15 +69,28 @@ class RestHandler(
     fun listArchetypes(serverRequest: ServerRequest): Mono<ServerResponse> {
         val archetypes = archetypeRepo.all()
 
-        val json = archetypes.entries
-                .joinToString(prefix = "{", postfix = "}") {
+        val archetypeDetails = archetypes
+                .entries
+                .map {
                     val path = it.value.location
                     val normalized = path.toString().replace('\\', '/')
 
-                    "${IoUtil.escapeJsonString(it.key)}:${IoUtil.escapeJsonString(normalized)}"
+                    ArchetypeDetail(
+                            it.key, it.value.title, it.value.description, normalized)
                 }
+                .toList()
 
-        return ServerResponse.ok().body(Mono.just(json))
+//        val json = archetypes.entries
+//                .joinToString(prefix = "{", postfix = "}") {
+//                    val path = it.value.location
+//                    val normalized = path.toString().replace('\\', '/')
+//
+//                    "${IoUtil.escapeJsonString(it.key)}:${IoUtil.escapeJsonString(normalized)}"
+//                }
+
+        return ServerResponse.ok()
+//                .body(Mono.just(json))
+                .body(Mono.just(archetypeDetails))
     }
 
 

@@ -1,27 +1,29 @@
 package tech.kzen.launcher.client.api
 
 
-import kotlinext.js.getOwnPropertyNames
 import tech.kzen.launcher.client.service.ClientRestService
-import tech.kzen.launcher.client.service.ErrorBus
+import tech.kzen.launcher.client.util.ClientJsonUtils
 import tech.kzen.launcher.common.CommonApi
+import tech.kzen.launcher.common.dto.ArchetypeDetail
 import tech.kzen.launcher.common.dto.ProjectDetail
 import kotlin.js.Json
 
 
 
-class ClientProjectRestApi(private val baseUrl: String, private val baseWsUrl: String) {
-    suspend fun listArtifacts(): Map<String, String> {
+class ClientProjectRestApi(
+        private val baseUrl: String,
+        private val baseWsUrl: String
+) {
+    suspend fun listArtifacts(): List<ArchetypeDetail> {
         val artifactList = ClientRestService.getWithErrorIntercept("$baseUrl${CommonApi.listArchetypes}")
 
-        val artifacts = JSON.parse<Json>(artifactList)
+        val artifactsJson = JSON.parse<Array<Json>>(artifactList)
 
-        val nameToUrl = mutableMapOf<String, String>()
-        for (property in artifacts.getOwnPropertyNames()) {
-            nameToUrl[property] = artifacts[property] as String
-        }
+        @Suppress("UNCHECKED_CAST")
+        val artifactsCollection = ClientJsonUtils.toList(artifactsJson) as List<Map<String, String>>
 
-        return nameToUrl
+
+        return artifactsCollection.map { ArchetypeDetail.fromCollection(it) }
     }
 
 

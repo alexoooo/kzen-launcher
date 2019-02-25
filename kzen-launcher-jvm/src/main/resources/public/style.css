@@ -37,6 +37,33 @@
 
 
 // https://github.com/JedWatson/react-select/issues/1085
+//.Select.is-open {
+//    position: relative;
+//    z-index: 1000;
+//}
+//
 //.Select-menu-outer {
-//    z-index: 1000 !important;
+//    background-color: red;
+//
+//    z-index: 999 !important
+//}
+//
+//.Select {
+//    background-color: red;
+//    width: 444px !important;
+//    margin-right: 5px;
+//    z-index: 0 !important;
+//}
+//
+//.Select.is-open {
+//    background-color: red;
+//    position: relative;
+//	z-index: 999 !important;
+//}
+//
+//.Select-menu {
+//    background-color: red;
+//    position: fixed !important;
+//    width: 440px !important;
+//    margin: 1px;
 //}
