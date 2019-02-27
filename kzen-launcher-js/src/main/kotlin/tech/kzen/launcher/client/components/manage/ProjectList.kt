@@ -90,7 +90,7 @@ class ProjectList(
             styledSpan {
                 css {
                     float = Float.right
-                    marginTop = (-65).px
+                    marginTop = (-55).px
                 }
                 child(MaterialCircularProgress::class) {}
             }
@@ -181,6 +181,14 @@ class ProjectList(
                             }
                         }
 
+                        child(PlayArrowIcon::class) {
+                            attrs {
+                                style = reactStyle {
+                                    marginRight = 0.25.em
+                                }
+                            }
+                        }
+
                         +"Run"
                     }
                 }
@@ -201,6 +209,14 @@ class ProjectList(
                                 }
                             }
 
+                            child(DeleteIcon::class) {
+                                attrs {
+                                    style = reactStyle {
+                                        marginRight = 0.25.em
+                                    }
+                                }
+                            }
+
                             +"Delete"
                         }
                     }
@@ -217,6 +233,14 @@ class ProjectList(
                                 variant = "outlined"
                                 onClick = {
                                     onRemove(project.name)
+                                }
+                            }
+
+                            child(RemoveCircleOutlineIcon::class) {
+                                attrs {
+                                    style = reactStyle {
+                                        marginRight = 0.25.em
+                                    }
                                 }
                             }
 

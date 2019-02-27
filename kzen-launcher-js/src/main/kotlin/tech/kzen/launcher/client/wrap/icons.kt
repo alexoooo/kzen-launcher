@@ -29,6 +29,18 @@ external class AddCircleOutlineIcon : Component<IconProps, RState> {
 }
 
 
+@JsName("RemoveCircleOutline")
+external class RemoveCircleOutlineIcon : Component<IconProps, RState> {
+    override fun render(): ReactElement?
+}
+
+
+@JsName("Stop")
+external class StopIcon : Component<IconProps, RState> {
+    override fun render(): ReactElement?
+}
+
+
 @JsName("Delete")
 external class DeleteIcon : Component<IconProps, RState> {
     override fun render(): ReactElement?

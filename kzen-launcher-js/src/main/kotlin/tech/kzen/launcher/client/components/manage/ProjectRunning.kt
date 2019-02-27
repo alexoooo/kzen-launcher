@@ -1,11 +1,7 @@
 package tech.kzen.launcher.client.components.manage
 
-
-import kotlinx.css.Color
 import kotlinx.css.em
 import kotlinx.css.px
-import kotlinx.html.InputType
-import kotlinx.html.js.onClickFunction
 import react.*
 import react.dom.*
 import styled.css
@@ -13,9 +9,7 @@ import styled.styledH2
 import styled.styledSpan
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.shellRestApi
-import tech.kzen.launcher.client.wrap.MaterialCard
-import tech.kzen.launcher.client.wrap.MaterialCardContent
-import tech.kzen.launcher.client.wrap.reactStyle
+import tech.kzen.launcher.client.wrap.*
 
 
 @Suppress("unused")
@@ -73,13 +67,24 @@ class ProjectRunning : RComponent<ProjectRunning.Props, RState>() {
                         +(project)
                     }
 
-                    input (type = InputType.button) {
+                    child(MaterialButton::class) {
                         attrs {
-                            value = "Stop"
-                            onClickFunction = {
+                            variant = "outlined"
+
+                            onClick = {
                                 onStop(project)
                             }
                         }
+
+                        child(StopIcon::class) {
+                            attrs {
+                                style = reactStyle {
+                                    marginRight = 0.25.em
+                                }
+                            }
+                        }
+
+                        +"Stop"
                     }
                 }
             }
