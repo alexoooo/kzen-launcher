@@ -182,7 +182,7 @@ class ProjectLauncher(
                         loadFromServerIfRequired()
                     }
 
-                    didRun = {
+                    didStartOrStop = {
                         setState {
                             runningProjects = null
                         }

@@ -13,7 +13,9 @@ import tech.kzen.launcher.client.wrap.*
 
 
 @Suppress("unused")
-class ProjectRunning : RComponent<ProjectRunning.Props, RState>() {
+class ProjectRunning(
+        props: ProjectRunning.Props
+): RComponent<ProjectRunning.Props, RState>(props) {
     //-----------------------------------------------------------------------------------------------------------------
     class Props(
             var projects: List<String>?,
@@ -70,6 +72,10 @@ class ProjectRunning : RComponent<ProjectRunning.Props, RState>() {
                     child(MaterialButton::class) {
                         attrs {
                             variant = "outlined"
+
+                            style = reactStyle {
+                                marginLeft = 1.em
+                            }
 
                             onClick = {
                                 onStop(project)
