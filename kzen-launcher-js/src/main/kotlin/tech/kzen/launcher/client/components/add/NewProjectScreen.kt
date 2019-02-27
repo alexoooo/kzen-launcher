@@ -6,11 +6,12 @@ import react.*
 import react.dom.*
 import styled.css
 import styled.styledDiv
+import styled.styledH2
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.clientRestApi
 import tech.kzen.launcher.client.wrap.*
 import tech.kzen.launcher.common.dto.ArchetypeDetail
-import kotlin.js.json
+import kotlin.js.Date
 
 
 @Suppress("unused")
@@ -19,8 +20,22 @@ class NewProjectScreen(
 ) : RComponent<NewProjectScreen.Props, NewProjectScreen.State>(props) {
     //-----------------------------------------------------------------------------------------------------------------
     companion object {
-        private const val defaultName = "new-project-name"
-        private const val defaultPath = "../kzen-proj/existing-project-name"
+        private const val defaultNamePrefix = "My New Project"
+        private const val defaultImportPath = "../kzen-proj/existing-project-name"
+
+        private fun newInitialName(): String {
+            val date = Date()
+
+            val timestampSuffix =
+                    date.getFullYear().toString() + "-" +
+                    ("0" + (date.getMonth() + 1)).takeLast(2) + "-" +
+                    ("0" + date.getDate()).takeLast(2) + " " +
+                    ("0" + date.getHours()).takeLast(2) + "-" +
+                    ("0" + date.getMinutes()).takeLast(2) + "-" +
+                    ("0" + date.getSeconds()).takeLast(2)
+
+            return "$defaultNamePrefix - $timestampSuffix"
+        }
     }
 
 
@@ -42,11 +57,10 @@ class NewProjectScreen(
     override fun State.init(props: Props) {
 //        console.log("init: props.projects - ${props.artifacts}")
 
-        name = defaultName
-        path = defaultPath
+        name = newInitialName()
+        path = defaultImportPath
         type = props.artifacts?.iterator()?.next()?.name
     }
-
 
 
     override fun componentDidUpdate(prevProps: Props, prevState: State, snapshot: Any) {
@@ -85,7 +99,7 @@ class NewProjectScreen(
             clientRestApi.createProject(state.name, state.type!!)
 
             setState {
-                name = defaultName
+                name = newInitialName()
                 type = null
             }
 
@@ -107,7 +121,7 @@ class NewProjectScreen(
             clientRestApi.importProject(state.path)
 
             setState {
-                path = defaultPath
+                path = defaultImportPath
             }
 
             props.didCreate?.invoke()
@@ -120,18 +134,19 @@ class NewProjectScreen(
     override fun RBuilder.render() {
 //        console.log("render: ${props.artifacts} | ${state.name} | ${state.type}")
 
-        child(MaterialCard::class) {
+        child(MaterialPaper::class) {
             attrs {
                 style = reactStyle {
-                    zIndex = -10
-
                     backgroundColor = Color.white
                     margin(2.em)
                 }
             }
 
             child(MaterialCardContent::class) {
-                h2 {
+                styledH2 {
+                    css {
+                        marginTop = 0.px
+                    }
                     +"Create New"
                 }
 
@@ -148,7 +163,10 @@ class NewProjectScreen(
             }
 
             child(MaterialCardContent::class) {
-                h2 {
+                styledH2 {
+                    css {
+                        marginTop = 0.px
+                    }
                     +"Import Existing"
                 }
 
@@ -224,7 +242,7 @@ class NewProjectScreen(
         child(MaterialTextField::class) {
             attrs {
                 style = reactStyle {
-                    width = 24.em
+                    width = 36.em
                 }
 
 //                fullWidth = true
@@ -238,6 +256,16 @@ class NewProjectScreen(
                 }
             }
         }
+
+        styledDiv {
+            css {
+                fontStyle = FontStyle.italic
+                fontSize = 0.8.em
+                color = Color.gray
+            }
+
+            +"(Must be a valid file name)"
+        }
     }
 
 
@@ -248,7 +276,7 @@ class NewProjectScreen(
         else {
             styledDiv {
                 css {
-                    width = 24.em
+                    width = 36.em
                     position = Position.relative
                 }
                 val selectOptions = props

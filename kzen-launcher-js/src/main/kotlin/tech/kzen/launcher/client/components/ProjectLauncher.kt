@@ -141,6 +141,7 @@ class ProjectLauncher(
     private fun onCreateToggle() {
         setState {
             creating = ! state.creating
+            errorMessage = null
         }
     }
 

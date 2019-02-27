@@ -3,6 +3,7 @@ package tech.kzen.launcher.client.components.manage
 
 import kotlinx.css.Color
 import kotlinx.css.em
+import kotlinx.css.px
 import kotlinx.html.InputType
 import kotlinx.html.js.onClickFunction
 import react.*
@@ -41,7 +42,7 @@ class ProjectRunning : RComponent<ProjectRunning.Props, RState>() {
     override fun RBuilder.render() {
         styledH2 {
             css {
-
+                marginTop = 0.px
             }
 
             +"Running Projects"

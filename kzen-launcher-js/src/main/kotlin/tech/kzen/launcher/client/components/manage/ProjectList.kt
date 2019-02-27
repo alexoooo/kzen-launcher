@@ -37,7 +37,7 @@ class ProjectList(
 
     //-----------------------------------------------------------------------------------------------------------------
     private fun onStart(name: String, location: String) {
-        console.log("onStart: name - $name | location - $location")
+//        console.log("onStart: name - $name | location - $location")
 
         setState {
             starting = true
@@ -60,7 +60,7 @@ class ProjectList(
 
 
     private fun onRemove(name: String) {
-        console.log("onRemove: name - $name")
+//        console.log("onRemove: name - $name")
         async {
             clientRestApi.removeProject(name)
             props.didRemove?.invoke()
@@ -69,7 +69,7 @@ class ProjectList(
 
 
     private fun onDelete(name: String) {
-        console.log("onDelete: name - $name")
+//        console.log("onDelete: name - $name")
         async {
             clientRestApi.deleteProject(name)
             props.didDelete?.invoke()
@@ -79,7 +79,10 @@ class ProjectList(
 
     //-----------------------------------------------------------------------------------------------------------------
     override fun RBuilder.render() {
-        h2 {
+        styledH2 {
+            css {
+                marginTop = 0.px
+            }
             +"Available Projects"
         }
 

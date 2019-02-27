@@ -66,8 +66,6 @@ external class MaterialCard : Component<CardProps, RState> {
     override fun render(): ReactElement?
 }
 
-
-
 external interface CardProps : RProps {
     var style: Json
 
@@ -79,6 +77,15 @@ external interface CardProps : RProps {
 
 
 
+@JsName("Paper")
+external class MaterialPaper : Component<PaperProps, RState> {
+    override fun render(): ReactElement?
+}
+
+
+external interface PaperProps : RProps {
+    var style: Json
+}
 
 
 @JsName("Divider")

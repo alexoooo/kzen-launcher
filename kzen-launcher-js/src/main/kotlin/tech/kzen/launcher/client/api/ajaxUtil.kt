@@ -4,6 +4,7 @@ package tech.kzen.launcher.client.api
 import org.w3c.xhr.XMLHttpRequest
 import kotlin.browser.window
 import kotlin.coroutines.*
+import kotlin.js.Json
 import kotlin.js.Promise
 
 
@@ -36,7 +37,14 @@ suspend fun httpGet(url: String): String = suspendCoroutine { c ->
                 c.resume(xhr.response as String)
             }
             else {
-                c.resumeWithException(RuntimeException("HTTP error: ${xhr.status}"))
+                val response = JSON.parse<Json>(xhr.responseText)
+
+                val message = response["message"]
+                        as? String
+                        ?: "${xhr.status} - ${xhr.responseText}"
+
+//                console.log("^^^^^^^^^^^%^%^%^ xhr.response", message)
+                c.resumeWithException(RuntimeException(message))
             }
         }
         null
