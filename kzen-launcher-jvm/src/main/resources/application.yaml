@@ -1,13 +1,13 @@
 
 kzen:
   archetypes:
-    - name: KzenProjectJar-0.4.1
+    - name: KzenProjectJar-0.5.0
       title: "Desktop Automation"
-      description: "Visually control a browser and more - v0.4.1"
-      url: https://github.com/alexoooo/kzen-project/releases/download/v0.4.1/kzen-project-jvm-0.4.1.jar
+      description: "Visually control a browser and more - v0.5.0"
+      url: https://github.com/alexoooo/kzen-project/releases/download/v0.5.0/kzen-project-jvm-0.5.0.jar
 
-    - name: KzenProjectZip-0.4.1
+    - name: KzenProjectZip-0.5.0
       title: "Desktop Automation with Scripting"
-      description: "Includes source code, can be used with IDE - v0.4.1"
-      url: https://github.com/alexoooo/kzen-project/releases/download/v0.4.1/kzen-project-0.4.1.zip
+      description: "Includes source code, can be used with IDE - v0.5.0"
+      url: https://github.com/alexoooo/kzen-project/releases/download/v0.5.0/kzen-project-0.5.0.zip
 

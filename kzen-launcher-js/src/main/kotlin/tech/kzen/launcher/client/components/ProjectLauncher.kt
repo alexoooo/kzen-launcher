@@ -296,7 +296,8 @@ class ProjectLauncher(
 
             styledImg(src = "logo.png") {
                 css {
-                    height = 35.px
+//                    height = 35.px
+                    height = 52.px
                 }
 
                 attrs {
