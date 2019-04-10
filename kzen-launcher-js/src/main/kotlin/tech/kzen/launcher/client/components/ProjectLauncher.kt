@@ -266,7 +266,9 @@ class ProjectLauncher(
                         child(MaterialTab::class) {
                             attrs {
                                 label = "Open"
-                                icon = child(LaunchIcon::class) {}
+                                icon = buildElement {
+                                    child(LaunchIcon::class) {}
+                                }!!
                             }
                         }
 
@@ -274,7 +276,9 @@ class ProjectLauncher(
                         child(MaterialTab::class) {
                             attrs {
                                 label = "New Project"
-                                icon = child(AddCircleOutlineIcon::class) {}
+                                icon = buildElement {
+                                    child(AddCircleOutlineIcon::class) {}
+                                }!!
                             }
                         }
                     }
