@@ -15,7 +15,8 @@ import kotlin.js.Json
 
 // NB: can't create common MaterialIcon interface because 'external' doesn't support that
 
-external interface IconProps : RProps {
+external interface IconProps: RProps {
+    var title: String
     var color: String
     var style: Json
 
@@ -24,133 +25,157 @@ external interface IconProps : RProps {
 
 
 @JsName("AddCircleOutline")
-external class AddCircleOutlineIcon : Component<IconProps, RState> {
+external class AddCircleOutlineIcon: Component<IconProps, RState> {
     override fun render(): ReactElement?
 }
 
 
 @JsName("RemoveCircleOutline")
-external class RemoveCircleOutlineIcon : Component<IconProps, RState> {
+external class RemoveCircleOutlineIcon: Component<IconProps, RState> {
     override fun render(): ReactElement?
 }
 
 
 @JsName("Stop")
-external class StopIcon : Component<IconProps, RState> {
+external class StopIcon: Component<IconProps, RState> {
     override fun render(): ReactElement?
 }
 
 
 @JsName("Delete")
-external class DeleteIcon : Component<IconProps, RState> {
+external class DeleteIcon: Component<IconProps, RState> {
     override fun render(): ReactElement?
 }
 
 
 @JsName("PlayArrow")
-external class PlayArrowIcon : Component<IconProps, RState> {
+external class PlayArrowIcon: Component<IconProps, RState> {
     override fun render(): ReactElement?
 }
 
 
 @JsName("Replay")
-external class ReplayIcon : Component<IconProps, RState> {
+external class ReplayIcon: Component<IconProps, RState> {
     override fun render(): ReactElement?
 }
 
 
 @JsName("KeyboardArrowUp")
-external class KeyboardArrowUpIcon : Component<IconProps, RState> {
+external class KeyboardArrowUpIcon: Component<IconProps, RState> {
     override fun render(): ReactElement?
 }
 
 
 @JsName("KeyboardArrowDown")
-external class KeyboardArrowDownIcon : Component<IconProps, RState> {
+external class KeyboardArrowDownIcon: Component<IconProps, RState> {
     override fun render(): ReactElement?
 }
 
 
 @JsName("Save")
-external class SaveIcon : Component<IconProps, RState> {
+external class SaveIcon: Component<IconProps, RState> {
     override fun render(): ReactElement?
 }
 
 
 @JsName("Cancel")
-external class CancelIcon : Component<IconProps, RState> {
+external class CancelIcon: Component<IconProps, RState> {
     override fun render(): ReactElement?
 }
 
 
 @JsName("Close")
-external class CloseIcon : Component<IconProps, RState> {
+external class CloseIcon: Component<IconProps, RState> {
     override fun render(): ReactElement?
 }
 
 
 @JsName("ArrowDownward")
-external class ArrowDownwardIcon : Component<IconProps, RState> {
+external class ArrowDownwardIcon: Component<IconProps, RState> {
     override fun render(): ReactElement?
 }
 
 
 @JsName("OpenInNew")
-external class OpenInNewIcon : Component<IconProps, RState> {
+external class OpenInNewIcon: Component<IconProps, RState> {
     override fun render(): ReactElement?
 }
 
 
 @JsName("Http")
-external class HttpIcon : Component<IconProps, RState> {
+external class HttpIcon: Component<IconProps, RState> {
     override fun render(): ReactElement?
 }
 
 
 @JsName("Keyboard")
-external class KeyboardIcon : Component<IconProps, RState> {
+external class KeyboardIcon: Component<IconProps, RState> {
     override fun render(): ReactElement?
 }
 
 
 @JsName("TouchApp")
-external class TouchAppIcon : Component<IconProps, RState> {
+external class TouchAppIcon: Component<IconProps, RState> {
     override fun render(): ReactElement?
 }
 
 
 @JsName("Message")
-external class MessageIcon : Component<IconProps, RState> {
+external class MessageIcon: Component<IconProps, RState> {
     override fun render(): ReactElement?
 }
 
 
 @JsName("Texture")
-external class TextureIcon : Component<IconProps, RState> {
+external class TextureIcon: Component<IconProps, RState> {
     override fun render(): ReactElement?
 }
 
 
 @JsName("Timer")
-external class TimerIcon : Component<IconProps, RState> {
+external class TimerIcon: Component<IconProps, RState> {
     override fun render(): ReactElement?
 }
 
 
 @JsName("Edit")
-external class EditIcon : Component<IconProps, RState> {
+external class EditIcon: Component<IconProps, RState> {
     override fun render(): ReactElement?
 }
 
 
 @JsName("Pause")
-external class PauseIcon : Component<IconProps, RState> {
+external class PauseIcon: Component<IconProps, RState> {
     override fun render(): ReactElement?
 }
 
 
 @JsName("Send")
-external class SendIcon : Component<IconProps, RState> {
+external class SendIcon: Component<IconProps, RState> {
+    override fun render(): ReactElement?
+}
+
+
+@JsName("Launch")
+external class LaunchIcon: Component<IconProps, RState> {
+    override fun render(): ReactElement?
+}
+
+
+@JsName("Create")
+external class CreateIcon: Component<IconProps, RState> {
+    override fun render(): ReactElement?
+}
+
+
+@JsName("Redo")
+external class RedoIcon: Component<IconProps, RState> {
+    override fun render(): ReactElement?
+}
+
+
+@JsName("Info")
+external class InfoIcon: Component<IconProps, RState> {
     override fun render(): ReactElement?
 }
 

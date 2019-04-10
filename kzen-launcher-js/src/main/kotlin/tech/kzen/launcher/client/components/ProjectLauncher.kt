@@ -138,6 +138,22 @@ class ProjectLauncher(
 
 
     //-----------------------------------------------------------------------------------------------------------------
+//    private fun onOpenNavigation() {
+//        setState {
+//            creating = false
+//            errorMessage = null
+//        }
+//    }
+//
+//
+//    private fun onCreateNavigation() {
+//        setState {
+//            creating = true
+//            errorMessage = null
+//        }
+//    }
+
+
     private fun onCreateToggle() {
         setState {
             creating = ! state.creating
@@ -204,84 +220,78 @@ class ProjectLauncher(
                 }
             }
 
-            child(MaterialToolbar::class) {
-//                attrs {
-//                    style = reactStyle {
-//                        width = 100.pct
-//                    }
-//                }
-
-                child(MaterialTypography::class) {
-                    attrs {
-                        style = reactStyle {
-                            width = 100.pct
-                        }
-                    }
-
-                    styledSpan {
-                        css {
-                            float = Float.left
-                        }
-
-                        renderLogo()
-                    }
-
-                    styledSpan {
-                        css {
-                            marginLeft = 1.em
-                        }
-
-                        styledSpan {
-                            css {
-                                marginTop = 0.5.em
-                                fontStyle = FontStyle.italic
-                                fontSize = 1.5.em
-                                display = Display.inlineBlock
-                            }
-
-                            +"Kzen: Automate all the things"
-                        }
-                    }
+            styledDiv {
+                css {
+                    width = 100.pct
                 }
 
+                styledDiv {
+                    css {
+                        float = Float.left
 
-                child(MaterialTypography::class) {
-                    attrs {
-                        style = reactStyle {
-                            float = Float.right
-                        }
+                        marginLeft = 1.em
+                        marginTop = (0.5).em
+                        marginRight = 1.em
+                    }
+                    renderLogo()
+                }
+
+                styledDiv {
+                    css {
+                        float = Float.left
+                        marginTop = (-5).px
                     }
 
-                    child(MaterialButton::class) {
+                    child(MaterialTabs::class) {
                         attrs {
-                            variant = "outlined"
+                            textColor = "primary"
+                            indicatorColor = "primary"
 
-                            style = reactStyle {
-                                width = 12.em
-                                backgroundColor = Color("#649fff")
+                            value =
+                                    if (state.creating) {
+                                        1
+                                    }
+                                    else {
+                                        0
+                                    }
 
-                                color =
-                                        if (state.creating) {
-                                            Color.white
-                                        }
-                                        else {
-                                            Color.black
-                                        }
-                            }
-
-                            onClick = ::onCreateToggle
-                        }
-
-                        child(AddCircleOutlineIcon::class) {
-                            attrs {
-                                style = reactStyle {
-                                    marginRight = 0.25.em
+                            onChange = { _, index: Int ->
+                                if (state.creating && index == 0 ||
+                                        ! state.creating && index == 1) {
+                                    onCreateToggle()
                                 }
                             }
                         }
 
-                        +"New Project"
+                        child(MaterialTab::class) {
+                            attrs {
+                                label = "Open"
+                                icon = child(LaunchIcon::class) {}
+                            }
+                        }
+
+                        // TODO: https://github.com/mui-org/material-ui/issues/11653
+                        child(MaterialTab::class) {
+                            attrs {
+                                label = "New Project"
+                                icon = child(AddCircleOutlineIcon::class) {}
+                            }
+                        }
                     }
+                }
+
+                styledDiv {
+                    css {
+                        float = Float.left
+
+                        fontStyle = FontStyle.italic
+                        fontSize = 1.5.em
+                        marginTop = 1.em
+                        marginLeft = 1.em
+                        color = Color.black
+                    }
+
+                    +"Kzen: Automate all the things"
                 }
             }
         }
@@ -296,7 +306,6 @@ class ProjectLauncher(
 
             styledImg(src = "logo.png") {
                 css {
-//                    height = 35.px
                     height = 52.px
                 }
 

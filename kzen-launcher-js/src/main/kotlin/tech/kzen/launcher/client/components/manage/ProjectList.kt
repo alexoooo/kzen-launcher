@@ -103,7 +103,7 @@ class ProjectList(
                     css {
                         fontSize = 1.5.em
                     }
-                    +"None, please add a New Project (top right)"
+                    +"None, please add a New Project (top)"
                 }
             }
             else {

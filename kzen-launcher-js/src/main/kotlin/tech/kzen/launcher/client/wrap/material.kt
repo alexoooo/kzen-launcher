@@ -205,3 +205,31 @@ external interface ToolbarProps : RProps {
     var style: Json
 }
 
+
+@JsName("Tabs")
+external class MaterialTabs: Component<TabsProps, RState> {
+    override fun render(): ReactElement?
+}
+
+external interface TabsProps: RProps {
+    var variant: String
+    var indicatorColor: String
+    var textColor: String
+    var value: Int
+
+    var onChange: (Any, Int) -> Unit
+
+    var style: Json
+}
+
+
+@JsName("Tab")
+external class MaterialTab: Component<TabProps, RState> {
+    override fun render(): ReactElement?
+}
+
+external interface TabProps: RProps {
+    var label: String
+    var style: Json
+    var icon: ReactElement
+}

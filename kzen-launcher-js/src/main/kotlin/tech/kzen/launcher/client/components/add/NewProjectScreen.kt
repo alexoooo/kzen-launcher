@@ -1,12 +1,14 @@
 package tech.kzen.launcher.client.components.add
 
 import kotlinx.css.*
+import kotlinx.html.title
 import org.w3c.dom.HTMLInputElement
 import react.*
-import react.dom.*
+import react.dom.div
 import styled.css
 import styled.styledDiv
 import styled.styledH2
+import styled.styledSpan
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.clientRestApi
 import tech.kzen.launcher.client.wrap.*
@@ -17,7 +19,7 @@ import kotlin.js.Date
 @Suppress("unused")
 class NewProjectScreen(
         props: NewProjectScreen.Props
-) : RComponent<NewProjectScreen.Props, NewProjectScreen.State>(props) {
+): RComponent<NewProjectScreen.Props, NewProjectScreen.State>(props) {
     //-----------------------------------------------------------------------------------------------------------------
     companion object {
         private const val defaultNamePrefix = "My New Project"
@@ -43,14 +45,14 @@ class NewProjectScreen(
     class Props(
             var artifacts: List<ArchetypeDetail>?,
             var didCreate: (() -> Unit)?
-    ) : RProps
+    ): RProps
 
 
     class State(
             var name: String,
             var type: String?,
             var path: String
-    ) : RState
+    ): RState
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -202,6 +204,14 @@ class NewProjectScreen(
                         onClick = ::onCreate
                     }
 
+                    child(CreateIcon::class) {
+                        attrs {
+                            style = reactStyle {
+                                marginRight = 0.25.em
+                            }
+                        }
+                    }
+
                     +"Create"
                 }
             }
@@ -231,6 +241,14 @@ class NewProjectScreen(
                         onClick = ::onImport
                     }
 
+                    child(RedoIcon::class) {
+                        attrs {
+                            style = reactStyle {
+                                marginRight = 0.25.em
+                            }
+                        }
+                    }
+
                     +"Import"
                 }
             }
@@ -258,13 +276,15 @@ class NewProjectScreen(
         }
 
         styledDiv {
-            css {
-                fontStyle = FontStyle.italic
-                fontSize = 0.8.em
-                color = Color.gray
+            attrs {
+                title = "Must be a valid file name"
             }
-
-            +"(Must be a valid file name)"
+            css {
+                display = Display.inlineBlock
+                marginTop = 1.em
+                marginLeft = 0.5.em
+            }
+            child(InfoIcon::class) {}
         }
     }
 
@@ -303,10 +323,6 @@ class NewProjectScreen(
                         value = selectOptions.find { it.value == state.type }
 
                         options = selectOptions
-
-//                        menuContainerStyle = json(
-//                                "zIndex" to 999
-//                        )
 
                         onChange = {
                             onTypeChange(it.value)
