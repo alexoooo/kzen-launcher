@@ -1,5 +1,10 @@
+// https://github.com/webpack-contrib/copy-webpack-plugin/issues/59
+var fs = require('fs');
+var gracefulFs = require('graceful-fs');
+gracefulFs.gracefulify(fs);
+
+
 const webpack = require("webpack");
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const path = require("path");
 
 const dist = path.resolve(__dirname, "build/dist");
@@ -13,6 +18,12 @@ module.exports = {
         path: dist,
         publicPath: ""
     },
+
+    mode: "production",
+    optimization: {
+        minimize: false
+    },
+
     module: {
         rules: [{
             test: /\.css$/,
@@ -30,12 +41,12 @@ module.exports = {
         ]
     },
     plugins: [
-        new UglifyJSPlugin({
-            sourceMap: false,
-            minimize: true,
-            output: {
-                comments: false
-            }
-        })
+//        new UglifyJSPlugin({
+//            sourceMap: false,
+//            minimize: true,
+//            output: {
+//                comments: false
+//            }
+//        })
     ]
 };
