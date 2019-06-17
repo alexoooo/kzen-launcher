@@ -135,6 +135,7 @@ class ProjectList(
                 marginBottom = 1.em
 
                 if (! project.exists) {
+                    // TODO: should not apply to 'remove' button
                     opacity = 0.5
                 }
             }
