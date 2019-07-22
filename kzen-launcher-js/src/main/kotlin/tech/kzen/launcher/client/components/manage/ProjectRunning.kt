@@ -1,7 +1,6 @@
 package tech.kzen.launcher.client.components.manage
 
-import kotlinx.css.em
-import kotlinx.css.px
+import kotlinx.css.*
 import react.*
 import react.dom.*
 import styled.css
