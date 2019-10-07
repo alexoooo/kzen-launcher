@@ -191,14 +191,14 @@ class ProjectLauncher(
                     projects = state.projects
                     runningProjects = state.runningProjects
 
-                    didAdd = {
+                    onProjectsChanged = {
                         setState {
                             projects = null
                         }
                         loadFromServerIfRequired()
                     }
 
-                    didStartOrStop = {
+                    onRunningChanged = {
                         setState {
                             runningProjects = null
                         }

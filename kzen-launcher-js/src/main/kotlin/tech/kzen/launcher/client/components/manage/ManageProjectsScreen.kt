@@ -13,7 +13,7 @@ import tech.kzen.launcher.common.dto.ProjectDetail
 
 
 class ManageProjectsScreen(
-        props: ManageProjectsScreen.Props
+        props: Props
 ):
         RComponent<ManageProjectsScreen.Props, ManageProjectsScreen.State>(props)
 {
@@ -22,8 +22,8 @@ class ManageProjectsScreen(
             var projects: List<ProjectDetail>?,
             var runningProjects: List<String>?,
 
-            var didAdd: (() -> Unit)?,
-            var didStartOrStop: (() -> Unit)?
+            var onProjectsChanged: (() -> Unit)?,
+            var onRunningChanged: (() -> Unit)?
     ): RProps
 
 
@@ -92,7 +92,7 @@ class ManageProjectsScreen(
                                 runningProjects = null
                             }
 
-                            props.didStartOrStop?.invoke()
+                            props.onRunningChanged?.invoke()
                         }
                     }
                 }
@@ -117,15 +117,19 @@ class ManageProjectsScreen(
                                 ?.filter{ ! (state.runningProjects?.contains(it.name) ?: false) }
 
                         didStart = {
-                            props.didStartOrStop?.invoke()
+                            props.onRunningChanged?.invoke()
                         }
 
                         didRemove = {
-                            props.didAdd?.invoke()
+                            props.onProjectsChanged?.invoke()
                         }
 
                         didDelete = {
-                            props.didAdd?.invoke()
+                            props.onProjectsChanged?.invoke()
+                        }
+
+                        didRename = {
+                            props.onProjectsChanged?.invoke()
                         }
                     }
                 }

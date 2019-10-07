@@ -161,6 +161,15 @@ class RestHandler(
     }
 
 
+    fun renameProject(serverRequest: ServerRequest): Mono<ServerResponse> {
+        val projectName = serverRequest.queryParam(CommonApi.projectName).get()
+        val newName = serverRequest.queryParam(CommonApi.projectNewName).get()
+
+        projectRepo.rename(projectName, newName)
+
+        return ServerResponse.ok().build()
+    }
+
 
     //-----------------------------------------------------------------------------------------------------------------
     // TODO: is this secure?

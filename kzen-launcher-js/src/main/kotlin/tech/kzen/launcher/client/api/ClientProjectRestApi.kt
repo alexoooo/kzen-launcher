@@ -76,6 +76,15 @@ class ClientProjectRestApi(
         ClientRestService.getWithErrorIntercept("$baseUrl${CommonApi.deleteProject}" +
                 "?${CommonApi.projectName}=$encodedName")
     }
+
+
+    suspend fun renameProject(name: String, newName: String) {
+        val encodedName = encodeURIComponent(name)
+        val encodedNewName = encodeURIComponent(newName)
+        ClientRestService.getWithErrorIntercept("$baseUrl${CommonApi.renameProject}" +
+                "?${CommonApi.projectName}=$encodedName&" +
+                "${CommonApi.projectNewName}=$encodedNewName")
+    }
 }
 
 

@@ -2,16 +2,23 @@ package tech.kzen.launcher.common
 
 
 object CommonApi {
-    const val listArchetypes = "/rs/query/archetype"
+    private const val restServicePrefix = "/rs/"
 
-    const val createProject = "/rs/command/project/create"
-    const val importProject = "/rs/command/project/import"
-    const val removeProject = "/rs/command/project/remove"
-    const val deleteProject = "/rs/command/project/delete"
+    private const val queryPrefix = "${restServicePrefix}query/"
+    const val listArchetypes = "${queryPrefix}archetype"
+    const val listProjects = "${queryPrefix}project"
+
+    private const val commandPrefix = "${restServicePrefix}command/"
+    private const val projectCommandPrefix = "${commandPrefix}project/"
+    const val createProject = "${projectCommandPrefix}create"
+    const val importProject = "${projectCommandPrefix}import"
+    const val removeProject = "${projectCommandPrefix}remove"
+    const val deleteProject = "${projectCommandPrefix}delete"
+    const val renameProject = "${projectCommandPrefix}rename"
+
     const val projectName = "name"
     const val createProjectType = "type"
     const val importProjectPath = "path"
-
-    const val listProjects = "/rs/query/project"
+    const val projectNewName = "new"
 }
 

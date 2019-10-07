@@ -31,7 +31,6 @@ class ProjectRepo {
     }
 
 
-
     //-----------------------------------------------------------------------------------------------------------------
     fun contains(name: String): Boolean {
         return read().keys.contains(name)
@@ -59,6 +58,7 @@ class ProjectRepo {
     }
 
 
+    //-----------------------------------------------------------------------------------------------------------------
     fun add(name: String, home: Path) {
         val info = ProjectInfo(
                 home = home)
@@ -87,12 +87,31 @@ class ProjectRepo {
         val location = previous[name]?.home
                 ?: throw IllegalArgumentException("Project not found: $name")
 
-//        if (Files.exists(location)) {
-//            location.toFile().deleteRecursively()
-//        }
         location.toFile().deleteRecursively()
 
         removeAndWrite(name, previous)
+    }
+
+
+    fun rename(name: String, newName: String) {
+        val previous = read()
+
+        val location = previous[name]?.home
+                ?: throw IllegalArgumentException("Project not found: $name")
+
+        val newLocation = location.resolveSibling(newName)
+
+        Files.move(location, newLocation)
+
+        val oldInfo = previous[name]!!
+        val newInfo = oldInfo.copy(home = newLocation)
+
+        val asMutable= previous.toMutableMap()
+        asMutable.remove(name)
+        asMutable[newName] = newInfo
+        val next = ImmutableMap.copyOf(asMutable)
+
+        write(next)
     }
 
 

@@ -18,7 +18,7 @@ import tech.kzen.launcher.common.dto.ProjectDetail
 
 @Suppress("unused")
 class ProjectList(
-        props: ProjectList.Props
+        props: Props
 ): RComponent<ProjectList.Props, ProjectList.State>(props) {
     //-----------------------------------------------------------------------------------------------------------------
     class Props(
@@ -26,7 +26,8 @@ class ProjectList(
 
             var didStart: (() -> Unit)?,
             var didRemove: (() -> Unit)?,
-            var didDelete: (() -> Unit)?
+            var didDelete: (() -> Unit)?,
+            var didRename: (() -> Unit)?
     ): RProps
 
 
@@ -36,9 +37,7 @@ class ProjectList(
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    private fun onStart(name: String, location: String) {
-//        console.log("onStart: name - $name | location - $location")
-
+    private fun onStart(project: ProjectDetail) {
         setState {
             starting = true
         }
@@ -47,7 +46,7 @@ class ProjectList(
             delay(1)
 
             try {
-                shellRestApi.startProject(name, location)
+                shellRestApi.startProject(project.name, project.path)
                 props.didStart?.invoke()
             }
             finally {
@@ -59,20 +58,29 @@ class ProjectList(
     }
 
 
-    private fun onRemove(name: String) {
+    private fun onRemove(project: ProjectDetail) {
 //        console.log("onRemove: name - $name")
         async {
-            clientRestApi.removeProject(name)
+            clientRestApi.removeProject(project.name)
             props.didRemove?.invoke()
         }
     }
 
 
-    private fun onDelete(name: String) {
+    private fun onDelete(project: ProjectDetail) {
 //        console.log("onDelete: name - $name")
         async {
-            clientRestApi.deleteProject(name)
+            clientRestApi.deleteProject(project.name)
             props.didDelete?.invoke()
+        }
+    }
+
+
+    private fun onRename(project: ProjectDetail, newName: String) {
+//        console.log("onDelete: name - $name")
+        async {
+            clientRestApi.renameProject(project.name, newName)
+            props.didRename?.invoke()
         }
     }
 
@@ -118,135 +126,20 @@ class ProjectList(
 
     private fun RBuilder.renderProjects(projects: List<ProjectDetail>) {
         for (project in projects) {
-            child(MaterialDivider::class) {}
-
-            renderProject(project)
-        }
-    }
-
-
-    private fun RBuilder.renderProject(project: ProjectDetail) {
-        styledDiv {
-            attrs {
+            div {
                 key = project.name
-            }
 
-            css {
-                marginBottom = 1.em
+                child(MaterialDivider::class) {}
 
-                if (! project.exists) {
-                    // TODO: should not apply to 'remove' button
-                    opacity = 0.5
-                }
-            }
+                child(ProjectItem::class) {
+                    attrs {
+                        this.project = project
+                        starting = state.starting
 
-
-            styledDiv {
-                css {
-                    fontWeight = FontWeight.bold
-                }
-
-                +(project.name)
-
-                if (! project.exists) {
-                    +" (missing)"
-                }
-            }
-
-
-            styledSpan {
-                css {
-                    fontFamily = "monospace"
-                }
-
-                +(project.path)
-            }
-
-
-            styledDiv {
-                styledDiv {
-                    css {
-                        display = Display.inlineBlock
-//                            position = Position.relative
-                    }
-
-                    child(MaterialButton::class) {
-                        attrs {
-                            variant = "outlined"
-                            onClick = {
-                                onStart(project.name, project.path)
-                            }
-
-                            if (state.starting) {
-                                disabled = true
-                            }
-                        }
-
-                        child(PlayArrowIcon::class) {
-                            attrs {
-                                style = reactStyle {
-                                    marginRight = 0.25.em
-                                }
-                            }
-                        }
-
-                        +"Run"
-                    }
-                }
-
-
-                if (project.exists) {
-                    styledDiv {
-                        css {
-                            display = Display.inlineBlock
-                            marginLeft = 1.em
-                        }
-
-                        child(MaterialButton::class) {
-                            attrs {
-                                variant = "outlined"
-                                onClick = {
-                                    onDelete(project.name)
-                                }
-                            }
-
-                            child(DeleteIcon::class) {
-                                attrs {
-                                    style = reactStyle {
-                                        marginRight = 0.25.em
-                                    }
-                                }
-                            }
-
-                            +"Delete"
-                        }
-                    }
-                }
-                else {
-                    styledDiv {
-                        css {
-                            display = Display.inlineBlock
-//                            position = Position.relative
-                        }
-
-                        child(MaterialButton::class) {
-                            attrs {
-                                variant = "outlined"
-                                onClick = {
-                                    onRemove(project.name)
-                                }
-                            }
-
-                            child(RemoveCircleOutlineIcon::class) {
-                                attrs {
-                                    style = reactStyle {
-                                        marginRight = 0.25.em
-                                    }
-                                }
-                            }
-
-                            +"Remove"
-                        }
+                        onStart = ::onStart
+                        onRemove = ::onRemove
+                        onDelete = ::onDelete
+                        onRename = ::onRename
                     }
                 }
             }

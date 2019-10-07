@@ -25,6 +25,7 @@ class ServerRestApi(
         GET(CommonApi.importProject, restHandler::importProject)
         GET(CommonApi.removeProject, restHandler::removeProject)
         GET(CommonApi.deleteProject, restHandler::deleteProject)
+        GET(CommonApi.renameProject, restHandler::renameProject)
 
         // Used for inline testing
         GET("/shell/project", restHandler::runningProjectsDummy)
