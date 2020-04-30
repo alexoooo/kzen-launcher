@@ -34,11 +34,11 @@ class RestHandler(
         private val resourceDirectories = listOf<Path>(
                 // IntelliJ and typical commandline working dir is project root
                 Paths.get("kzen-launcher-jvm/src/main/resources/public/"),
-                Paths.get("kzen-launcher-js/build/dist/"),
+                Paths.get("kzen-launcher-js/build/distributions/"),
 
                 // Eclipse default active working directory is the module
                 Paths.get("src/main/resources/public/"),
-                Paths.get("../kzen-launcher-js/build/dist/"))
+                Paths.get("../kzen-launcher-js/build/distributions/"))
 
 
         private const val cssExtension = "css"

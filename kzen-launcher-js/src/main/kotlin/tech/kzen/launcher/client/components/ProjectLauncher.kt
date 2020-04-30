@@ -268,7 +268,7 @@ class ProjectLauncher(
                                 label = "Open"
                                 icon = buildElement {
                                     child(LaunchIcon::class) {}
-                                }!!
+                                }
                             }
                         }
 
@@ -278,7 +278,7 @@ class ProjectLauncher(
                                 label = "New Project"
                                 icon = buildElement {
                                     child(AddCircleOutlineIcon::class) {}
-                                }!!
+                                }
                             }
                         }
                     }
