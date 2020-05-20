@@ -34,7 +34,7 @@ class ManageProjectsScreen(
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    override fun State.init(props: ManageProjectsScreen.Props) {
+    override fun State.init(props: Props) {
 //        console.log("ManageProjectsScreen State.init", props.projects, props.runningProjects, props)
 
         projects = props.projects
