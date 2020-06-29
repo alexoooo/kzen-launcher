@@ -6,13 +6,13 @@ kzen:
 #      description: "Visually control a browser and more - v0.5.1-SNAPSHOT"
 #      url: file:///home/ao/IdeaProjects/kzen-auto/kzen-auto-jvm/build/libs/kzen-auto-jvm-0.5.1-SNAPSHOT-boot.jar
 
-    - name: KzenProjectJar-0.14.1
+    - name: KzenProjectJar-0.15.0
       title: "Automation and Reporting"
-      description: "Visually control a browser and more - v0.14.1"
-      url: https://github.com/alexoooo/kzen-project/releases/download/v0.14.1/kzen-project-jvm-0.14.1.jar
+      description: "Visually control a browser and more - v0.15.0"
+      url: https://github.com/alexoooo/kzen-project/releases/download/v0.15.0/kzen-project-jvm-0.15.0.jar
 
-    - name: KzenProjectZip-0.14.1
+    - name: KzenProjectZip-0.15.0
       title: "Automation and Reporting (with Scripting)"
-      description: "Includes source code, can be used with IDE - v0.14.1"
-      url: https://github.com/alexoooo/kzen-project/releases/download/v0.14.1/kzen-project-0.14.1.zip
+      description: "Includes source code, can be used with IDE - v0.15.0"
+      url: https://github.com/alexoooo/kzen-project/releases/download/v0.15.0/kzen-project-0.15.0.zip
 

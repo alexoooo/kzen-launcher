@@ -1,11 +1,12 @@
 //const val kotlinVersion = "1.4-M1"
 const val kotlinVersion = "1.3.72"
 
-const val springBootVersion = "2.2.6.RELEASE"
-//const val springBootVersion = "2.3.0.RELEASE"
+//const val springBootVersion = "2.2.6.RELEASE"
+const val springBootVersion = "2.3.1.RELEASE"
+
 const val dependencyManagementVersion = "1.0.9.RELEASE"
 
-const val coroutinesVersion = "1.3.5"
+const val coroutinesVersion = "1.3.7"
 const val serializationVersion = "0.20.0"
 
 const val wrapperKotlinVersion = "pre.103-kotlin-1.3.72"
@@ -31,8 +32,8 @@ const val guavaVersion = "29.0-jre"
 const val seleniumVersion = "3.141.59"
 const val commonsCompressVersion = "1.20"
 
-const val materialUiCoreVersion = "4.9.12"
+const val materialUiCoreVersion = "4.10.2"
 const val materialUiIconsVersion = "4.9.1"
 const val reactSelectVersion = "3.1.0"
-const val jacksonModuleKotlin = "2.11.0"
-const val jacksonDataformatYaml = "2.11.0"
+const val jacksonModuleKotlin = "2.11.1"
+const val jacksonDataformatYaml = "2.11.1"
