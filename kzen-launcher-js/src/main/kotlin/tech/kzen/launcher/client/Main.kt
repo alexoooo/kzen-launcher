@@ -3,9 +3,9 @@ package tech.kzen.launcher.client
 import react.dom.render
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.components.ProjectLauncher
-import kotlin.browser.document
-import kotlin.browser.window
-import kotlin.dom.clear
+import kotlinx.browser.document
+import kotlinx.browser.window
+import kotlinx.dom.clear
 
 
 fun main() {

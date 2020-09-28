@@ -7,9 +7,9 @@ import org.springframework.web.reactive.config.EnableWebFlux
 
 @EnableWebFlux
 @SpringBootApplication
-class KzenLauncherApp
+class KzenLauncherMain
 
 
 fun main(args: Array<String>) {
-    runApplication<KzenLauncherApp>(*args)
+    runApplication<KzenLauncherMain>(*args)
 }

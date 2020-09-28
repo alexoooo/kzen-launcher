@@ -4,7 +4,7 @@ plugins {
 
 
 kotlin {
-    target {
+    js {
         useCommonJs()
 
 //        produceExecutable()
@@ -15,19 +15,19 @@ kotlin {
 
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-js")
+//    implementation("org.jetbrains.kotlin:kotlin-stdlib-js")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutinesVersion")
+//    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutinesVersion")
 
     implementation(project(":kzen-launcher-common"))
 
     implementation(npm("core-js", coreJsVersion))
-    implementation("org.jetbrains.kotlinx:kotlinx-html-assembly:$kotlinxHtmlVersion")
-    implementation("org.jetbrains:kotlin-react:$kotlinxReactVersion")
-    implementation("org.jetbrains:kotlin-react-dom:$kotlinxReactDomVersion")
-    implementation("org.jetbrains:kotlin-styled:$kotlinxStyledVersion")
-    implementation("org.jetbrains:kotlin-extensions:$kotlinxExtensionsVersion")
-    implementation("org.jetbrains:kotlin-css-js:$kotlinxCssVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-html-assembly:$kotlinHtmlVersion")
+    implementation("org.jetbrains:kotlin-react:$kotlinReactVersion")
+    implementation("org.jetbrains:kotlin-react-dom:$kotlinReactDomVersion")
+    implementation("org.jetbrains:kotlin-styled:$kotlinStyledVersion")
+    implementation("org.jetbrains:kotlin-extensions:$kotlinExtensionsVersion")
+    implementation("org.jetbrains:kotlin-css-js:$kotlinCssVersion")
     implementation(npm("react", reactVersion))
     implementation(npm("react-dom", reactVersion))
     implementation(npm("react-is", reactVersion))
