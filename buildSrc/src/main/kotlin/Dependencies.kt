@@ -29,7 +29,7 @@ const val kotlinStyledVersion = "5.2.0-$wrapperKotlinVersion"
 const val kotlinExtensionsVersion = "1.0.1-$wrapperKotlinVersion"
 const val kotlinCssVersion = "1.0.0-$wrapperKotlinVersion"
 
-const val guavaVersion = "29.0-jre"
+const val guavaVersion = "30.0-jre"
 //const val seleniumVersion = "3.141.59"
 const val commonsCompressVersion = "1.20"
 

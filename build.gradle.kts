@@ -5,7 +5,7 @@ plugins {
 
 allprojects {
     group = "tech.kzen.launcher"
-    version = "0.16.1"
+    version = "0.17.0"
 
     repositories {
         maven { setUrl("https://dl.bintray.com/kotlin/kotlin-dev") }
