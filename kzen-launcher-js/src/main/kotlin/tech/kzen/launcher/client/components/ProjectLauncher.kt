@@ -16,7 +16,7 @@ import tech.kzen.launcher.common.dto.ProjectDetail
 
 
 class ProjectLauncher(
-        props: ProjectLauncher.Props
+        props: Props
 ):
         RComponent<ProjectLauncher.Props, ProjectLauncher.State>(props),
         ErrorBus.Subscriber
@@ -39,7 +39,7 @@ class ProjectLauncher(
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    override fun ProjectLauncher.State.init(props: ProjectLauncher.Props) {
+    override fun State.init(props: Props) {
         artifacts = null
         projects = null
         runningProjects = null
@@ -166,6 +166,21 @@ class ProjectLauncher(
     override fun RBuilder.render() {
         renderHeader()
 
+        styledDiv {
+            css {
+                // offset position = fixed from AppBar above
+                marginTop = 6.em
+
+                // NB: without this the scroll bar ends without any space below project list
+                paddingBottom = 0.1.em
+            }
+
+            renderBody()
+        }
+    }
+
+
+    private fun RBuilder.renderBody() {
         renderErrorMessage()
 
         if (state.creating) {
@@ -184,8 +199,6 @@ class ProjectLauncher(
             }
         }
         else {
-//            console.log("^^^^ rendering ", state.projects, state.runningProjects)
-
             child(ManageProjectsScreen::class) {
                 attrs {
                     projects = state.projects
@@ -213,7 +226,7 @@ class ProjectLauncher(
     private fun RBuilder.renderHeader() {
         child(MaterialAppBar::class) {
             attrs {
-                position = "sticky"
+                position = "fixed"
 
                 style = reactStyle {
                     backgroundColor = Color.white
@@ -295,7 +308,8 @@ class ProjectLauncher(
                         color = Color.black
                     }
 
-                    +"Kzen: Automate all the things"
+//                    +"Kzen: Automate all the things"
+                    +"Kzen: Automate your work"
                 }
             }
         }

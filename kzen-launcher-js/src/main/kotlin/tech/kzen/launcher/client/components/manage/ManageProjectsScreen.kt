@@ -1,10 +1,8 @@
 package tech.kzen.launcher.client.components.manage
 
-import kotlinx.css.Color
-import kotlinx.css.backgroundColor
-import kotlinx.css.em
-import kotlinx.css.margin
+import kotlinx.css.*
 import react.*
+import styled.css
 import styled.styledDiv
 import tech.kzen.launcher.client.wrap.MaterialCard
 import tech.kzen.launcher.client.wrap.MaterialCardContent
@@ -63,13 +61,16 @@ class ManageProjectsScreen(
     override fun RBuilder.render() {
 //        console.log("ManageProjectsScreen - render", state, props)
 
-        styledDiv {
+//        styledDiv {
             renderRunning()
-        }
+//        }
 
-        styledDiv {
+//        styledDiv {
+//            css {
+//                marginBottom = 2.em
+//            }
             renderList()
-        }
+//        }
     }
 
 

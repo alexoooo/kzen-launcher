@@ -58,7 +58,7 @@ tasks.withType<ProcessResources> {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "13"
+        jvmTarget = "15"
     }
 }
 
