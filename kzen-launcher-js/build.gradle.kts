@@ -4,21 +4,19 @@ plugins {
 
 
 kotlin {
+//    js(IR) {
+//        binaries.executable()
+//        browser {}
+//    }
+
     js {
         useCommonJs()
-
-//        produceExecutable()
-
         browser {}
     }
 }
 
 
 dependencies {
-//    implementation("org.jetbrains.kotlin:kotlin-stdlib-js")
-
-//    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutinesVersion")
-
     implementation(project(":kzen-launcher-common"))
 
     implementation(npm("core-js", coreJsVersion))
