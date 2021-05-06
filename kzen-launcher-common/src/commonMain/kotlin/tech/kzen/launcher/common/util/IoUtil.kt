@@ -54,7 +54,7 @@ object IoUtil {
 
 
                         in 128.toChar() .. '\uffff' -> {
-                            val hex = ch.toInt().toString(16)
+                            val hex = ch.code.toString(16)
                             val prefixed = "000$hex"
                             val padded = prefixed.substring(prefixed.length - 4)
                             "\\u$padded"

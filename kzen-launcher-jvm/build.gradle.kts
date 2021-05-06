@@ -4,41 +4,30 @@ import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
 
 
 plugins {
+    kotlin("jvm")
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version dependencyManagementVersion
-    kotlin("jvm")
     kotlin("plugin.spring") version kotlinVersion
 }
 
 
 dependencies {
-//    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$coroutinesVersion")
-
-    implementation("ch.qos.logback:logback-classic:$logbackVersion")
-    implementation("org.jetbrains:kotlin-css-jvm:1.0.0-$wrapperKotlinVersion")
-
     implementation(project(":kzen-launcher-common"))
 
+    implementation(kotlin("reflect"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$coroutinesVersion")
+    implementation("org.jetbrains:kotlin-css-jvm:1.0.0-$wrapperKotlinVersion")
+
+    implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
-
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("io.projectreactor:reactor-test")
-
+    implementation("com.google.guava:guava:$guavaVersion")
+    implementation("org.apache.commons:commons-compress:$commonsCompressVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonModuleKotlin")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonDataformatYaml")
 
-    implementation("com.github.andrewoma.dexx:collection:$dexxVersion")
-
-    implementation(group = "com.google.guava", name = "guava", version = guavaVersion)
-//    implementation(group = "org.seleniumhq.selenium", name = "selenium-java", version = seleniumVersion)
-    implementation(group = "org.apache.commons", name = "commons-compress", version = commonsCompressVersion)
-
-//    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
-//    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-common:$coroutinesVersion")
+    testImplementation(kotlin("test"))
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("io.projectreactor:reactor-test")
 }
 
 
@@ -54,12 +43,10 @@ tasks.withType<ProcessResources> {
 }
 
 
-
 tasks.withType<KotlinCompile> {
     kotlinOptions {
-        useIR = true
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "15"
+        jvmTarget = jvmTargetVersion
     }
 }
 

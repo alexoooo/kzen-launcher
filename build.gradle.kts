@@ -5,15 +5,15 @@ plugins {
 
 allprojects {
     group = "tech.kzen.launcher"
-    version = "0.21.0"
+    version = "0.22.0"
 
     repositories {
-        maven { setUrl("https://dl.bintray.com/kotlin/kotlin-dev") }
-        maven { setUrl("https://dl.bintray.com/kotlin/kotlin-eap") }
-        jcenter()
-        maven { setUrl("https://dl.bintray.com/kotlin/kotlin-js-wrappers") }
-        maven { setUrl("https://dl.bintray.com/kotlin/kotlinx") }
         mavenCentral()
+
+        maven { setUrl("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-js-wrappers") }
+        maven { setUrl("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") }
+
+        maven { setUrl("https://raw.githubusercontent.com/alexoooo/kzen-repo/master/artifacts") }
 
         mavenLocal()
     }
