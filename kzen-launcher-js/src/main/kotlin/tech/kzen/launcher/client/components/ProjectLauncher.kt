@@ -305,7 +305,8 @@ class ProjectLauncher(
                     }
 
 //                    +"Kzen: Automate all the things"
-                    +"Kzen: Automate your work"
+//                    +"Kzen: Automate your work"
+                    +"Kzen: Automation and reports"
                 }
             }
         }
