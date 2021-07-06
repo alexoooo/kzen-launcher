@@ -3,9 +3,10 @@ package tech.kzen.launcher.server.service
 import com.google.common.io.ByteStreams
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import tech.kzen.launcher.server.archetype.ArchetypeRepo
+import java.io.BufferedOutputStream
 import java.net.URI
-import java.rmi.server.RMISocketFactory.getSocketFactory
+import java.nio.file.Files
+import java.nio.file.Path
 import java.security.cert.X509Certificate
 import javax.annotation.PostConstruct
 import javax.net.ssl.*
@@ -21,12 +22,13 @@ class DownloadService {
 
     //-----------------------------------------------------------------------------------------------------------------
     // TODO: implement proper certificate management
+    @Suppress("unused")
     @PostConstruct
     fun trustBadCertificate() {
         // https://stackoverflow.com/a/24501156
 
         val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
-            override fun getAcceptedIssuers(): Array<java.security.cert.X509Certificate>? = null
+            override fun getAcceptedIssuers(): Array<X509Certificate>? = null
             override fun checkClientTrusted(certs: Array<X509Certificate>, authType: String) {}
             override fun checkServerTrusted(certs: Array<X509Certificate>, authType: String) {}
         })
@@ -42,16 +44,20 @@ class DownloadService {
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    fun download(location: URI): ByteArray {
+    fun download(location: URI, destination: Path) {
+        Files.createDirectories(destination.parent)
+
         logger.info("downloading: {}", location)
 
-        val bytes = location
+        val bytes = BufferedOutputStream(
+            Files.newOutputStream(destination)
+        ).use { output ->
+            location
                 .toURL()
                 .openStream()
-                .use { ByteStreams.toByteArray(it) }
+                .use { input -> ByteStreams.copy(input, output) }
+        }
 
-        logger.info("download complete: {}", bytes.size)
-
-        return bytes
+        logger.info("download complete: {}", bytes)
     }
 }

@@ -47,7 +47,7 @@ class ProjectList(
             delay(1)
 
             try {
-                shellRestApi.startProject(project.name, project.path)
+                shellRestApi.startProject(project.name, project.path, project.jvmArgs)
                 props.didStart?.invoke()
             }
             finally {

@@ -20,13 +20,14 @@ class ClientShellRestApi {
     }
 
 
-    suspend fun startProject(name: String, location: String/*, xmx: String*/) {
+    suspend fun startProject(name: String, location: String, jvmArgs: String) {
         val encodedName = encodeURIComponent(name)
         val encodedLocation = encodeURIComponent(location)
+        val encodedJvmArgs = encodeURIComponent(jvmArgs)
         ClientRestService.getWithErrorIntercept("$base/start" +
                 "?name=$encodedName" +
-                "&location=$encodedLocation" /*+
-                "&xmx=$xmx"*/)
+                "&location=$encodedLocation" +
+                "&args=$encodedJvmArgs")
     }
 
 

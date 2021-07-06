@@ -50,18 +50,18 @@ class ProjectCreator(
         check(! Files.exists(home)) {"already exists: $home"}
 
         val archetypeInfo = archetypeRepo.get(archetypeName)
-        val archetypeBytes = Files.readAllBytes(archetypeInfo.location)
 
+        @Suppress("MoveVariableDeclarationIntoWhen")
         val artifactExtension = MoreFiles.getFileExtension(archetypeInfo.location)
 
         when (artifactExtension) {
             "zip" -> {
-                extractGradle(home, archetypeBytes)
+                extractGradle(home, archetypeInfo.location)
             }
 
             "jar" -> {
                 Files.createDirectories(home)
-                Files.write(home.resolve("main.jar"), archetypeBytes)
+                Files.copy(archetypeInfo.location, home.resolve("main.jar"))
             }
 
             else ->
@@ -72,8 +72,10 @@ class ProjectCreator(
     }
 
 
-    private fun extractGradle(path: Path, archetypeBytes: ByteArray) {
-        unzip(ByteArrayInputStream(archetypeBytes), path)
+    private fun extractGradle(path: Path, zipLocation: Path) {
+        Files.newInputStream(zipLocation).use { input ->
+            unzip(input, path)
+        }
 
         val gradleWrapper = path.resolve("gradlew")
 

@@ -137,10 +137,7 @@ class ArchetypeRepo(
     ) {
         check(! contains(name)) {"Already installed: $name"}
 
-        val downloadBytes = downloadService.download(download)
-
-        Files.createDirectories(archetypeInfo.location.parent)
-        Files.write(archetypeInfo.location, downloadBytes)
+        downloadService.download(download, archetypeInfo.location)
 
         add(name, archetypeInfo)
     }
