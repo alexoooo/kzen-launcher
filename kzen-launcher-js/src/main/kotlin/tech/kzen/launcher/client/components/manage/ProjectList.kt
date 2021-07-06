@@ -1,18 +1,18 @@
 package tech.kzen.launcher.client.components.manage
 
 
-import kotlinx.css.*
 import kotlinx.coroutines.delay
-import kotlinx.html.InputType
-import kotlinx.html.js.onClickFunction
-import kotlinx.html.title
+import kotlinx.css.*
 import react.*
-import react.dom.*
-import styled.*
+import react.dom.div
+import styled.css
+import styled.styledH2
+import styled.styledSpan
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.clientRestApi
 import tech.kzen.launcher.client.api.shellRestApi
-import tech.kzen.launcher.client.wrap.*
+import tech.kzen.launcher.client.wrap.MaterialCircularProgress
+import tech.kzen.launcher.client.wrap.MaterialDivider
 import tech.kzen.launcher.common.dto.ProjectDetail
 
 
@@ -27,7 +27,8 @@ class ProjectList(
             var didStart: (() -> Unit)?,
             var didRemove: (() -> Unit)?,
             var didDelete: (() -> Unit)?,
-            var didRename: (() -> Unit)?
+            var didRename: (() -> Unit)?,
+            var didChangeJvmArgs: (() -> Unit)?
     ): RProps
 
 
@@ -81,6 +82,15 @@ class ProjectList(
         async {
             clientRestApi.renameProject(project.name, newName)
             props.didRename?.invoke()
+        }
+    }
+
+
+    private fun onChangeJvmArguments(project: ProjectDetail, newArguments: String) {
+//        console.log("onDelete: name - $name")
+        async {
+            clientRestApi.changeJvmArgumentsForProject(project.name, newArguments)
+            props.didChangeJvmArgs?.invoke()
         }
     }
 
@@ -140,6 +150,7 @@ class ProjectList(
                         onRemove = ::onRemove
                         onDelete = ::onDelete
                         onRename = ::onRename
+                        onChangeJvmArgs = ::onChangeJvmArguments
                     }
                 }
             }

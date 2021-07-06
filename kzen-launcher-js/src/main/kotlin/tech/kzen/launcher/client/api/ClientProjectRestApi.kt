@@ -36,9 +36,10 @@ class ClientProjectRestApi(
 
         for (project in projects) {
             parsed.add(ProjectDetail(
-                    project["name"] as String,
-                    project["path"] as String,
-                    project["exists"] as Boolean
+                    project[CommonApi.projectName] as String,
+                    project[CommonApi.projectPath] as String,
+                    project[CommonApi.projectJvmArgs] as String,
+                    project[CommonApi.projectExists] as Boolean
             ))
         }
 
@@ -60,7 +61,7 @@ class ClientProjectRestApi(
         val encodedPath = encodeURIComponent(path)
 
         ClientRestService.getWithErrorIntercept("$baseUrl${CommonApi.importProject}" +
-                "?${CommonApi.importProjectPath}=$encodedPath")
+                "?${CommonApi.projectPath}=$encodedPath")
     }
 
 
@@ -84,6 +85,15 @@ class ClientProjectRestApi(
         ClientRestService.getWithErrorIntercept("$baseUrl${CommonApi.renameProject}" +
                 "?${CommonApi.projectName}=$encodedName&" +
                 "${CommonApi.projectNewName}=$encodedNewName")
+    }
+
+
+    suspend fun changeJvmArgumentsForProject(name: String, jvmArguments: String) {
+        val encodedName = encodeURIComponent(name)
+        val encodedJvmArguments = encodeURIComponent(jvmArguments)
+        ClientRestService.getWithErrorIntercept("$baseUrl${CommonApi.jvmArgumentsProject}" +
+                "?${CommonApi.projectName}=$encodedName&" +
+                "${CommonApi.projectJvmArgs}=$encodedJvmArguments")
     }
 }
 

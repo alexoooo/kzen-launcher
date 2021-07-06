@@ -132,6 +132,10 @@ class ManageProjectsScreen(
                         didRename = {
                             props.onProjectsChanged?.invoke()
                         }
+
+                        didChangeJvmArgs = {
+                            props.onProjectsChanged?.invoke()
+                        }
                     }
                 }
             }

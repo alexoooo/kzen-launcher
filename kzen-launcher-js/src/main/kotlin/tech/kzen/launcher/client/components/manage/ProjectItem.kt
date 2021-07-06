@@ -22,13 +22,16 @@ class ProjectItem(
             var onStart: ((ProjectDetail) -> Unit),
             var onRemove: ((ProjectDetail) -> Unit),
             var onDelete: ((ProjectDetail) -> Unit),
-            var onRename: ((ProjectDetail, String) -> Unit)
+            var onRename: ((ProjectDetail, String) -> Unit),
+            var onChangeJvmArgs: ((ProjectDetail, String) -> Unit)
     ): RProps
 
 
     class State(
             var renaming: Boolean,
-            var newName: String
+            var changingArgs: Boolean,
+            var newName: String,
+            var newJvmArgs: String
     ): RState
 
 
@@ -36,6 +39,9 @@ class ProjectItem(
     override fun State.init(props: Props) {
         renaming = false
         newName = props.project.name
+
+        changingArgs = false
+        newJvmArgs = props.project.jvmArgs
     }
 
 
@@ -90,6 +96,32 @@ class ProjectItem(
     }
 
 
+    private fun onChangeArgsStart() {
+        setState {
+            changingArgs = true
+        }
+    }
+
+
+    private fun onChangeArgs(newJvmArgs: String) {
+        setState {
+            this.newJvmArgs = newJvmArgs
+        }
+    }
+
+
+    private fun onChangeArgsCommit() {
+        if (state.newJvmArgs == props.project.jvmArgs) {
+            setState {
+                changingArgs = false
+            }
+        }
+        else {
+            props.onChangeJvmArgs(props.project, state.newJvmArgs)
+        }
+    }
+
+
     //-----------------------------------------------------------------------------------------------------------------
     override fun RBuilder.render() {
         styledDiv {
@@ -132,11 +164,14 @@ class ProjectItem(
                     renderRun()
                     renderDelete()
                     renderRename()
+                    renderChangeArgs()
                 }
                 else {
                     renderRemove()
                 }
             }
+
+            renderJvmArgs()
         }
     }
 
@@ -259,6 +294,83 @@ class ProjectItem(
     }
 
 
+    private fun RBuilder.renderChangeArgs() {
+        styledDiv {
+            css {
+                display = Display.inlineBlock
+                marginLeft = 1.em
+            }
+
+            child(MaterialButton::class) {
+                attrs {
+                    variant = "outlined"
+                    onClick = {
+                        if (state.changingArgs) {
+                            onChangeArgsCommit()
+                        }
+                        else {
+                            onChangeArgsStart()
+                        }
+                    }
+                }
+
+                val icon: KClass<out Component<IconProps, RState>> =
+                        if (state.changingArgs) {
+                            SaveIcon::class
+                        }
+                        else {
+                            EditIcon::class
+                        }
+
+                child(icon) {
+                    attrs {
+                        style = reactStyle {
+                            marginRight = 0.25.em
+                        }
+                    }
+                }
+
+                +"JVM Arguments"
+            }
+        }
+    }
+
+
+    private fun RBuilder.renderJvmArgs() {
+        if (! state.changingArgs && props.project.jvmArgs.isEmpty()) {
+            return
+        }
+
+        styledDiv {
+            if (state.changingArgs) {
+                child(MaterialTextField::class) {
+                    attrs {
+                        style = reactStyle {
+                            width = 36.em
+                        }
+
+                        label = "New JVM Arguments"
+                        value = state.newJvmArgs
+
+                        onChange = {
+                            val target = it.target as HTMLInputElement
+                            onChangeArgs(target.value)
+                        }
+                    }
+                }
+            }
+            else {
+                css {
+                    fontFamily = "monospace"
+                }
+
+                +"JVM Arguments: ${props.project.jvmArgs}"
+            }
+        }
+    }
+
+
+
     private fun RBuilder.renderRemove() {
         styledDiv {
             css {
@@ -276,7 +388,7 @@ class ProjectItem(
                         style = reactStyle {
                             marginRight = 0.25.em
                         }
-                    }
+                     }
                 }
 
                 +"Remove"

@@ -15,10 +15,13 @@ object CommonApi {
     const val removeProject = "${projectCommandPrefix}remove"
     const val deleteProject = "${projectCommandPrefix}delete"
     const val renameProject = "${projectCommandPrefix}rename"
+    const val jvmArgumentsProject = "${projectCommandPrefix}args"
 
     const val projectName = "name"
+    const val projectPath = "path"
+    const val projectExists = "exists"
+    const val projectJvmArgs = "args"
     const val createProjectType = "type"
-    const val importProjectPath = "path"
     const val projectNewName = "new"
 }
 

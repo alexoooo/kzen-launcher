@@ -12,6 +12,7 @@ import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAd
 import tech.kzen.launcher.common.CommonApi
 
 
+@Suppress("unused")
 @Configuration
 class ServerRestApi(
         private val restHandler: RestHandler
@@ -26,6 +27,7 @@ class ServerRestApi(
         GET(CommonApi.removeProject, restHandler::removeProject)
         GET(CommonApi.deleteProject, restHandler::deleteProject)
         GET(CommonApi.renameProject, restHandler::renameProject)
+        GET(CommonApi.jvmArgumentsProject, restHandler::changeArguments)
 
         // Used for inline testing
         GET("/shell/project", restHandler::runningProjectsDummy)

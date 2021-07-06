@@ -16,7 +16,7 @@ dependencies {
 
     implementation(kotlin("reflect"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$coroutinesVersion")
-    implementation("org.jetbrains:kotlin-css-jvm:1.0.0-$wrapperKotlinVersion")
+    implementation("org.jetbrains.kotlin-wrappers:kotlin-css-jvm:1.0.0-$wrapperKotlinVersion")
 
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("org.springframework.boot:spring-boot-starter-webflux")

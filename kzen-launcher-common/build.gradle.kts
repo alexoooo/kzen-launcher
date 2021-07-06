@@ -31,7 +31,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
-                implementation("org.jetbrains:kotlin-css:$kotlinCssVersion")
+                implementation("org.jetbrains.kotlin-wrappers:kotlin-css:$kotlinCssVersion")
             }
         }
 
@@ -47,7 +47,7 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 implementation("ch.qos.logback:logback-classic:$logbackVersion")
-                implementation("org.jetbrains:kotlin-css-jvm:$kotlinCssVersion")
+                implementation("org.jetbrains.kotlin-wrappers:kotlin-css-jvm:$kotlinCssVersion")
             }
         }
 
@@ -59,7 +59,9 @@ kotlin {
 
         @Suppress("UNUSED_VARIABLE")
         val jsMain by getting {
-            dependencies {}
+            dependencies {
+                api("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutinesVersion")
+            }
         }
 
         @Suppress("UNUSED_VARIABLE")

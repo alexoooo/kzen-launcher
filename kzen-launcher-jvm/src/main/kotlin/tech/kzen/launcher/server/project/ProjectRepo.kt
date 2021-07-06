@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableSet
 import com.google.common.collect.Maps
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import tech.kzen.launcher.common.CommonApi
 import tech.kzen.launcher.server.environment.LauncherEnvironment
 import java.nio.file.Files
 import java.nio.file.Path
@@ -106,9 +107,23 @@ class ProjectRepo {
         val oldInfo = previous[name]!!
         val newInfo = oldInfo.copy(home = newLocation)
 
-        val asMutable= previous.toMutableMap()
+        val asMutable = previous.toMutableMap()
         asMutable.remove(name)
         asMutable[newName] = newInfo
+        val next = ImmutableMap.copyOf(asMutable)
+
+        write(next)
+    }
+
+
+    fun changeArguments(name: String, jvmArguments: String) {
+        val previous = read()
+
+        val previousProject = previous[name]
+            ?: throw IllegalArgumentException("Project not found: $name")
+
+        val asMutable = previous.toMutableMap()
+        asMutable[name] = previousProject.copy(jvmArguments = jvmArguments)
         val next = ImmutableMap.copyOf(asMutable)
 
         write(next)
@@ -143,7 +158,8 @@ class ProjectRepo {
 
     private fun unbind(info: ProjectInfo): Map<String, Any> {
         return ImmutableMap.of(
-                homeProperty, info.home.toAbsolutePath().normalize().toString())
+            homeProperty, info.home.toAbsolutePath().normalize().toString(),
+            CommonApi.projectJvmArgs, info.jvmArguments)
     }
 
 
@@ -185,7 +201,10 @@ class ProjectRepo {
         val path = properties[homeProperty] as? TextNode
                 ?: throw IllegalStateException("Text expected ($name.$homeProperty): ${properties[homeProperty]}")
 
+        val jvmArgs = (properties[CommonApi.projectJvmArgs] as? TextNode)?.textValue() ?: ""
+
         return ProjectInfo(
-                Paths.get(path.textValue()))
+            Paths.get(path.textValue()),
+            jvmArgs)
     }
 }

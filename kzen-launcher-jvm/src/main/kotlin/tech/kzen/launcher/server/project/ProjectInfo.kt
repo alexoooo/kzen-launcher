@@ -4,4 +4,6 @@ import java.nio.file.Path
 
 
 data class ProjectInfo(
-        val home: Path)
+        val home: Path,
+        val jvmArguments: String = ""
+)

@@ -20,11 +20,11 @@ dependencies {
     implementation(project(":kzen-launcher-common"))
 
     implementation("org.jetbrains.kotlinx:kotlinx-html-assembly:$kotlinHtmlVersion")
-    implementation("org.jetbrains:kotlin-react:$kotlinReactVersion")
-    implementation("org.jetbrains:kotlin-react-dom:$kotlinReactDomVersion")
-    implementation("org.jetbrains:kotlin-styled:$kotlinStyledVersion")
-    implementation("org.jetbrains:kotlin-extensions:$kotlinExtensionsVersion")
-    implementation("org.jetbrains:kotlin-css-js:$kotlinCssVersion")
+    implementation("org.jetbrains.kotlin-wrappers:kotlin-react:$kotlinReactVersion")
+    implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:$kotlinReactDomVersion")
+    implementation("org.jetbrains.kotlin-wrappers:kotlin-styled:$kotlinStyledVersion")
+    implementation("org.jetbrains.kotlin-wrappers:kotlin-extensions:$kotlinExtensionsVersion")
+    implementation("org.jetbrains.kotlin-wrappers:kotlin-css-js:$kotlinCssVersion")
 
     implementation(npm("core-js", coreJsVersion))
     implementation(npm("react", reactVersion))

@@ -105,9 +105,10 @@ class RestHandler(
                     val exists = Files.exists(path)
 
                     val body = mapOf(
-                            "name" to it.key,
-                            "path" to normalized,
-                            "exists" to exists)
+                        CommonApi.projectName to it.key,
+                        CommonApi.projectPath to normalized,
+                        CommonApi.projectJvmArgs to it.value.jvmArguments,
+                        CommonApi.projectExists to exists)
 
                     body.entries.joinToString(prefix = "{", postfix = "}") {entry ->
                         "${IoUtil.escapeJsonString(entry.key)}: ${IoUtil.escapeJson(entry.value)}"
@@ -131,7 +132,7 @@ class RestHandler(
 
 
     fun importProject(serverRequest: ServerRequest): Mono<ServerResponse> {
-        val projectPath = serverRequest.queryParam(CommonApi.importProjectPath).get()
+        val projectPath = serverRequest.queryParam(CommonApi.projectPath).get()
 
         val projectHome = Paths.get(projectPath)
 
@@ -166,6 +167,16 @@ class RestHandler(
         val newName = serverRequest.queryParam(CommonApi.projectNewName).get()
 
         projectRepo.rename(projectName, newName)
+
+        return ServerResponse.ok().build()
+    }
+
+
+    fun changeArguments(serverRequest: ServerRequest): Mono<ServerResponse> {
+        val projectName = serverRequest.queryParam(CommonApi.projectName).get()
+        val jvmArguments = serverRequest.queryParam(CommonApi.projectJvmArgs).get()
+
+        projectRepo.changeArguments(projectName, jvmArguments)
 
         return ServerResponse.ok().build()
     }

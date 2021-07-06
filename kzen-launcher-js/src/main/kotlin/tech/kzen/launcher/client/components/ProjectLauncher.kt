@@ -3,6 +3,7 @@ package tech.kzen.launcher.client.components
 import kotlinx.css.*
 import kotlinx.html.title
 import react.*
+import react.dom.attrs
 import styled.*
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.clientRestApi
@@ -22,9 +23,7 @@ class ProjectLauncher(
         ErrorBus.Subscriber
 {
     //-----------------------------------------------------------------------------------------------------------------
-    class Props(
-
-    ): RProps
+    interface Props: RProps
 
     class State(
             var artifacts: List<ArchetypeDetail>?,
@@ -260,13 +259,10 @@ class ProjectLauncher(
                             textColor = "primary"
                             indicatorColor = "primary"
 
-                            value =
-                                    if (state.creating) {
-                                        1
-                                    }
-                                    else {
-                                        0
-                                    }
+                            value = when {
+                                state.creating -> 1
+                                else -> 0
+                            }
 
                             onChange = { _, index: Int ->
                                 if (state.creating && index == 0 ||

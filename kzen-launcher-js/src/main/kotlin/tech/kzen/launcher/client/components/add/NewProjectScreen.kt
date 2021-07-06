@@ -4,11 +4,11 @@ import kotlinx.css.*
 import kotlinx.html.title
 import org.w3c.dom.HTMLInputElement
 import react.*
+import react.dom.attrs
 import react.dom.div
 import styled.css
 import styled.styledDiv
 import styled.styledH2
-import styled.styledSpan
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.clientRestApi
 import tech.kzen.launcher.client.wrap.*
