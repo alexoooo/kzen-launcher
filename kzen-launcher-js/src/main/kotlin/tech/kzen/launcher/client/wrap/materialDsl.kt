@@ -4,7 +4,6 @@ import kotlinx.html.CommonAttributeGroupFacade
 import org.w3c.dom.events.Event
 import react.RBuilder
 import react.RHandler
-import react.RProps
 
 //fun RBuilder.materialButton(handler: RHandler<MaterialButtonProps>) = child(MaterialButton::class) {
 //    attrs {

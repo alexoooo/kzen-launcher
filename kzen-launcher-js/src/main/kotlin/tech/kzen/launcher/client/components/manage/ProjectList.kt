@@ -21,20 +21,26 @@ class ProjectList(
         props: Props
 ): RComponent<ProjectList.Props, ProjectList.State>(props) {
     //-----------------------------------------------------------------------------------------------------------------
-    class Props(
-            var projects: List<ProjectDetail>?,
+    interface Props: react.Props {
+        var projects: List<ProjectDetail>?
 
-            var didStart: (() -> Unit)?,
-            var didRemove: (() -> Unit)?,
-            var didDelete: (() -> Unit)?,
-            var didRename: (() -> Unit)?,
-            var didChangeJvmArgs: (() -> Unit)?
-    ): RProps
+        var didStart: (() -> Unit)?
+        var didRemove: (() -> Unit)?
+        var didDelete: (() -> Unit)?
+        var didRename: (() -> Unit)?
+        var didChangeJvmArgs: (() -> Unit)?
+    }
 
 
-    class State(
-            var starting: Boolean = false
-    ): RState
+    interface State: react.State {
+        var starting: Boolean
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
+    override fun State.init(props: Props) {
+        starting = false
+    }
 
 
     //-----------------------------------------------------------------------------------------------------------------

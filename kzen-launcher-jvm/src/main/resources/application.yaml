@@ -1,10 +1,11 @@
 
 kzen:
   archetypes:
-#    - name: KzenProjectJar-0.5.1-SNAPSHOT
-#      title: "Desktop Automation"
-#      description: "Visually control a browser and more - v0.5.1-SNAPSHOT"
+    - name: KzenProjectJar-24.0
+      title: "Desktop Automation"
+      description: "Visually control a browser and more - v0.24.0"
 #      url: file:///home/ao/IdeaProjects/kzen-auto/kzen-auto-jvm/build/libs/kzen-auto-jvm-0.5.1-SNAPSHOT-boot.jar
+      url: file:///C:/Users/ao/IdeaProjects/kzen-project/kzen-project-jvm/build/libs/kzen-project-jvm-0.24.0.jar
 
 #    - name: KzenProjectJar-0.19.0
 #      title: "Automation and Reporting"

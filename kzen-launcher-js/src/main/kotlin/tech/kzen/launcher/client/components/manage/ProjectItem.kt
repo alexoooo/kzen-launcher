@@ -15,24 +15,24 @@ class ProjectItem(
         props: Props
 ): RComponent<ProjectItem.Props, ProjectItem.State>(props) {
     //-----------------------------------------------------------------------------------------------------------------
-    class Props(
-            var project: ProjectDetail,
-            var starting: Boolean,
+    interface Props: react.Props {
+        var project: ProjectDetail
+        var starting: Boolean
 
-            var onStart: ((ProjectDetail) -> Unit),
-            var onRemove: ((ProjectDetail) -> Unit),
-            var onDelete: ((ProjectDetail) -> Unit),
-            var onRename: ((ProjectDetail, String) -> Unit),
-            var onChangeJvmArgs: ((ProjectDetail, String) -> Unit)
-    ): RProps
+        var onStart: ((ProjectDetail) -> Unit)
+        var onRemove: ((ProjectDetail) -> Unit)
+        var onDelete: ((ProjectDetail) -> Unit)
+        var onRename: ((ProjectDetail, String) -> Unit)
+        var onChangeJvmArgs: ((ProjectDetail, String) -> Unit)
+    }
 
 
-    class State(
-            var renaming: Boolean,
-            var changingArgs: Boolean,
-            var newName: String,
-            var newJvmArgs: String
-    ): RState
+    interface State: react.State {
+        var renaming: Boolean
+        var changingArgs: Boolean
+        var newName: String
+        var newJvmArgs: String
+    }
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -272,7 +272,7 @@ class ProjectItem(
                     }
                 }
 
-                val icon: KClass<out Component<IconProps, RState>> =
+                val icon: KClass<out Component<IconProps, react.State>> =
                         if (state.renaming) {
                             SaveIcon::class
                         }
@@ -314,7 +314,7 @@ class ProjectItem(
                     }
                 }
 
-                val icon: KClass<out Component<IconProps, RState>> =
+                val icon: KClass<out Component<IconProps, react.State>> =
                         if (state.changingArgs) {
                             SaveIcon::class
                         }

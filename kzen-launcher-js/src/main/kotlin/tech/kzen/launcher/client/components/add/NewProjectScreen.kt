@@ -18,7 +18,7 @@ import kotlin.js.Date
 
 @Suppress("unused")
 class NewProjectScreen(
-        props: NewProjectScreen.Props
+        props: Props
 ): RComponent<NewProjectScreen.Props, NewProjectScreen.State>(props) {
     //-----------------------------------------------------------------------------------------------------------------
     companion object {
@@ -42,17 +42,17 @@ class NewProjectScreen(
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    class Props(
-            var artifacts: List<ArchetypeDetail>?,
-            var didCreate: (() -> Unit)?
-    ): RProps
+    interface Props: react.Props {
+        var artifacts: List<ArchetypeDetail>?
+        var didCreate: (() -> Unit)?
+    }
 
 
-    class State(
-            var name: String,
-            var type: String?,
-            var path: String
-    ): RState
+    interface State: react.State {
+        var name: String
+        var type: String?
+        var path: String
+    }
 
 
     //-----------------------------------------------------------------------------------------------------------------

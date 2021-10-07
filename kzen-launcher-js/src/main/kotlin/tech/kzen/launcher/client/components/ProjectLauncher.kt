@@ -23,18 +23,18 @@ class ProjectLauncher(
         ErrorBus.Subscriber
 {
     //-----------------------------------------------------------------------------------------------------------------
-    interface Props: RProps
+    interface Props: react.Props
 
-    class State(
-            var artifacts: List<ArchetypeDetail>?,
-            var projects: List<ProjectDetail>?,
-            var runningProjects: List<String>?,
+    interface State: react.State {
+        var artifacts: List<ArchetypeDetail>?
+        var projects: List<ProjectDetail>?
+        var runningProjects: List<String>?
 
-            var loading: Boolean = false,
-            var errorMessage: String? = null,
+        var loading: Boolean
+        var errorMessage: String?
 
-            var creating: Boolean = false
-    ): RState
+        var creating: Boolean
+    }
 
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -42,6 +42,9 @@ class ProjectLauncher(
         artifacts = null
         projects = null
         runningProjects = null
+        loading = false
+        errorMessage = null
+        creating = false
     }
 
 

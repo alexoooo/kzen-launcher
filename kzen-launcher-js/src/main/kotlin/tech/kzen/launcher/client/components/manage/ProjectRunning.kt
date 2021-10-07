@@ -14,12 +14,12 @@ import tech.kzen.launcher.client.wrap.*
 @Suppress("unused")
 class ProjectRunning(
         props: ProjectRunning.Props
-): RComponent<ProjectRunning.Props, RState>(props) {
+): RComponent<ProjectRunning.Props, react.State>(props) {
     //-----------------------------------------------------------------------------------------------------------------
-    class Props(
-            var projects: List<String>?,
-            var didStop: (() -> Unit)?
-    ) : RProps
+    interface Props: react.Props {
+        var projects: List<String>?
+        var didStop: (() -> Unit)?
+    }
 
 
     //-----------------------------------------------------------------------------------------------------------------

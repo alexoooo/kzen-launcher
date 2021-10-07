@@ -2,8 +2,6 @@
 package tech.kzen.launcher.client.wrap
 
 import react.Component
-import react.RProps
-import react.RState
 import react.ReactElement
 import kotlin.js.Json
 
@@ -19,12 +17,12 @@ import kotlin.js.Json
 
 // see: https://codesandbox.io/s/ly87zo23kl
 @JsName("default")
-external class ReactSelect: Component<ReactSelectProps, RState> {
+external class ReactSelect: Component<ReactSelectProps, react.State> {
     override fun render(): ReactElement?
 }
 
 
-external interface ReactSelectProps: RProps {
+external interface ReactSelectProps: react.Props {
     var id: String
 
     var value: ReactSelectOption?

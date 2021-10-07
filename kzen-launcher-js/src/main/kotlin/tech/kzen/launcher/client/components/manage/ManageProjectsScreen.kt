@@ -16,19 +16,19 @@ class ManageProjectsScreen(
         RComponent<ManageProjectsScreen.Props, ManageProjectsScreen.State>(props)
 {
     //-----------------------------------------------------------------------------------------------------------------
-    class Props(
-            var projects: List<ProjectDetail>?,
-            var runningProjects: List<String>?,
+    interface Props: react.Props {
+        var projects: List<ProjectDetail>?
+        var runningProjects: List<String>?
 
-            var onProjectsChanged: (() -> Unit)?,
-            var onRunningChanged: (() -> Unit)?
-    ): RProps
+        var onProjectsChanged: (() -> Unit)?
+        var onRunningChanged: (() -> Unit)?
+    }
 
 
-    class State(
-            var projects: List<ProjectDetail>?,
-            var runningProjects: List<String>?
-    ): RState
+    interface State: react.State {
+        var projects: List<ProjectDetail>?
+        var runningProjects: List<String>?
+    }
 
 
     //-----------------------------------------------------------------------------------------------------------------

@@ -6,7 +6,7 @@ import kotlin.js.json
 
 
 fun reactStyle(handler: RuleSet): Json {
-    val style = CSSBuilder().apply(handler)
+    val style = CssBuilder().apply(handler)
 
     val reactStyles = json()
 

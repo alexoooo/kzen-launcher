@@ -188,26 +188,22 @@ class RestHandler(
         val excludingInitialSlash = serverRequest.path().substring(1)
 
         val resolvedPath =
-                if (excludingInitialSlash == "") {
-                    "index.html"
-                }
-                else {
-                    excludingInitialSlash
-                }
+            if (excludingInitialSlash == "") {
+                "index.html"
+            }
+            else {
+                excludingInitialSlash
+            }
 
         val path = Paths.get(resolvedPath).normalize()
         val extension = MoreFiles.getFileExtension(path)
 
         if (! isResourceAllowed(path, extension)) {
-            return ServerResponse
-                    .badRequest()
-                    .build()
+            return ServerResponse.badRequest().build()
         }
 
         val bytes: ByteArray = readResource(path)
-                ?: return ServerResponse
-                        .notFound()
-                        .build()
+            ?: return ServerResponse.notFound().build()
 
         val builder = ServerResponse.ok()
 
