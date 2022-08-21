@@ -1,12 +1,3 @@
-pluginManagement {
-    repositories {
-        maven { setUrl("https://dl.bintray.com/kotlin/kotlin-dev") }
-        maven { setUrl("https://dl.bintray.com/kotlin/kotlin-eap") }
-        mavenCentral()
-        maven { setUrl("https://plugins.gradle.org/m2/") }
-    }
-}
-
-
+rootProject.name = "kzen-launcher"
 include("kzen-launcher-common", "kzen-launcher-js", "kzen-launcher-jvm")
 

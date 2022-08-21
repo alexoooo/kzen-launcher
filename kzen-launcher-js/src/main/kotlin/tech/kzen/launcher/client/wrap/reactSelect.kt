@@ -18,7 +18,7 @@ import kotlin.js.Json
 // see: https://codesandbox.io/s/ly87zo23kl
 @JsName("default")
 external class ReactSelect: Component<ReactSelectProps, react.State> {
-    override fun render(): ReactElement?
+    override fun render(): ReactElement<ReactSelectProps>?
 }
 
 
