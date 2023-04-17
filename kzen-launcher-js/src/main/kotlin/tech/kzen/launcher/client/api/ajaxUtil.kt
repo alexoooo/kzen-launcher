@@ -14,17 +14,17 @@ external fun encodeURIComponent(str: String): String
 private val spaRoot = window.location.pathname.substringBeforeLast("/")
 val clientRestApi = ClientProjectRestApi(
         baseUrl = spaRoot,
-        baseWsUrl = getWsServer()
+//        baseWsUrl = getWsServer()
 )
 
 val shellRestApi = ClientShellRestApi()
 
 
-private fun getWsServer(): String {
-    val location = window.location
-    val wsProtocol = if (location.protocol == "https:") "wss" else "ws"
-    return "$wsProtocol://${location.host}"
-}
+//private fun getWsServer(): String {
+//    val location = window.location
+//    val wsProtocol = if (location.protocol == "https:") "wss" else "ws"
+//    return "$wsProtocol://${location.host}"
+//}
 
 
 suspend fun httpGet(url: String): String = suspendCoroutine { c ->

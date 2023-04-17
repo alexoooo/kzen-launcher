@@ -1,25 +1,40 @@
 package tech.kzen.launcher.client.components.add
 
-import kotlinx.css.*
-import kotlinx.html.title
-import org.w3c.dom.HTMLInputElement
+import csstype.*
+import emotion.react.css
+import js.core.jso
+import mui.material.*
 import react.*
-import react.dom.attrs
-import react.dom.div
-import styled.css
-import styled.styledDiv
-import styled.styledH2
+import react.dom.html.ReactHTML.div
+import react.dom.html.ReactHTML.h2
+import react.dom.onChange
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.clientRestApi
 import tech.kzen.launcher.client.wrap.*
 import tech.kzen.launcher.common.dto.ArchetypeDetail
+import web.html.HTMLInputElement
 import kotlin.js.Date
 
 
+//---------------------------------------------------------------------------------------------------------------------
+external interface NewProjectScreenProps: react.Props {
+    var artifacts: List<ArchetypeDetail>?
+    var didCreate: (() -> Unit)?
+}
+
+
+external interface NewProjectScreenState: react.State {
+    var name: String
+    var type: String?
+    var path: String
+}
+
+
+//---------------------------------------------------------------------------------------------------------------------
 @Suppress("unused")
 class NewProjectScreen(
-        props: Props
-): RComponent<NewProjectScreen.Props, NewProjectScreen.State>(props) {
+        props: NewProjectScreenProps
+): RComponent<NewProjectScreenProps, NewProjectScreenState>(props) {
     //-----------------------------------------------------------------------------------------------------------------
     companion object {
         private const val defaultNamePrefix = "My New Project"
@@ -42,21 +57,7 @@ class NewProjectScreen(
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    interface Props: react.Props {
-        var artifacts: List<ArchetypeDetail>?
-        var didCreate: (() -> Unit)?
-    }
-
-
-    interface State: react.State {
-        var name: String
-        var type: String?
-        var path: String
-    }
-
-
-    //-----------------------------------------------------------------------------------------------------------------
-    override fun State.init(props: Props) {
+    override fun NewProjectScreenState.init(props: NewProjectScreenProps) {
 //        console.log("init: props.projects - ${props.artifacts}")
 
         name = newInitialName()
@@ -65,7 +66,11 @@ class NewProjectScreen(
     }
 
 
-    override fun componentDidUpdate(prevProps: Props, prevState: State, snapshot: Any) {
+    override fun componentDidUpdate(
+        prevProps: NewProjectScreenProps,
+        prevState: NewProjectScreenState,
+        snapshot: Any
+    ) {
         if (state.type == null && props.artifacts != null) {
             setState {
                 type = props.artifacts!!.iterator().next().name
@@ -131,21 +136,18 @@ class NewProjectScreen(
     }
 
 
-
     //-----------------------------------------------------------------------------------------------------------------
-    override fun RBuilder.render() {
+    override fun ChildrenBuilder.render() {
 //        console.log("render: ${props.artifacts} | ${state.name} | ${state.type}")
 
-        child(MaterialPaper::class) {
-            attrs {
-                style = reactStyle {
-                    backgroundColor = Color.white
-                    margin(2.em)
-                }
+        Paper {
+            css {
+                backgroundColor = NamedColor.white
+                margin = Margin(2.em, 2.em, 2.em, 2.em)
             }
 
-            child(MaterialCardContent::class) {
-                styledH2 {
+            CardContent {
+                h2 {
                     css {
                         marginTop = 0.px
                     }
@@ -156,16 +158,14 @@ class NewProjectScreen(
             }
         }
 
-        child(MaterialCard::class) {
-            attrs {
-                style = reactStyle {
-                    backgroundColor = Color.white
-                    margin(2.em)
-                }
+        Card {
+            css {
+                backgroundColor = NamedColor.white
+                margin = Margin(2.em, 2.em, 2.em, 2.em)
             }
 
-            child(MaterialCardContent::class) {
-                styledH2 {
+            CardContent {
+                h2 {
                     css {
                         marginTop = 0.px
                     }
@@ -178,17 +178,17 @@ class NewProjectScreen(
     }
 
 
-    private fun RBuilder.renderCreate() {
-        styledDiv {
+    private fun ChildrenBuilder.renderCreate() {
+        div {
             css {
                 display = Display.inlineBlock
             }
 
-            styledDiv {
+            div {
                 renderName()
             }
 
-            styledDiv {
+            div {
                 css {
                     marginTop = 1.em
                     marginBottom = 1.em
@@ -198,17 +198,13 @@ class NewProjectScreen(
             }
 
             div {
-                child(MaterialButton::class) {
-                    attrs {
-                        variant = "outlined"
-                        onClick = ::onCreate
-                    }
+                Button {
+                    variant = ButtonVariant.outlined
+                    onClick = { onCreate() }
 
-                    child(CreateIcon::class) {
-                        attrs {
-                            style = reactStyle {
-                                marginRight = 0.25.em
-                            }
+                    CreateIcon::class.react {
+                        style = jso {
+                            marginRight = 0.25.em
                         }
                     }
 
@@ -219,15 +215,14 @@ class NewProjectScreen(
     }
 
 
-    private fun RBuilder.renderImport() {
-        styledDiv {
+    private fun ChildrenBuilder.renderImport() {
+        div {
             css {
                 display = Display.inlineBlock
             }
 
-            styledDiv {
+            div {
                 css {
-//                    marginTop = 1.5.em
                     marginBottom = 1.em
                 }
 
@@ -235,17 +230,13 @@ class NewProjectScreen(
             }
 
             div {
-                child(MaterialButton::class) {
-                    attrs {
-                        variant = "outlined"
-                        onClick = ::onImport
-                    }
+                Button {
+                    variant = ButtonVariant.outlined
+                    onClick = { onImport() }
 
-                    child(RedoIcon::class) {
-                        attrs {
-                            style = reactStyle {
-                                marginRight = 0.25.em
-                            }
+                    RedoIcon::class.react {
+                        style = jso {
+                            marginRight = 0.25.em
                         }
                     }
 
@@ -256,45 +247,41 @@ class NewProjectScreen(
     }
 
 
-    private fun RBuilder.renderName() {
-        child(MaterialTextField::class) {
-            attrs {
-                style = reactStyle {
-                    width = 36.em
-                }
+    private fun ChildrenBuilder.renderName() {
+        TextField {
+            css {
+                width = 36.em
+            }
 
-//                fullWidth = true
+            label = ReactNode("Name")
+            value = state.name
 
-                label = "Name"
-                value = state.name
-
-                onChange = {
-                    val target = it.target as HTMLInputElement
-                    onNameChange(target.value)
-                }
+            onChange = {
+                val target = it.target as HTMLInputElement
+                onNameChange(target.value)
             }
         }
 
-        styledDiv {
-            attrs {
-                title = "Must be a valid file name"
-            }
+        div {
+            title = "Must be a valid file name"
+
             css {
                 display = Display.inlineBlock
                 marginTop = 1.em
                 marginLeft = 0.5.em
             }
-            child(InfoIcon::class) {}
+
+            InfoIcon::class.react {}
         }
     }
 
 
-    private fun RBuilder.renderTypeSelect() {
+    private fun ChildrenBuilder.renderTypeSelect() {
         if (props.artifacts == null || state.type == null) {
             +"Loading..."
         }
         else {
-            styledDiv {
+            div {
                 css {
                     width = 36.em
                     position = Position.relative
@@ -306,27 +293,24 @@ class NewProjectScreen(
 
                 val selectId = "material-react-select-id"
 
-                child(MaterialInputLabel::class) {
-                    attrs {
-                        htmlFor = selectId
+                InputLabel {
+                    htmlFor = selectId
 
-                        style = reactStyle {
-                            fontSize = 0.8.em
-                        }
+                    css {
+                        fontSize = 0.8.em
                     }
+
                     +"Type"
                 }
 
-                child(ReactSelect::class) {
-                    attrs {
-                        id = selectId
-                        value = selectOptions.find { it.value == state.type }
+                ReactSelect::class.react {
+                    id = selectId
+                    value = selectOptions.find { it.value == state.type }
 
-                        options = selectOptions
+                    options = selectOptions
 
-                        onChange = {
-                            onTypeChange(it.value)
-                        }
+                    onChange = {
+                        onTypeChange(it.value)
                     }
                 }
             }
@@ -334,20 +318,18 @@ class NewProjectScreen(
     }
 
 
-    private fun RBuilder.renderPath() {
-        child(MaterialTextField::class) {
-            attrs {
-                style = reactStyle {
-                    width = 36.em
-                }
+    private fun ChildrenBuilder.renderPath() {
+        TextField {
+            css {
+                width = 36.em
+            }
 
-                label = "Path"
-                value = state.path
+            label = ReactNode("Path")
+            value = state.path
 
-                onChange = {
-                    val target = it.target as HTMLInputElement
-                    onPathChange(target.value)
-                }
+            onChange = {
+                val target = it.target as HTMLInputElement
+                onPathChange(target.value)
             }
         }
     }

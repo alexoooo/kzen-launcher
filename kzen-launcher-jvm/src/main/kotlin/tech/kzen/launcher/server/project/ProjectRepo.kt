@@ -9,15 +9,15 @@ import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableSet
 import com.google.common.collect.Maps
 import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Component
-import tech.kzen.launcher.common.CommonApi
+//import org.springframework.stereotype.Component
+import tech.kzen.launcher.common.api.CommonRestApi
 import tech.kzen.launcher.server.environment.LauncherEnvironment
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 
 
-@Component
+//@Component
 class ProjectRepo {
     //-----------------------------------------------------------------------------------------------------------------
     companion object {
@@ -159,7 +159,7 @@ class ProjectRepo {
     private fun unbind(info: ProjectInfo): Map<String, Any> {
         return ImmutableMap.of(
             homeProperty, info.home.toAbsolutePath().normalize().toString(),
-            CommonApi.projectJvmArgs, info.jvmArguments)
+            CommonRestApi.projectJvmArgs, info.jvmArguments)
     }
 
 
@@ -201,7 +201,7 @@ class ProjectRepo {
         val path = properties[homeProperty] as? TextNode
                 ?: throw IllegalStateException("Text expected ($name.$homeProperty): ${properties[homeProperty]}")
 
-        val jvmArgs = (properties[CommonApi.projectJvmArgs] as? TextNode)?.textValue() ?: ""
+        val jvmArgs = (properties[CommonRestApi.projectJvmArgs] as? TextNode)?.textValue() ?: ""
 
         return ProjectInfo(
             Paths.get(path.textValue()),

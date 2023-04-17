@@ -3,7 +3,7 @@ package tech.kzen.launcher.server.project
 import com.google.common.io.ByteStreams
 import com.google.common.io.MoreFiles
 import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Component
+//import org.springframework.stereotype.Component
 import tech.kzen.launcher.server.archetype.ArchetypeRepo
 import tech.kzen.launcher.server.environment.LauncherEnvironment
 import java.io.*
@@ -17,9 +17,9 @@ import java.nio.file.FileSystems
 
 
 
-@Component
+//@Component
 class ProjectCreator(
-        val archetypeRepo: ArchetypeRepo
+    val archetypeRepo: ArchetypeRepo
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(ProjectCreator::class.java)!!

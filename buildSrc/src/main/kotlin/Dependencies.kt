@@ -1,35 +1,28 @@
-const val kotlinVersion = "1.7.10"
-const val jvmTargetVersion = "18"
-const val jvmToolchainVersion = 18
-const val springBootVersion = "2.7.2"
-const val dependencyManagementVersion = "1.0.13.RELEASE"
+const val kotlinVersion = "1.8.20"
+const val jvmTargetVersion = "19"
+const val javaVersion = 19
+const val jvmToolchainVersion = 19
 
-const val coroutinesVersion = "1.6.3"
+const val coroutinesVersion = "1.6.4"
 
-const val logbackVersion = "1.2.11"
+const val ktorVersion = "2.2.4"
+
+
+const val logbackVersion = "1.4.5"
 const val guavaVersion = "31.1-jre"
-const val commonsCompressVersion = "1.21"
-const val jacksonModuleKotlin = "2.13.3"
-const val jacksonDataformatYaml = "2.13.3"
+const val commonsCompressVersion = "1.22"
+const val jacksonModuleKotlin = "2.14.2"
+const val jacksonDataformatYaml = "2.14.2"
 
-const val coreJsVersion = "3.24.1"
-const val reactVersion = "18.2.0"
-const val inlineStylePrefixerVersion = "6.0.1"
-const val styledComponentsVersion = "5.3.5"
-const val kotlinHtmlVersion = "0.7.5"
-const val materialUiCoreVersion = "4.12.4"
-const val materialUiIconsVersion = "4.11.3"
-const val reactSelectVersion = "5.4.0"
+const val coreJsVersion = "3.30.0"
+const val kotlinxHtmlVersion = "0.8.0"
 
-//const val wrapperKotlinVersion = "pre.268-kotlin-1.6.0"
-//const val kotlinReactVersion = "17.0.2-$wrapperKotlinVersion"
-//const val kotlinReactDomVersion = "17.0.2-$wrapperKotlinVersion"
-//const val kotlinStyledVersion = "5.3.3-$wrapperKotlinVersion"
-//const val kotlinExtensionsVersion = "1.0.1-$wrapperKotlinVersion"
-//const val kotlinCssVersion = "1.0.0-$wrapperKotlinVersion"
-const val wrapperKotlinVersion = "pre.370"
+const val reactSelectVersion = "5.7.0"
+const val muiIconsVersion = "5.11.11"
+
+const val wrapperKotlinVersion = "pre.531"
 const val kotlinReactVersion = "18.2.0-$wrapperKotlinVersion"
 const val kotlinReactDomVersion = "18.2.0-$wrapperKotlinVersion"
-const val kotlinStyledVersion = "5.3.5-$wrapperKotlinVersion"
-const val kotlinExtensionsVersion = "1.0.1-$wrapperKotlinVersion"
-const val kotlinCssVersion = "1.0.0-$wrapperKotlinVersion"
+//const val kotlinExtensionsVersion = "1.0.1-$wrapperKotlinVersion"
+const val kotlinEmotionVersion = "11.10.6-$wrapperKotlinVersion"
+const val kotlinMuiVersion = "5.9.1-$wrapperKotlinVersion"

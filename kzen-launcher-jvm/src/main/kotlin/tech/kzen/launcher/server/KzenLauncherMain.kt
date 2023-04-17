@@ -1,15 +1,185 @@
 package tech.kzen.launcher.server
 
-import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.runApplication
-import org.springframework.web.reactive.config.EnableWebFlux
+import io.ktor.http.*
+import io.ktor.serialization.jackson.*
+import io.ktor.server.application.*
+import io.ktor.server.engine.*
+import io.ktor.server.html.*
+import io.ktor.server.http.content.*
+import io.ktor.server.netty.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import tech.kzen.launcher.common.api.CommonRestApi
+import tech.kzen.launcher.common.api.staticResourceDir
+import tech.kzen.launcher.common.api.staticResourcePath
+import tech.kzen.launcher.server.api.RestHandler
+import tech.kzen.launcher.server.archetype.ArchetypeRepo
+import tech.kzen.launcher.server.backend.indexPage
+import tech.kzen.launcher.server.project.ProjectCreator
+import tech.kzen.launcher.server.project.ProjectRepo
+import tech.kzen.launcher.server.properties.KzenProperties
+import tech.kzen.launcher.server.service.DownloadService
 
 
-@EnableWebFlux
-@SpringBootApplication
-class KzenLauncherMain
+//---------------------------------------------------------------------------------------------------------------------
+data class KzenLauncherConfig(
+    val jsModuleName: String,
+    val port: Int = 80,
+    val host: String = "127.0.0.1"
+) {
+    fun jsFileName(): String {
+        return "$jsModuleName.js"
+    }
+
+    fun jsResourcePath(): String {
+        return "$staticResourcePath/${jsFileName()}"
+    }
+}
 
 
+data class KzenLauncherContext(
+    val config: KzenLauncherConfig,
+    val restApi: RestHandler,
+    val downloadService: DownloadService,
+    val archetypeRepo: ArchetypeRepo,
+) {
+    fun init() {
+        downloadService.trustBadCertificate()
+        archetypeRepo.init()
+    }
+}
+
+
+
+//---------------------------------------------------------------------------------------------------------------------
+const val kzenLauncherJsModuleName = "kzen-launcher-js"
+//const val jsResourcePath = "$staticResourcePath/$jsFileName"
+
+private const val indexFileName = "index.html"
+private const val indexFilePath = "/$indexFileName"
+
+
+//---------------------------------------------------------------------------------------------------------------------
+private fun buildContext(args: Array<String>): KzenLauncherContext {
+    val kzenProperties = KzenProperties()
+    val projectArchetype = KzenProperties.Archetype()
+    projectArchetype.name = "KzenProjectJar-0.25.1"
+    projectArchetype.title = "Automation and Reporting"
+    projectArchetype.description = "Visually control a browser and more - v0.25.1"
+    projectArchetype.url = "file:///C:/Users/ao/IdeaProjects/kzen-project/kzen-project-jvm/build/libs/kzen-project-jvm-0.25.1-SNAPSHOT.jar"
+    kzenProperties.archetypes.add(projectArchetype)
+
+    val downloadService = DownloadService()
+    val archetypeRepo = ArchetypeRepo(downloadService, kzenProperties)
+    val projectRepo = ProjectRepo()
+    val projectCreator = ProjectCreator(archetypeRepo)
+    val restHandler = RestHandler(archetypeRepo, projectRepo, projectCreator)
+//    val serverRestApi = ServerRestApi(restHandler)
+
+    val config = KzenLauncherConfig(
+        kzenLauncherJsModuleName,
+        port = 8080
+    )
+
+    return KzenLauncherContext(
+        config, restHandler, downloadService, archetypeRepo)
+}
+
+
+//---------------------------------------------------------------------------------------------------------------------
 fun main(args: Array<String>) {
-    runApplication<KzenLauncherMain>(*args)
+    val context = buildContext(args)
+    context.init()
+    kzenLauncherMain(context)
+}
+
+
+fun kzenLauncherMain(context: KzenLauncherContext) {
+    embeddedServer(
+        Netty,
+        port = context.config.port,
+        host = context.config.host
+    ) {
+        ktorMain(context)
+    }.start(wait = true)
+}
+
+
+fun Application.ktorMain(
+    context: KzenLauncherContext
+) {
+    install(ContentNegotiation) {
+        jackson()
+    }
+
+    routing {
+        routeRequests(context)
+    }
+}
+
+
+//---------------------------------------------------------------------------------------------------------------------
+private fun Routing.routeRequests(
+    context: KzenLauncherContext
+) {
+    get("/") {
+        call.respondRedirect(indexFileName)
+    }
+    get(indexFilePath) {
+        call.respondHtml(HttpStatusCode.OK) {
+            indexPage(context.config)
+        }
+    }
+
+    static(staticResourcePath) {
+        resources(staticResourceDir)
+    }
+
+    routeRest(context.restApi)
+}
+
+
+private fun Routing.routeRest(
+    restHandler: RestHandler
+) {
+    get(CommonRestApi.listArchetypes) {
+        val response = restHandler.listArchetypes()
+        call.respond(response)
+    }
+
+    get(CommonRestApi.listProjects) {
+        val response = restHandler.listProjects()
+        call.respond(response)
+    }
+    get(CommonRestApi.createProject) {
+        restHandler.createProject(call.parameters)
+        call.response.status(HttpStatusCode.OK)
+    }
+    get(CommonRestApi.importProject) {
+        restHandler.importProject(call.parameters)
+        call.response.status(HttpStatusCode.OK)
+    }
+    get(CommonRestApi.removeProject) {
+        restHandler.removeProject(call.parameters)
+        call.response.status(HttpStatusCode.OK)
+    }
+    get(CommonRestApi.deleteProject) {
+        restHandler.deleteProject(call.parameters)
+        call.response.status(HttpStatusCode.OK)
+    }
+    get(CommonRestApi.renameProject) {
+        restHandler.renameProject(call.parameters)
+        call.response.status(HttpStatusCode.OK)
+    }
+    get(CommonRestApi.jvmArgumentsProject) {
+        restHandler.jvmArgumentsProject(call.parameters)
+        call.response.status(HttpStatusCode.OK)
+    }
+
+    // Used for inline testing
+    get("/shell/project") {
+        val response = restHandler.runningProjectsDummy()
+        call.respond(response)
+    }
 }

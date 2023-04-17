@@ -6,6 +6,12 @@ import tech.kzen.launcher.client.components.ProjectLauncher
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.dom.clear
+import react.Fragment
+import react.create
+import react.dom.client.createRoot
+import react.react
+import tech.kzen.launcher.common.api.rootHtmlElementId
+import web.html.HTMLElement
 
 
 fun main() {
@@ -13,16 +19,27 @@ fun main() {
 //    val withoutFile = pathname.substringBeforeLast("/")
 //    console.log("^^^^", withoutFile)
 
+    fun emptyRootElement(): HTMLElement {
+        val rootElement = web.dom.document.getElementById(rootHtmlElementId)
+            ?: throw IllegalStateException("'$rootHtmlElementId' element not found")
+
+        while (rootElement.hasChildNodes()) {
+            rootElement.removeChild(rootElement.firstChild!!)
+        }
+        return rootElement
+    }
+
     window.onload = {
         async {
-            val rootElement = document.getElementById("root")
-                    ?: throw IllegalStateException("'root' element not found")
+            val rootElement = emptyRootElement()
 
-            rootElement.clear()
+            createRoot(rootElement).render(Fragment.create {
+                ProjectLauncher::class.react {}
+            })
 
-            render(rootElement) {
-                child(ProjectLauncher::class) {}
-            }
+//            render(rootElement) {
+//                child(ProjectLauncher::class) {}
+//            }
         }
     }
 }

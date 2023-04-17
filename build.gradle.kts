@@ -5,7 +5,7 @@ plugins {
 
 allprojects {
     group = "tech.kzen.launcher"
-    version = "0.25.0"
+    version = "0.25.1-SNAPSHOT"
 
     repositories {
         mavenCentral()

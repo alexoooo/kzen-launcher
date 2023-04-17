@@ -1,10 +1,12 @@
 package tech.kzen.launcher.client.components
 
-import kotlinx.css.*
-import kotlinx.html.title
+import csstype.*
+import emotion.react.css
+import mui.material.*
 import react.*
-import react.dom.attrs
-import styled.*
+import react.dom.html.ReactHTML.a
+import react.dom.html.ReactHTML.div
+import react.dom.html.ReactHTML.img
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.clientRestApi
 import tech.kzen.launcher.client.api.shellRestApi
@@ -12,33 +14,46 @@ import tech.kzen.launcher.client.components.add.NewProjectScreen
 import tech.kzen.launcher.client.components.manage.ManageProjectsScreen
 import tech.kzen.launcher.client.service.ErrorBus
 import tech.kzen.launcher.client.wrap.*
+import tech.kzen.launcher.common.api.staticResourcePath
 import tech.kzen.launcher.common.dto.ArchetypeDetail
 import tech.kzen.launcher.common.dto.ProjectDetail
+import kotlin.Float
 
 
+//---------------------------------------------------------------------------------------------------------------------
+external interface ProjectLauncherState: react.State {
+    var artifacts: List<ArchetypeDetail>?
+    var projects: List<ProjectDetail>?
+    var runningProjects: List<String>?
+
+    var loading: Boolean
+    var errorMessage: String?
+
+    var creating: Boolean
+}
+
+
+//---------------------------------------------------------------------------------------------------------------------
 class ProjectLauncher(
-        props: Props
+    props: Props
 ):
-        RComponent<ProjectLauncher.Props, ProjectLauncher.State>(props),
-        ErrorBus.Subscriber
+    RComponent<Props, ProjectLauncherState>(props),
+    ErrorBus.Subscriber
 {
     //-----------------------------------------------------------------------------------------------------------------
-    interface Props: react.Props
-
-    interface State: react.State {
-        var artifacts: List<ArchetypeDetail>?
-        var projects: List<ProjectDetail>?
-        var runningProjects: List<String>?
-
-        var loading: Boolean
-        var errorMessage: String?
-
-        var creating: Boolean
+    companion object {
+        val goldLight20 = Color("#ffe13f")
+        val goldLight25 = Color("#ffe13f")
+        val goldLight50 = Color("#ffeb7f")
+        val goldLight75 = Color("#fff5bf")
+        val goldLight90 = Color("#fffbe5")
+        val goldLight93 = Color("#fffced")
     }
 
 
+
     //-----------------------------------------------------------------------------------------------------------------
-    override fun State.init(props: Props) {
+    override fun ProjectLauncherState.init(props: Props) {
         artifacts = null
         projects = null
         runningProjects = null
@@ -60,7 +75,7 @@ class ProjectLauncher(
     }
 
 
-    override fun componentDidUpdate(prevProps: Props, prevState: State, snapshot: Any) {
+    override fun componentDidUpdate(prevProps: Props, prevState: ProjectLauncherState, snapshot: Any) {
         loadFromServerIfRequired()
     }
 
@@ -165,10 +180,10 @@ class ProjectLauncher(
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    override fun RBuilder.render() {
+    override fun ChildrenBuilder.render() {
         renderHeader()
 
-        styledDiv {
+        div {
             css {
                 // offset position = fixed from AppBar above
                 marginTop = 6.em
@@ -182,67 +197,61 @@ class ProjectLauncher(
     }
 
 
-    private fun RBuilder.renderBody() {
+    private fun ChildrenBuilder.renderBody() {
         renderErrorMessage()
 
         if (state.creating) {
-            child(NewProjectScreen::class) {
-                attrs {
-                    artifacts = state.artifacts
+            NewProjectScreen::class.react {
+                artifacts = state.artifacts
 
-                    didCreate = {
-                        setState {
-                            creating = false
-                            projects = null
-                        }
-                        loadFromServerIfRequired()
+                didCreate = {
+                    setState {
+                        creating = false
+                        projects = null
                     }
+                    loadFromServerIfRequired()
                 }
             }
         }
         else {
-            child(ManageProjectsScreen::class) {
-                attrs {
-                    projects = state.projects
-                    runningProjects = state.runningProjects
+            ManageProjectsScreen::class.react {
+                projects = state.projects
+                runningProjects = state.runningProjects
 
-                    onProjectsChanged = {
-                        setState {
-                            projects = null
-                        }
-                        loadFromServerIfRequired()
+                onProjectsChanged = {
+                    setState {
+                        projects = null
                     }
+                    loadFromServerIfRequired()
+                }
 
-                    onRunningChanged = {
-                        setState {
-                            runningProjects = null
-                        }
-                        loadFromServerIfRequired()
+                onRunningChanged = {
+                    setState {
+                        runningProjects = null
                     }
+                    loadFromServerIfRequired()
                 }
             }
         }
     }
 
 
-    private fun RBuilder.renderHeader() {
-        child(MaterialAppBar::class) {
-            attrs {
-                position = "fixed"
+    private fun ChildrenBuilder.renderHeader() {
+        AppBar {
+            position = AppBarPosition.fixed
 
-                style = reactStyle {
-                    backgroundColor = Color.white
-                }
+            css {
+                backgroundColor = NamedColor.white
             }
 
-            styledDiv {
+            div {
                 css {
                     width = 100.pct
                 }
 
-                styledDiv {
+                div {
                     css {
-                        float = Float.left
+                        float = csstype.Float.left
 
                         marginLeft = 1.em
                         marginTop = (0.5).em
@@ -251,64 +260,56 @@ class ProjectLauncher(
                     renderLogo()
                 }
 
-                styledDiv {
+                div {
                     css {
-                        float = Float.left
+                        float = csstype.Float.left
                         marginTop = (-5).px
                     }
 
-                    child(MaterialTabs::class) {
-                        attrs {
-                            textColor = "primary"
-                            indicatorColor = "primary"
+                    Tabs {
+                        textColor = TabsTextColor.primary
+                        indicatorColor = TabsIndicatorColor.primary
 
-                            value = when {
-                                state.creating -> 1
-                                else -> 0
-                            }
+                        value = when {
+                            state.creating -> 1
+                            else -> 0
+                        }
 
-                            onChange = { _, index: Int ->
-                                if (state.creating && index == 0 ||
-                                        ! state.creating && index == 1) {
-                                    onCreateToggle()
-                                }
+                        onChange = { _, index: Int ->
+                            if (state.creating && index == 0 ||
+                                ! state.creating && index == 1) {
+                                onCreateToggle()
                             }
                         }
 
-                        child(MaterialTab::class) {
-                            attrs {
-                                label = "Open"
-                                icon = buildElement {
-                                    child(LaunchIcon::class) {}
-                                }
+                        Tab {
+                            label = ReactNode("Open")
+                            icon = Fragment.create {
+                                LaunchIcon::class.react {}
                             }
                         }
 
                         // TODO: https://github.com/mui-org/material-ui/issues/11653
-                        child(MaterialTab::class) {
-                            attrs {
-                                label = "New Project"
-                                icon = buildElement {
-                                    child(AddCircleOutlineIcon::class) {}
-                                }
+                        Tab {
+                            label = ReactNode("New Project")
+                            icon = Fragment.create {
+                                AddCircleOutlineIcon::class.react {}
                             }
                         }
                     }
                 }
 
-                styledDiv {
+                div {
                     css {
-                        float = Float.left
+                        float = csstype.Float.left
 
                         fontStyle = FontStyle.italic
                         fontSize = 1.5.em
                         marginTop = 1.em
                         marginLeft = 1.em
-                        color = Color.black
+                        color = NamedColor.black
                     }
 
-//                    +"Kzen: Automate all the things"
-//                    +"Kzen: Automate your work"
                     +"Kzen: Automation and reports"
                 }
             }
@@ -316,30 +317,28 @@ class ProjectLauncher(
     }
 
 
-    private fun RBuilder.renderLogo() {
-        styledA {
-            attrs {
-                href = "/"
-            }
+    private fun ChildrenBuilder.renderLogo() {
+        a {
+            href = "/"
 
-            styledImg(src = "logo.png") {
+            img {
+                src = "$staticResourcePath/logo.png"
+
                 css {
                     height = 52.px
                 }
 
-                attrs {
-                    title = "Kzen (home)"
-                }
+                title = "Kzen (home)"
             }
         }
     }
 
 
-    private fun RBuilder.renderErrorMessage() {
+    private fun ChildrenBuilder.renderErrorMessage() {
         if (state.errorMessage != null) {
-            styledDiv {
+            div {
                 css {
-                    color = Color.darkRed
+                    color = NamedColor.darkred
                     fontWeight = FontWeight.bolder
                 }
 

@@ -2,17 +2,17 @@ package tech.kzen.launcher.server.service
 
 import com.google.common.io.ByteStreams
 import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Component
+//import org.springframework.stereotype.Component
 import java.io.BufferedOutputStream
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
 import java.security.cert.X509Certificate
-import javax.annotation.PostConstruct
+//import javax.annotation.PostConstruct
 import javax.net.ssl.*
 
 
-@Component
+//@Component
 class DownloadService {
     //-----------------------------------------------------------------------------------------------------------------
     companion object {
@@ -23,7 +23,7 @@ class DownloadService {
     //-----------------------------------------------------------------------------------------------------------------
     // TODO: implement proper certificate management
     @Suppress("unused")
-    @PostConstruct
+//    @PostConstruct
     fun trustBadCertificate() {
         // https://stackoverflow.com/a/24501156
 

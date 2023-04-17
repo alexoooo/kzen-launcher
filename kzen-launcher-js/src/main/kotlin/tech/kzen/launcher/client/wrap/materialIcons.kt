@@ -1,4 +1,4 @@
-@file:JsModule("@material-ui/icons")
+@file:JsModule("@mui/icons-material")
 package tech.kzen.launcher.client.wrap
 
 
@@ -16,7 +16,7 @@ import kotlin.js.Json
 external interface IconProps: react.Props {
     var title: String
     var color: String
-    var style: Json
+    var style: react.CSSProperties?
 
     var onClick: () -> Unit
 }

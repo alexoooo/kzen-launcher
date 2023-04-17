@@ -1,38 +1,42 @@
 package tech.kzen.launcher.client.components.manage
 
-import kotlinx.css.*
+import csstype.Margin
+import csstype.NamedColor
+import csstype.PropertyName.Companion.margin
+import csstype.em
+import emotion.react.css
+import mui.material.Card
+import mui.material.CardContent
 import react.*
-import styled.css
-import styled.styledDiv
-import tech.kzen.launcher.client.wrap.MaterialCard
-import tech.kzen.launcher.client.wrap.MaterialCardContent
-import tech.kzen.launcher.client.wrap.reactStyle
+import tech.kzen.launcher.client.wrap.*
 import tech.kzen.launcher.common.dto.ProjectDetail
 
 
+//-----------------------------------------------------------------------------------------------------------------
+external interface ManageProjectsScreenProps: Props {
+    var projects: List<ProjectDetail>?
+    var runningProjects: List<String>?
+
+    var onProjectsChanged: (() -> Unit)?
+    var onRunningChanged: (() -> Unit)?
+}
+
+
+external interface ManageProjectsScreenState: State {
+    var projects: List<ProjectDetail>?
+    var runningProjects: List<String>?
+}
+
+
+//-----------------------------------------------------------------------------------------------------------------
 class ManageProjectsScreen(
-        props: Props
+        props: ManageProjectsScreenProps
 ):
-        RComponent<ManageProjectsScreen.Props, ManageProjectsScreen.State>(props)
+        RComponent<ManageProjectsScreenProps, ManageProjectsScreenState>(props)
 {
-    //-----------------------------------------------------------------------------------------------------------------
-    interface Props: react.Props {
-        var projects: List<ProjectDetail>?
-        var runningProjects: List<String>?
-
-        var onProjectsChanged: (() -> Unit)?
-        var onRunningChanged: (() -> Unit)?
-    }
-
-
-    interface State: react.State {
-        var projects: List<ProjectDetail>?
-        var runningProjects: List<String>?
-    }
-
 
     //-----------------------------------------------------------------------------------------------------------------
-    override fun State.init(props: Props) {
+    override fun ManageProjectsScreenState.init(props: ManageProjectsScreenProps) {
 //        console.log("ManageProjectsScreen State.init", props.projects, props.runningProjects, props)
 
         projects = props.projects
@@ -40,7 +44,9 @@ class ManageProjectsScreen(
     }
 
 
-    override fun componentDidUpdate(prevProps: Props, prevState: State, snapshot: Any) {
+    override fun componentDidUpdate(
+        prevProps: ManageProjectsScreenProps, prevState: ManageProjectsScreenState, snapshot: Any
+    ) {
 //        console.log("ManageProjectsScreen componentDidUpdate", props, prevProps)
 
         if (props.projects != prevProps.projects) {
@@ -58,7 +64,7 @@ class ManageProjectsScreen(
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    override fun RBuilder.render() {
+    override fun ChildrenBuilder.render() {
 //        console.log("ManageProjectsScreen - render", state, props)
 
 //        styledDiv {
@@ -74,27 +80,23 @@ class ManageProjectsScreen(
     }
 
 
-    private fun RBuilder.renderRunning() {
-        child(MaterialCard::class) {
-            attrs {
-                style = reactStyle {
-                    backgroundColor = Color.white
-                    margin(2.em)
-                }
+    private fun ChildrenBuilder.renderRunning() {
+        Card {
+            css {
+                backgroundColor = NamedColor.white
+                margin = Margin(2.em, 2.em, 2.em, 2.em)
             }
 
-            child(MaterialCardContent::class) {
-                child(ProjectRunning::class) {
-                    attrs {
-                        projects = state.runningProjects
+            CardContent {
+                ProjectRunning::class.react {
+                    projects = state.runningProjects
 
-                        didStop = {
-                            setState {
-                                runningProjects = null
-                            }
-
-                            props.onRunningChanged?.invoke()
+                    didStop = {
+                        setState {
+                            runningProjects = null
                         }
+
+                        props.onRunningChanged?.invoke()
                     }
                 }
             }
@@ -102,40 +104,36 @@ class ManageProjectsScreen(
     }
 
 
-    private fun RBuilder.renderList() {
-        child(MaterialCard::class) {
-            attrs {
-                style = reactStyle {
-                    backgroundColor = Color.white
-                    margin(2.em)
-                }
+    private fun ChildrenBuilder.renderList() {
+        Card {
+            css {
+                backgroundColor = NamedColor.white
+                margin = Margin(2.em, 2.em, 2.em, 2.em)
             }
 
-            child(MaterialCardContent::class) {
-                child(ProjectList::class) {
-                    attrs {
-                        projects = state.projects
-                                ?.filter{ ! (state.runningProjects?.contains(it.name) ?: false) }
+            CardContent {
+                ProjectList::class.react {
+                    projects = state.projects
+                        ?.filter{ ! (state.runningProjects?.contains(it.name) ?: false) }
 
-                        didStart = {
-                            props.onRunningChanged?.invoke()
-                        }
+                    didStart = {
+                        props.onRunningChanged?.invoke()
+                    }
 
-                        didRemove = {
-                            props.onProjectsChanged?.invoke()
-                        }
+                    didRemove = {
+                        props.onProjectsChanged?.invoke()
+                    }
 
-                        didDelete = {
-                            props.onProjectsChanged?.invoke()
-                        }
+                    didDelete = {
+                        props.onProjectsChanged?.invoke()
+                    }
 
-                        didRename = {
-                            props.onProjectsChanged?.invoke()
-                        }
+                    didRename = {
+                        props.onProjectsChanged?.invoke()
+                    }
 
-                        didChangeJvmArgs = {
-                            props.onProjectsChanged?.invoke()
-                        }
+                    didChangeJvmArgs = {
+                        props.onProjectsChanged?.invoke()
                     }
                 }
             }

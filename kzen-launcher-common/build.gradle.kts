@@ -5,7 +5,7 @@ plugins {
 
 kotlin {
     jvmToolchain {
-        (this as JavaToolchainSpec).languageVersion.set(JavaLanguageVersion.of(jvmToolchainVersion))
+        languageVersion.set(JavaLanguageVersion.of(jvmToolchainVersion))
     }
 
     jvm {
@@ -35,7 +35,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-css:$kotlinCssVersion")
+//                implementation("org.jetbrains.kotlin-wrappers:kotlin-css:$kotlinCssVersion")
             }
         }
 
@@ -51,7 +51,7 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 implementation("ch.qos.logback:logback-classic:$logbackVersion")
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-css-jvm:$kotlinCssVersion")
+//                implementation("org.jetbrains.kotlin-wrappers:kotlin-css-jvm:$kotlinCssVersion")
             }
         }
 

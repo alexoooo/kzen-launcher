@@ -1,30 +1,37 @@
 package tech.kzen.launcher.client.components.manage
 
-import kotlinx.css.*
+import csstype.em
+import csstype.px
+import emotion.react.css
+import js.core.jso
+import mui.material.Button
+import mui.material.ButtonVariant
+import mui.material.HiddenImplementation.Companion.css
 import react.*
 import react.dom.*
-import styled.css
-import styled.styledH2
-import styled.styledSpan
+import react.dom.html.ReactHTML.a
+import react.dom.html.ReactHTML.div
+import react.dom.html.ReactHTML.h2
+import react.dom.html.ReactHTML.span
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.shellRestApi
 import tech.kzen.launcher.client.wrap.*
 
 
+//---------------------------------------------------------------------------------------------------------------------
+external interface ProjectRunningProps: Props {
+    var projects: List<String>?
+    var didStop: (() -> Unit)?
+}
+
+
+//---------------------------------------------------------------------------------------------------------------------
 @Suppress("unused")
 class ProjectRunning(
-        props: ProjectRunning.Props
-): RComponent<ProjectRunning.Props, react.State>(props) {
-    //-----------------------------------------------------------------------------------------------------------------
-    interface Props: react.Props {
-        var projects: List<String>?
-        var didStop: (() -> Unit)?
-    }
-
-
+        props: ProjectRunningProps
+): RComponent<ProjectRunningProps, State>(props) {
     //-----------------------------------------------------------------------------------------------------------------
     private fun onStop(name: String) {
-//        console.log("onStop: name - $name")
         async {
             shellRestApi.stopProject(name)
 
@@ -34,8 +41,8 @@ class ProjectRunning(
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    override fun RBuilder.render() {
-        styledH2 {
+    override fun ChildrenBuilder.render() {
+        h2 {
             css {
                 marginTop = 0.px
             }
@@ -52,9 +59,9 @@ class ProjectRunning(
     }
 
 
-    private fun RBuilder.renderList(projects: List<String>) {
+    private fun ChildrenBuilder.renderList(projects: List<String>) {
         if (projects.isEmpty()) {
-            styledSpan {
+            span {
                 css {
                     fontSize = 1.5.em
                 }
@@ -64,28 +71,25 @@ class ProjectRunning(
         else {
             for (project in projects) {
                 div {
-                    a(href = "/$project/") {
+                    a {
+                        href = "/$project/"
                         +(project)
                     }
 
-                    child(MaterialButton::class) {
-                        attrs {
-                            variant = "outlined"
+                    Button {
+                        variant = ButtonVariant.outlined
 
-                            style = reactStyle {
-                                marginLeft = 1.em
-                            }
-
-                            onClick = {
-                                onStop(project)
-                            }
+                        css {
+                            marginLeft = 1.em
                         }
 
-                        child(StopIcon::class) {
-                            attrs {
-                                style = reactStyle {
-                                    marginRight = 0.25.em
-                                }
+                        onClick = {
+                            onStop(project)
+                        }
+
+                        StopIcon::class.react {
+                            style = jso {
+                                marginRight = 0.25.em
                             }
                         }
 

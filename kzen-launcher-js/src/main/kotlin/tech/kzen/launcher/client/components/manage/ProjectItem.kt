@@ -1,42 +1,48 @@
 package tech.kzen.launcher.client.components.manage
 
-import kotlinx.css.*
-import org.w3c.dom.HTMLInputElement
+import csstype.*
+import emotion.react.css
+import js.core.jso
+import mui.material.Button
+import mui.material.ButtonVariant
+import mui.material.TextField
 import react.*
-import styled.css
-import styled.styledDiv
-import styled.styledSpan
+import react.dom.html.ReactHTML.div
+import react.dom.html.ReactHTML.span
+import react.dom.onChange
 import tech.kzen.launcher.client.wrap.*
 import tech.kzen.launcher.common.dto.ProjectDetail
+import web.html.HTMLInputElement
 import kotlin.reflect.KClass
 
 
+//---------------------------------------------------------------------------------------------------------------------
+external interface ProjectItemProps: Props {
+    var project: ProjectDetail
+    var starting: Boolean
+
+    var onStart: ((ProjectDetail) -> Unit)
+    var onRemove: ((ProjectDetail) -> Unit)
+    var onDelete: ((ProjectDetail) -> Unit)
+    var onRename: ((ProjectDetail, String) -> Unit)
+    var onChangeJvmArgs: ((ProjectDetail, String) -> Unit)
+}
+
+
+external interface ProjectItemState: State {
+    var renaming: Boolean
+    var changingArgs: Boolean
+    var newName: String
+    var newJvmArgs: String
+}
+
+
+//---------------------------------------------------------------------------------------------------------------------
 class ProjectItem(
-        props: Props
-): RComponent<ProjectItem.Props, ProjectItem.State>(props) {
+        props: ProjectItemProps
+): RComponent<ProjectItemProps, ProjectItemState>(props) {
     //-----------------------------------------------------------------------------------------------------------------
-    interface Props: react.Props {
-        var project: ProjectDetail
-        var starting: Boolean
-
-        var onStart: ((ProjectDetail) -> Unit)
-        var onRemove: ((ProjectDetail) -> Unit)
-        var onDelete: ((ProjectDetail) -> Unit)
-        var onRename: ((ProjectDetail, String) -> Unit)
-        var onChangeJvmArgs: ((ProjectDetail, String) -> Unit)
-    }
-
-
-    interface State: react.State {
-        var renaming: Boolean
-        var changingArgs: Boolean
-        var newName: String
-        var newJvmArgs: String
-    }
-
-
-    //-----------------------------------------------------------------------------------------------------------------
-    override fun State.init(props: Props) {
+    override fun ProjectItemState.init(props: ProjectItemProps) {
         renaming = false
         newName = props.project.name
 
@@ -45,7 +51,7 @@ class ProjectItem(
     }
 
 
-    override fun componentDidUpdate(prevProps: Props, prevState: State, snapshot: Any) {
+    override fun componentDidUpdate(prevProps: ProjectItemProps, prevState: ProjectItemState, snapshot: Any) {
 //        if (state.renaming && != prevState.renaming) {
 //            setState {
 //                type = props.artifacts!!.iterator().next().name
@@ -123,18 +129,18 @@ class ProjectItem(
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    override fun RBuilder.render() {
-        styledDiv {
+    override fun ChildrenBuilder.render() {
+        div {
             css {
                 marginBottom = 1.em
 
                 if (! props.project.exists) {
                     // TODO: should not apply to 'remove' button
-                    opacity = 0.5
+                    opacity = number(0.5)
                 }
             }
 
-            styledDiv {
+            div {
                 css {
                     fontWeight = FontWeight.bold
                 }
@@ -151,15 +157,15 @@ class ProjectItem(
                 }
             }
 
-            styledSpan {
+            span {
                 css {
-                    fontFamily = "monospace"
+                    fontFamily = FontFamily.monospace
                 }
 
                 +(props.project.path)
             }
 
-            styledDiv {
+            div {
                 if (props.project.exists) {
                     renderRun()
                     renderDelete()
@@ -176,27 +182,23 @@ class ProjectItem(
     }
 
 
-    private fun RBuilder.renderRun() {
-        styledDiv {
+    private fun ChildrenBuilder.renderRun() {
+        div {
             css {
                 display = Display.inlineBlock
             }
 
-            child(MaterialButton::class) {
-                attrs {
-                    variant = "outlined"
-                    onClick = ::onStart
+            Button {
+                variant = ButtonVariant.outlined
+                onClick = { onStart() }
 
-                    if (props.starting) {
-                        disabled = true
-                    }
+                if (props.starting) {
+                    disabled = true
                 }
 
-                child(PlayArrowIcon::class) {
-                    attrs {
-                        style = reactStyle {
-                            marginRight = 0.25.em
-                        }
+                PlayArrowIcon::class.react {
+                    style = jso {
+                        marginRight = 0.25.em
                     }
                 }
 
@@ -206,24 +208,20 @@ class ProjectItem(
     }
 
 
-    private fun RBuilder.renderDelete() {
-        styledDiv {
+    private fun ChildrenBuilder.renderDelete() {
+        div {
             css {
                 display = Display.inlineBlock
                 marginLeft = 1.em
             }
 
-            child(MaterialButton::class) {
-                attrs {
-                    variant = "outlined"
-                    onClick = ::onDelete
-                }
+            Button {
+                variant = ButtonVariant.outlined
+                onClick = { onDelete() }
 
-                child(DeleteIcon::class) {
-                    attrs {
-                        style = reactStyle {
-                            marginRight = 0.25.em
-                        }
+                DeleteIcon::class.react {
+                    style = jso {
+                        marginRight = 0.25.em
                     }
                 }
 
@@ -233,46 +231,43 @@ class ProjectItem(
     }
 
 
-    private fun RBuilder.renderRenameTitle() {
-        child(MaterialTextField::class) {
-            attrs {
-                style = reactStyle {
-                    width = 36.em
-                }
+    private fun ChildrenBuilder.renderRenameTitle() {
+        TextField  {
+            css {
+                width = 36.em
+            }
 
-                label = "New name"
-                value = state.newName
+            label = ReactNode("New name")
+            value = state.newName
 
-                onChange = {
-                    val target = it.target as HTMLInputElement
-                    onRenameChange(target.value)
-                }
+            onChange = {
+                val target = it.target as HTMLInputElement
+                onRenameChange(target.value)
             }
         }
     }
 
 
-    private fun RBuilder.renderRename() {
-        styledDiv {
+    private fun ChildrenBuilder.renderRename() {
+        div {
             css {
                 display = Display.inlineBlock
                 marginLeft = 1.em
             }
 
-            child(MaterialButton::class) {
-                attrs {
-                    variant = "outlined"
-                    onClick = {
-                        if (state.renaming) {
-                            onRenameCommit()
-                        }
-                        else {
-                            onRenameStart()
-                        }
+            Button {
+                variant = ButtonVariant.outlined
+
+                onClick = {
+                    if (state.renaming) {
+                        onRenameCommit()
+                    }
+                    else {
+                        onRenameStart()
                     }
                 }
 
-                val icon: KClass<out Component<IconProps, react.State>> =
+                val icon: KClass<out Component<IconProps, State>> =
                         if (state.renaming) {
                             SaveIcon::class
                         }
@@ -280,11 +275,9 @@ class ProjectItem(
                             EditIcon::class
                         }
 
-                child(icon) {
-                    attrs {
-                        style = reactStyle {
-                            marginRight = 0.25.em
-                        }
+                icon.react {
+                    style = jso {
+                        marginRight = 0.25.em
                     }
                 }
 
@@ -294,27 +287,26 @@ class ProjectItem(
     }
 
 
-    private fun RBuilder.renderChangeArgs() {
-        styledDiv {
+    private fun ChildrenBuilder.renderChangeArgs() {
+        div {
             css {
                 display = Display.inlineBlock
                 marginLeft = 1.em
             }
 
-            child(MaterialButton::class) {
-                attrs {
-                    variant = "outlined"
-                    onClick = {
-                        if (state.changingArgs) {
-                            onChangeArgsCommit()
-                        }
-                        else {
-                            onChangeArgsStart()
-                        }
+            Button {
+                variant = ButtonVariant.outlined
+
+                onClick = {
+                    if (state.changingArgs) {
+                        onChangeArgsCommit()
+                    }
+                    else {
+                        onChangeArgsStart()
                     }
                 }
 
-                val icon: KClass<out Component<IconProps, react.State>> =
+                val icon: KClass<out Component<IconProps, State>> =
                         if (state.changingArgs) {
                             SaveIcon::class
                         }
@@ -322,11 +314,9 @@ class ProjectItem(
                             EditIcon::class
                         }
 
-                child(icon) {
-                    attrs {
-                        style = reactStyle {
-                            marginRight = 0.25.em
-                        }
+                icon.react {
+                    style = jso {
+                        marginRight = 0.25.em
                     }
                 }
 
@@ -336,32 +326,30 @@ class ProjectItem(
     }
 
 
-    private fun RBuilder.renderJvmArgs() {
+    private fun ChildrenBuilder.renderJvmArgs() {
         if (! state.changingArgs && props.project.jvmArgs.isEmpty()) {
             return
         }
 
-        styledDiv {
+        div {
             if (state.changingArgs) {
-                child(MaterialTextField::class) {
-                    attrs {
-                        style = reactStyle {
-                            width = 36.em
-                        }
+                TextField {
+                    css {
+                        width = 36.em
+                    }
 
-                        label = "New JVM Arguments"
-                        value = state.newJvmArgs
+                    label = ReactNode("New JVM Arguments")
+                    value = state.newJvmArgs
 
-                        onChange = {
-                            val target = it.target as HTMLInputElement
-                            onChangeArgs(target.value)
-                        }
+                    onChange = {
+                        val target = it.target as HTMLInputElement
+                        onChangeArgs(target.value)
                     }
                 }
             }
             else {
                 css {
-                    fontFamily = "monospace"
+                    fontFamily = FontFamily.monospace
                 }
 
                 +"JVM Arguments: ${props.project.jvmArgs}"
@@ -370,25 +358,20 @@ class ProjectItem(
     }
 
 
-
-    private fun RBuilder.renderRemove() {
-        styledDiv {
+    private fun ChildrenBuilder.renderRemove() {
+        div {
             css {
                 display = Display.inlineBlock
             }
 
-            child(MaterialButton::class) {
-                attrs {
-                    variant = "outlined"
-                    onClick = ::onRemove
-                }
+            Button {
+                variant = ButtonVariant.outlined
+                onClick = { onRemove() }
 
-                child(RemoveCircleOutlineIcon::class) {
-                    attrs {
-                        style = reactStyle {
-                            marginRight = 0.25.em
-                        }
-                     }
+                RemoveCircleOutlineIcon::class.react {
+                    style = jso {
+                        marginRight = 0.25.em
+                    }
                 }
 
                 +"Remove"

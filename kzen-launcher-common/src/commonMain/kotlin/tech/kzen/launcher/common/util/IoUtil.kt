@@ -6,7 +6,7 @@ object IoUtil {
     // from kzen-lib YamlUtils
 
     fun escapeJson(
-            value: Any
+        value: Any
     ): String {
         if (value is Boolean) {
             return escapeJsonBoolean(value)
@@ -21,14 +21,14 @@ object IoUtil {
 
 
     fun escapeJsonBoolean(
-            value: Boolean
+        value: Boolean
     ): String {
         return if (value) "true" else "false"
     }
 
 
     fun escapeJsonString(
-            unescaped: String
+        unescaped: String
     ): String {
         val output = StringBuilder()
 

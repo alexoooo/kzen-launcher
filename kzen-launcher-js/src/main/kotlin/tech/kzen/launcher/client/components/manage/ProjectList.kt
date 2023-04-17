@@ -1,44 +1,49 @@
 package tech.kzen.launcher.client.components.manage
 
 
+import csstype.Float
+import csstype.em
+import csstype.px
+import emotion.react.css
 import kotlinx.coroutines.delay
-import kotlinx.css.*
+import mui.material.CircularProgress
+import mui.material.Divider
 import react.*
-import react.dom.div
-import styled.css
-import styled.styledH2
-import styled.styledSpan
+import react.dom.html.ReactHTML.div
+import react.dom.html.ReactHTML.h2
+import react.dom.html.ReactHTML.span
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.clientRestApi
 import tech.kzen.launcher.client.api.shellRestApi
-import tech.kzen.launcher.client.wrap.MaterialCircularProgress
-import tech.kzen.launcher.client.wrap.MaterialDivider
+import tech.kzen.launcher.client.wrap.RComponent
+import tech.kzen.launcher.client.wrap.setState
 import tech.kzen.launcher.common.dto.ProjectDetail
 
 
+//---------------------------------------------------------------------------------------------------------------------
+external interface ProjectListProps: Props {
+    var projects: List<ProjectDetail>?
+
+    var didStart: (() -> Unit)?
+    var didRemove: (() -> Unit)?
+    var didDelete: (() -> Unit)?
+    var didRename: (() -> Unit)?
+    var didChangeJvmArgs: (() -> Unit)?
+}
+
+
+external interface ProjectListState: State {
+    var starting: Boolean
+}
+
+
+//---------------------------------------------------------------------------------------------------------------------
 @Suppress("unused")
 class ProjectList(
-        props: Props
-): RComponent<ProjectList.Props, ProjectList.State>(props) {
+        props: ProjectListProps
+): RComponent<ProjectListProps, ProjectListState>(props) {
     //-----------------------------------------------------------------------------------------------------------------
-    interface Props: react.Props {
-        var projects: List<ProjectDetail>?
-
-        var didStart: (() -> Unit)?
-        var didRemove: (() -> Unit)?
-        var didDelete: (() -> Unit)?
-        var didRename: (() -> Unit)?
-        var didChangeJvmArgs: (() -> Unit)?
-    }
-
-
-    interface State: react.State {
-        var starting: Boolean
-    }
-
-
-    //-----------------------------------------------------------------------------------------------------------------
-    override fun State.init(props: Props) {
+    override fun ProjectListState.init(props: ProjectListProps) {
         starting = false
     }
 
@@ -102,8 +107,8 @@ class ProjectList(
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    override fun RBuilder.render() {
-        styledH2 {
+    override fun ChildrenBuilder.render() {
+        h2 {
             css {
                 marginTop = 0.px
             }
@@ -111,19 +116,19 @@ class ProjectList(
         }
 
         if (state.starting) {
-            styledSpan {
+            span {
                 css {
                     float = Float.right
                     marginTop = (-55).px
                 }
-                child(MaterialCircularProgress::class) {}
+                CircularProgress {}
             }
         }
 
         val projects = props.projects
         if (projects != null) {
             if (projects.isEmpty()) {
-                styledSpan {
+                span {
                     css {
                         fontSize = 1.5.em
                     }
@@ -140,24 +145,22 @@ class ProjectList(
     }
 
 
-    private fun RBuilder.renderProjects(projects: List<ProjectDetail>) {
+    private fun ChildrenBuilder.renderProjects(projects: List<ProjectDetail>) {
         for (project in projects) {
             div {
                 key = project.name
 
-                child(MaterialDivider::class) {}
+                Divider {}
 
-                child(ProjectItem::class) {
-                    attrs {
-                        this.project = project
-                        starting = state.starting
+                ProjectItem::class.react {
+                    this.project = project
+                    starting = state.starting
 
-                        onStart = ::onStart
-                        onRemove = ::onRemove
-                        onDelete = ::onDelete
-                        onRename = ::onRename
-                        onChangeJvmArgs = ::onChangeJvmArguments
-                    }
+                    onStart = ::onStart
+                    onRemove = ::onRemove
+                    onDelete = ::onDelete
+                    onRename = ::onRename
+                    onChangeJvmArgs = ::onChangeJvmArguments
                 }
             }
         }

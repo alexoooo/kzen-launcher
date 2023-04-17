@@ -7,23 +7,14 @@ kzen:
 ##      url: file:///home/ao/IdeaProjects/kzen-auto/kzen-auto-jvm/build/libs/kzen-auto-jvm-0.5.1-SNAPSHOT-boot.jar
 #      url: file:///C:/Users/ao/IdeaProjects/kzen-project/kzen-project-jvm/build/libs/kzen-project-jvm-0.24.0.jar
 
-#    - name: KzenProjectJar-0.19.0
-#      title: "Automation and Reporting"
-#      description: "Visually control a browser and more - v0.19.0"
-#      url: https://github.com/alexoooo/kzen-project/releases/download/v0.19.0/kzen-project-jvm-0.19.0.jar
-#
-#    - name: KzenProjectZip-0.19.0
+#    - name: KzenProjectZip-0.25.0
 #      title: "Automation and Reporting (with Scripting)"
-#      description: "Includes source code, can be used with IDE - v0.19.0"
-#      url: https://github.com/alexoooo/kzen-project/releases/download/v0.19.0/kzen-project-0.19.0.zip
+#      description: "Includes source code, can be used with IDE - v0.25.0"
+#      url: https://github.com/alexoooo/kzen-project/releases/download/v0.25.0/kzen-project-0.25.0.zip
 
-    - name: KzenProjectJar-0.25.0
+
+    - name: KzenProjectJar-0.25.1
       title: "Automation and Reporting"
-      description: "Visually control a browser and more - v0.25.0"
-      url: https://github.com/alexoooo/kzen-project/releases/download/v0.25.0/kzen-project-0.25.0.jar
-
-    - name: KzenProjectZip-0.25.0
-      title: "Automation and Reporting (with Scripting)"
-      description: "Includes source code, can be used with IDE - v0.25.0"
-      url: https://github.com/alexoooo/kzen-project/releases/download/v0.25.0/kzen-project-0.25.0.zip
-
+      description: "Visually control a browser and more - v0.25.1"
+      url: file:///C:/Users/ao/IdeaProjects/kzen-project/kzen-project-jvm/build/libs/kzen-project-jvm-0.25.1-SNAPSHOT.jar
+#      url: https://github.com/alexoooo/kzen-project/releases/download/v0.25.1/kzen-project-0.25.1.jar

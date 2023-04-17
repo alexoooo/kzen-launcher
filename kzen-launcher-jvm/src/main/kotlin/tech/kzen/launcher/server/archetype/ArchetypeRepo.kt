@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableSet
 import com.google.common.collect.Maps
 import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Component
+//import org.springframework.stereotype.Component
 import tech.kzen.launcher.server.environment.LauncherEnvironment
 import tech.kzen.launcher.server.properties.KzenProperties
 import tech.kzen.launcher.server.service.DownloadService
@@ -17,13 +17,13 @@ import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import javax.annotation.PostConstruct
+//import javax.annotation.PostConstruct
 
 
-@Component
+//@Component
 class ArchetypeRepo(
-        private val downloadService: DownloadService,
-        private val kzenProperties: KzenProperties
+    private val downloadService: DownloadService,
+    private val kzenProperties: KzenProperties
 ) {
     //-----------------------------------------------------------------------------------------------------------------
     companion object {
@@ -44,14 +44,14 @@ class ArchetypeRepo(
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    @PostConstruct
+//    @PostConstruct
     fun init() {
         val initial = read()
 
         for (archetype in kzenProperties.archetypes) {
             if (! initial.containsKey(archetype.name)) {
                 val artifactName = archetype.url!!.substringAfterLast('/')
-                val locationUri = URI(archetype.url)
+                val locationUri = URI(archetype.url!!)
 
                 val archetypeInfo = ArchetypeInfo(
                         archetype.title!!,

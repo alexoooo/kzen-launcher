@@ -1,7 +1,7 @@
-package tech.kzen.launcher.common
+package tech.kzen.launcher.common.api
 
 
-object CommonApi {
+object CommonRestApi {
     private const val restServicePrefix = "/rs/"
 
     private const val queryPrefix = "${restServicePrefix}query/"
