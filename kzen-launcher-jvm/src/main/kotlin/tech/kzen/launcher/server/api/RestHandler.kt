@@ -20,34 +20,6 @@ class RestHandler(
     val projectCreator: ProjectCreator
 ) {
     //-----------------------------------------------------------------------------------------------------------------
-    companion object {
-        private val classPathRoots = listOf(
-                URI("classpath:/public/"))
-
-        private val resourceDirectories = listOf<Path>(
-                // IntelliJ and typical commandline working dir is project root
-                Paths.get("kzen-launcher-jvm/src/main/resources/public/"),
-                Paths.get("kzen-launcher-js/build/distributions/"),
-
-                // Eclipse default active working directory is the module
-                Paths.get("src/main/resources/public/"),
-                Paths.get("../kzen-launcher-js/build/distributions/"))
-
-
-        private const val cssExtension = "css"
-
-        private val allowedExtensions = listOf(
-                "html",
-                "js",
-                cssExtension,
-                "ico",
-                "png")
-
-//        private val cssMediaType = MediaType.valueOf("text/css")
-    }
-
-
-    //-----------------------------------------------------------------------------------------------------------------
     fun runningProjectsDummy(): List<Any> {
         return listOf()
     }
@@ -119,82 +91,6 @@ class RestHandler(
 
         projectRepo.changeArguments(projectName, jvmArguments)
     }
-
-
-    //-----------------------------------------------------------------------------------------------------------------
-    // TODO: is this secure?
-//    fun resource(serverRequest: ServerRequest): Mono<ServerResponse> {
-//        val excludingInitialSlash = serverRequest.path().substring(1)
-//
-//        val resolvedPath =
-//            if (excludingInitialSlash == "") {
-//                "index.html"
-//            }
-//            else {
-//                excludingInitialSlash
-//            }
-//
-//        val path = Paths.get(resolvedPath).normalize()
-//        val extension = MoreFiles.getFileExtension(path)
-//
-//        if (! isResourceAllowed(path, extension)) {
-//            return ServerResponse.badRequest().build()
-//        }
-//
-//        val bytes: ByteArray = readResource(path)
-//            ?: return ServerResponse.notFound().build()
-//
-//        val builder = ServerResponse.ok()
-//
-//        val responseType: MediaType? = responseType(extension)
-//        if (responseType !== null) {
-//            builder.contentType(responseType)
-//        }
-//
-//        return builder
-//                .body(Mono.just(bytes))
-//    }
-//
-//
-//    private fun responseType(extension: String): MediaType? {
-//        return when (extension) {
-//            cssExtension -> cssMediaType
-//
-//            else -> null
-//        }
-//    }
-
-
-    private fun isResourceAllowed(path: Path, extension: String): Boolean {
-        if (path.isAbsolute) {
-            return false
-        }
-
-        return allowedExtensions.contains(extension)
-    }
-
-
-    private fun readResource(relativePath: Path): ByteArray? {
-        for (root in classPathRoots) {
-            try {
-                val resourceLocation: URI = root.resolve(relativePath.toString())
-                val resourceUrl = Resources.getResource(resourceLocation.path)
-                return Resources.toByteArray(resourceUrl)
-            }
-            catch (ignored: Exception) {}
-        }
-
-        for (root in resourceDirectories) {
-            val candidate = root.resolve(relativePath)
-            if (Files.exists(candidate)) {
-                return Files.readAllBytes(candidate)
-            }
-        }
-
-        return null
-    }
-
-
 
 
     //-----------------------------------------------------------------------------------------------------------------

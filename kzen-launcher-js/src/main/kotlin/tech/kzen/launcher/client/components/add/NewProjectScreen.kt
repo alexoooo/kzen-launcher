@@ -17,13 +17,13 @@ import kotlin.js.Date
 
 
 //---------------------------------------------------------------------------------------------------------------------
-external interface NewProjectScreenProps: react.Props {
-    var artifacts: List<ArchetypeDetail>?
+external interface NewProjectScreenProps: Props {
+    var archetypes: List<ArchetypeDetail>?
     var didCreate: (() -> Unit)?
 }
 
 
-external interface NewProjectScreenState: react.State {
+external interface NewProjectScreenState: State {
     var name: String
     var type: String?
     var path: String
@@ -31,9 +31,8 @@ external interface NewProjectScreenState: react.State {
 
 
 //---------------------------------------------------------------------------------------------------------------------
-@Suppress("unused")
 class NewProjectScreen(
-        props: NewProjectScreenProps
+    props: NewProjectScreenProps
 ): RComponent<NewProjectScreenProps, NewProjectScreenState>(props) {
     //-----------------------------------------------------------------------------------------------------------------
     companion object {
@@ -58,11 +57,15 @@ class NewProjectScreen(
 
     //-----------------------------------------------------------------------------------------------------------------
     override fun NewProjectScreenState.init(props: NewProjectScreenProps) {
-//        console.log("init: props.projects - ${props.artifacts}")
+        console.log("init: props.archetypes - ${props.archetypes}")
 
         name = newInitialName()
         path = defaultImportPath
-        type = props.artifacts?.iterator()?.next()?.name
+        type = props.archetypes?.iterator()?.let {
+            if (it.hasNext())
+                it.next().name
+            else null
+        }
     }
 
 
@@ -71,9 +74,11 @@ class NewProjectScreen(
         prevState: NewProjectScreenState,
         snapshot: Any
     ) {
-        if (state.type == null && props.artifacts != null) {
+        console.log("update: ${state.type} - ${props.archetypes}")
+
+        if (state.type == null && props.archetypes != null) {
             setState {
-                type = props.artifacts!!.iterator().next().name
+                type = props.archetypes!!.iterator().next().name
             }
         }
     }
@@ -277,8 +282,8 @@ class NewProjectScreen(
 
 
     private fun ChildrenBuilder.renderTypeSelect() {
-        if (props.artifacts == null || state.type == null) {
-            +"Loading..."
+        if (props.archetypes == null || state.type == null) {
+            +"Loading... ${props.archetypes} - ${state.type}"
         }
         else {
             div {
@@ -287,8 +292,14 @@ class NewProjectScreen(
                     position = Position.relative
                 }
                 val selectOptions = props
-                        .artifacts!!
-                        .map { ReactSelectOption(it.name, it.title + " - " + it.description) }
+                        .archetypes!!
+                        .map {
+                            val option: ReactSelectOption = jso {
+                                value = it.name
+                                label = it.title + " - " + it.description
+                            }
+                            option
+                        }
                         .toTypedArray()
 
                 val selectId = "material-react-select-id"

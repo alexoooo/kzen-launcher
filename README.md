@@ -1,21 +1,15 @@
 # kzen-launcher
 UI for selecting projects
 
-Dev mode (one process for client refresh, and one server process from IDE):
 
-1) Run KzenAutoApp from IDE: --server.port=8081
-    to start https://localhost:8081
-    
-2) Run from terminal: `./gradlew -t :kzen-launcher-js:run`
-    to run client proxy at https://localhost:8080 with live reload
-    - Web UI JavaScript will be provided by webpack          
-    - Everything expect `*.js` files is served by port 8081
+To auto-reload frontend:
+1) Run `tech.kzen.launcher.server.dev.FrontendDevelopment` from IDE
+2) Run `./gradlew -t :kzen-launcher-js:build -x test -PjsWatch` from CLI
 
+To build self-contained jar and executable it from CLI:
+1) Run `./gradlew jar`
+2) Run `java -jar kzen-launcher-jvm/build/libs/kzen-launcher-jvm-*.jar`
 
-Dist:
-> ./gradlew build
->
-> java -jar kzen-launcher-jvm/build/libs/kzen-launcher-jvm-*.jar
 
 Web:
 > http://localhost:8080/

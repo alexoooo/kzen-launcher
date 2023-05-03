@@ -3,6 +3,7 @@ package tech.kzen.launcher.client.components
 import csstype.*
 import emotion.react.css
 import mui.material.*
+import mui.system.sx
 import react.*
 import react.dom.html.ReactHTML.a
 import react.dom.html.ReactHTML.div
@@ -17,12 +18,11 @@ import tech.kzen.launcher.client.wrap.*
 import tech.kzen.launcher.common.api.staticResourcePath
 import tech.kzen.launcher.common.dto.ArchetypeDetail
 import tech.kzen.launcher.common.dto.ProjectDetail
-import kotlin.Float
 
 
 //---------------------------------------------------------------------------------------------------------------------
-external interface ProjectLauncherState: react.State {
-    var artifacts: List<ArchetypeDetail>?
+external interface ProjectLauncherState: State {
+    var archetypes: List<ArchetypeDetail>?
     var projects: List<ProjectDetail>?
     var runningProjects: List<String>?
 
@@ -41,20 +41,8 @@ class ProjectLauncher(
     ErrorBus.Subscriber
 {
     //-----------------------------------------------------------------------------------------------------------------
-    companion object {
-        val goldLight20 = Color("#ffe13f")
-        val goldLight25 = Color("#ffe13f")
-        val goldLight50 = Color("#ffeb7f")
-        val goldLight75 = Color("#fff5bf")
-        val goldLight90 = Color("#fffbe5")
-        val goldLight93 = Color("#fffced")
-    }
-
-
-
-    //-----------------------------------------------------------------------------------------------------------------
     override fun ProjectLauncherState.init(props: Props) {
-        artifacts = null
+        archetypes = null
         projects = null
         runningProjects = null
         loading = false
@@ -108,11 +96,11 @@ class ProjectLauncher(
 
 
     private suspend fun loadFromServerAsync() {
-        val needArtifacts = (state.artifacts == null)
+        val needArchetypes = (state.archetypes == null)
         val needProjects = (state.projects == null)
         val needRunningProjects = (state.runningProjects == null)
 
-        if (! (needArtifacts || needProjects || needRunningProjects)) {
+        if (! (needArchetypes || needProjects || needRunningProjects)) {
             return
         }
 
@@ -120,18 +108,18 @@ class ProjectLauncher(
             loading = true
         }
 
-        if (needArtifacts) {
-            val response = clientRestApi.listArtifacts()
-//            console.log("$$ artifacts: $response")
+        if (needArchetypes) {
+            val response = clientRestApi.listArchetypes()
+            console.log("$$ artifacts: $response")
 
             setState {
-                artifacts = response
+                archetypes = response
             }
         }
 
         if (needProjects) {
             val response = clientRestApi.listProjects()
-//            console.log("$$ projects: $response")
+            console.log("$$ projects: $response")
 
             setState {
                 projects = response
@@ -155,22 +143,6 @@ class ProjectLauncher(
 
 
     //-----------------------------------------------------------------------------------------------------------------
-//    private fun onOpenNavigation() {
-//        setState {
-//            creating = false
-//            errorMessage = null
-//        }
-//    }
-//
-//
-//    private fun onCreateNavigation() {
-//        setState {
-//            creating = true
-//            errorMessage = null
-//        }
-//    }
-
-
     private fun onCreateToggle() {
         setState {
             creating = ! state.creating
@@ -202,7 +174,7 @@ class ProjectLauncher(
 
         if (state.creating) {
             NewProjectScreen::class.react {
-                artifacts = state.artifacts
+                archetypes = state.archetypes
 
                 didCreate = {
                     setState {
@@ -240,7 +212,7 @@ class ProjectLauncher(
         AppBar {
             position = AppBarPosition.fixed
 
-            css {
+            sx {
                 backgroundColor = NamedColor.white
             }
 
@@ -251,7 +223,7 @@ class ProjectLauncher(
 
                 div {
                     css {
-                        float = csstype.Float.left
+                        float = Float.left
 
                         marginLeft = 1.em
                         marginTop = (0.5).em

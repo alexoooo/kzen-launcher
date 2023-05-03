@@ -14,16 +14,15 @@ class ClientProjectRestApi(
         private val baseUrl: String,
 //        private val baseWsUrl: String
 ) {
-    suspend fun listArtifacts(): List<ArchetypeDetail> {
-        val artifactList = ClientRestService.getWithErrorIntercept("$baseUrl${CommonRestApi.listArchetypes}")
+    suspend fun listArchetypes(): List<ArchetypeDetail> {
+        val archetypeList = ClientRestService.getWithErrorIntercept("$baseUrl${CommonRestApi.listArchetypes}")
 
-        val artifactsJson = JSON.parse<Array<Json>>(artifactList)
+        val archetypesJson = JSON.parse<Array<Json>>(archetypeList)
 
         @Suppress("UNCHECKED_CAST")
-        val artifactsCollection = ClientJsonUtils.toList(artifactsJson) as List<Map<String, String>>
+        val archetypesCollection = ClientJsonUtils.toList(archetypesJson) as List<Map<String, String>>
 
-
-        return artifactsCollection.map { ArchetypeDetail.fromCollection(it) }
+        return archetypesCollection.map { ArchetypeDetail.fromCollection(it) }
     }
 
 

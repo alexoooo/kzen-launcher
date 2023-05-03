@@ -13,7 +13,9 @@ import io.ktor.server.routing.*
 import tech.kzen.launcher.common.api.CommonRestApi
 import tech.kzen.launcher.common.api.staticResourceDir
 import tech.kzen.launcher.common.api.staticResourcePath
+import tech.kzen.launcher.common.dto.ArchetypeDetail
 import tech.kzen.launcher.server.api.RestHandler
+import tech.kzen.launcher.server.archetype.ArchetypeInfo
 import tech.kzen.launcher.server.archetype.ArchetypeRepo
 import tech.kzen.launcher.server.backend.indexPage
 import tech.kzen.launcher.server.project.ProjectCreator
@@ -61,7 +63,7 @@ private const val indexFilePath = "/$indexFileName"
 
 
 //---------------------------------------------------------------------------------------------------------------------
-private fun buildContext(args: Array<String>): KzenLauncherContext {
+fun buildContext(args: Array<String>): KzenLauncherContext {
     val kzenProperties = KzenProperties()
     val projectArchetype = KzenProperties.Archetype()
     projectArchetype.name = "KzenProjectJar-0.25.1"
@@ -145,7 +147,12 @@ private fun Routing.routeRest(
 ) {
     get(CommonRestApi.listArchetypes) {
         val response = restHandler.listArchetypes()
-        call.respond(response)
+        call.respond(response.entries.map { e -> ArchetypeDetail(
+            e.key,
+            e.value.title,
+            e.value.description,
+            e.value.location.toAbsolutePath().normalize().toString())
+        })
     }
 
     get(CommonRestApi.listProjects) {

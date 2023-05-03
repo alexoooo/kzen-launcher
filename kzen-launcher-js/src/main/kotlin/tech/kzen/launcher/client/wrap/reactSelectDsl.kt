@@ -1,11 +1,13 @@
 package tech.kzen.launcher.client.wrap
 
-import react.*
+
+external interface ReactSelectOption{
+    var value: String
+    var label: String
+}
 
 
-class ReactSelectOption(
-        val value: String,
-        val label: String)
+
 
 
 //fun RBuilder.materialReactSelectController(props: RProps): ReactElement =

@@ -9,7 +9,6 @@ import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableSet
 import com.google.common.collect.Maps
 import org.slf4j.LoggerFactory
-//import org.springframework.stereotype.Component
 import tech.kzen.launcher.common.api.CommonRestApi
 import tech.kzen.launcher.server.environment.LauncherEnvironment
 import java.nio.file.Files
@@ -17,7 +16,6 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 
-//@Component
 class ProjectRepo {
     //-----------------------------------------------------------------------------------------------------------------
     companion object {

@@ -1,21 +1,12 @@
 @file:JsModule("react-select")
 package tech.kzen.launcher.client.wrap
 
+import org.w3c.dom.HTMLElement
 import react.Component
 import react.ReactElement
 import kotlin.js.Json
 
 
-//@JsName("Select")
-//external class ReactSelect : Component<ReactSelectProps, RState> {
-//    override fun render(): ReactElement?
-//}
-//@JsModule("react-select")
-//@JsName("Select")
-//@JsName("SelectBase")
-
-
-// see: https://codesandbox.io/s/ly87zo23kl
 @JsName("default")
 external class ReactSelect: Component<ReactSelectProps, react.State> {
     override fun render(): ReactElement<ReactSelectProps>?
@@ -24,16 +15,18 @@ external class ReactSelect: Component<ReactSelectProps, react.State> {
 
 external interface ReactSelectProps: react.Props {
     var id: String
-
     var value: ReactSelectOption?
-
     var options: Array<ReactSelectOption>
-
     var onChange: (ReactSelectOption) -> Unit
-
     var components: Json
-
     var menuContainerStyle: Json
+    var styles: Json
+    var menuPortalTarget: HTMLElement
+    var placeholder: String
+
+    var onMenuOpen: () -> Unit
+
+    var isDisabled: Boolean
 
 //    var id: String
 //    var variant: String
@@ -42,5 +35,3 @@ external interface ReactSelectProps: react.Props {
 //    var size: String
 //    var onClick: () -> Unit
 }
-
-
