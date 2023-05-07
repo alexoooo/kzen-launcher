@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableSet
 import com.google.common.collect.Maps
@@ -33,7 +34,9 @@ class ArchetypeRepo(
         private val archetypeMetadata = archetypeHome
                 .resolve("kzen-archetypes.yaml")
 
-        private val parser = ObjectMapper(YAMLFactory())
+        private val parser = ObjectMapper(
+            YAMLFactory()
+                .disable(YAMLGenerator.Feature.SPLIT_LINES))
 
         private const val titleKey = "title"
         private const val descriptionKey = "description"

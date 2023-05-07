@@ -30,6 +30,24 @@ data class KzenLauncherConfig(
     val port: Int = 80,
     val host: String = "127.0.0.1"
 ) {
+    //-----------------------------------------------------------------------------------------------------------------
+    companion object {
+        private const val serverPortPrefix = "--server.port="
+        private val serverPortRegex = Regex(
+            Regex.escape(serverPortPrefix) + "\\d+")
+
+        fun readPort(args: Array<String>): Int? {
+            val match = args
+                .lastOrNull { it.matches(serverPortRegex) }
+                ?: return null
+
+            val portText = match.substring(serverPortPrefix.length)
+            return portText.toInt()
+        }
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
     fun jsFileName(): String {
         return "$jsModuleName.js"
     }
@@ -69,7 +87,7 @@ fun buildContext(args: Array<String>): KzenLauncherContext {
     projectArchetype.name = "KzenProjectJar-0.25.1"
     projectArchetype.title = "Automation and Reporting"
     projectArchetype.description = "Visually control a browser and more - v0.25.1"
-    projectArchetype.url = "file:///C:/Users/ao/IdeaProjects/kzen-project/kzen-project-jvm/build/libs/kzen-project-jvm-0.25.1-SNAPSHOT.jar"
+    projectArchetype.url = "file:///C:/Users/ao/IdeaProjects/kzen-project/kzen-project-jvm/build/libs/kzen-project-jvm-0.25.1-SNAPSHOT.zip"
     kzenProperties.archetypes.add(projectArchetype)
 
     val downloadService = DownloadService()
@@ -79,9 +97,11 @@ fun buildContext(args: Array<String>): KzenLauncherContext {
     val restHandler = RestHandler(archetypeRepo, projectRepo, projectCreator)
 //    val serverRestApi = ServerRestApi(restHandler)
 
+    val port = KzenLauncherConfig.readPort(args) ?: 8080
+
     val config = KzenLauncherConfig(
         kzenLauncherJsModuleName,
-        port = 8080
+        port = port
     )
 
     return KzenLauncherContext(

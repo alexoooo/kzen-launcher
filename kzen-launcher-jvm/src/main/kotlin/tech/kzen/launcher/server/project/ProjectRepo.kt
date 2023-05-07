@@ -1,10 +1,12 @@
 package tech.kzen.launcher.server.project
 
+import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.node.TextNode
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableSet
 import com.google.common.collect.Maps
@@ -24,7 +26,9 @@ class ProjectRepo {
         private val projectMetadata = LauncherEnvironment.projectHome
                 .resolve("kzen-projects.yaml")
 
-        private val parser = ObjectMapper(YAMLFactory())
+        private val parser = ObjectMapper(
+            YAMLFactory()
+                .disable(YAMLGenerator.Feature.SPLIT_LINES))
 
         private const val homeProperty = "home"
     }
