@@ -110,7 +110,7 @@ class ProjectLauncher(
 
         if (needArchetypes) {
             val response = clientRestApi.listArchetypes()
-            console.log("$$ artifacts: $response")
+//            console.log("$$ artifacts: $response")
 
             setState {
                 archetypes = response
@@ -119,7 +119,7 @@ class ProjectLauncher(
 
         if (needProjects) {
             val response = clientRestApi.listProjects()
-            console.log("$$ projects: $response")
+//            console.log("$$ projects: $response")
 
             setState {
                 projects = response
