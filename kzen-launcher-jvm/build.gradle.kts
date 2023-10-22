@@ -6,9 +6,6 @@ import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
 
 plugins {
     kotlin("jvm")
-//    id("org.springframework.boot") version springBootVersion
-//    id("io.spring.dependency-management") version dependencyManagementVersion
-//    kotlin("plugin.spring") version kotlinVersion
 }
 
 
@@ -41,8 +38,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:$kotlinxHtmlVersion")
 
     testImplementation(kotlin("test"))
-//    testImplementation("org.springframework.boot:spring-boot-starter-test")
-//    testImplementation("io.projectreactor:reactor-test")
 }
 
 
@@ -76,7 +71,8 @@ tasks.compileJava {
 
 val dependenciesDir = "dependencies"
 task("copyDependencies", Copy::class) {
-    from(configurations.default).into("$buildDir/libs/$dependenciesDir")
+//    from(configurations.default).into("$buildDir/libs/$dependenciesDir")
+    from(configurations.runtimeClasspath).into("$buildDir/libs/$dependenciesDir")
 }
 
 
@@ -95,8 +91,3 @@ tasks.getByName<Jar>("jar") {
             }
     }
 }
-
-
-//tasks.getByName<BootJar>("bootJar") {
-//    archiveClassifier.set("boot")
-//}

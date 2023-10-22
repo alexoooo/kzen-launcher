@@ -25,6 +25,14 @@ import tech.kzen.launcher.server.service.DownloadService
 
 
 //---------------------------------------------------------------------------------------------------------------------
+fun main(args: Array<String>) {
+    val context = buildContext(args)
+    context.init()
+    kzenLauncherMain(context)
+}
+
+
+//---------------------------------------------------------------------------------------------------------------------
 data class KzenLauncherConfig(
     val jsModuleName: String,
     val port: Int = 80,
@@ -111,13 +119,6 @@ fun buildContext(args: Array<String>): KzenLauncherContext {
 
 
 //---------------------------------------------------------------------------------------------------------------------
-fun main(args: Array<String>) {
-    val context = buildContext(args)
-    context.init()
-    kzenLauncherMain(context)
-}
-
-
 fun kzenLauncherMain(context: KzenLauncherContext) {
     embeddedServer(
         Netty,

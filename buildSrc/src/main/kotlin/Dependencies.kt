@@ -19,6 +19,7 @@ const val kotlinxHtmlVersion = "0.9.1"
 
 const val reactSelectVersion = "5.7.7"
 const val muiIconsVersion = "5.14.14"
+const val babelCoreVersion = "7.23.2"
 
 const val wrapperKotlinVersion = "pre.634"
 const val kotlinReactVersion = "18.2.0-$wrapperKotlinVersion"

@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
+import org.jetbrains.kotlin.gradle.targets.js.yarn.yarn
 
 plugins {
     kotlin("multiplatform")
@@ -22,9 +23,10 @@ kotlin {
                     KotlinWebpackConfig.Mode.PRODUCTION
                 }
 
-            commonWebpackConfig {
+            // https://youtrack.jetbrains.com/issue/KTIJ-26086
+            commonWebpackConfig(Action {
                 mode = webpackMode
-            }
+            })
         }
 
         if (devMode) {
@@ -51,6 +53,8 @@ kotlin {
                 implementation(npm("@mui/icons-material", muiIconsVersion))
                 implementation(npm("react-select", reactSelectVersion))
 
+                // NB: avoid "unmet peer dependency" warning
+                implementation(npm("@babel/core", babelCoreVersion))
             }
         }
 
@@ -64,3 +68,7 @@ kotlin {
 
 
 run {}
+
+
+// https://youtrack.jetbrains.com/issue/KT-52578/KJS-Gradle-KotlinNpmInstallTask-gradle-task-produces-unsolvable-warning-ignored-scripts-due-to-flag.
+yarn.ignoreScripts = false
