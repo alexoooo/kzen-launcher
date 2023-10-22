@@ -84,10 +84,10 @@ private const val indexFilePath = "/$indexFileName"
 fun buildContext(args: Array<String>): KzenLauncherContext {
     val kzenProperties = KzenProperties()
     val projectArchetype = KzenProperties.Archetype()
-    projectArchetype.name = "KzenProjectJar-0.26.0"
+    projectArchetype.name = "KzenProjectJar-0.27.0"
     projectArchetype.title = "Automation and Reporting"
     projectArchetype.description = "Visually control a browser and more - v0.27.0"
-    projectArchetype.url = "file:///C:/Users/ao/IdeaProjects/kzen-project/kzen-project-jvm/build/libs/kzen-project-jvm-0.27.0-SNAPSHOT.zip"
+    projectArchetype.url = "file:///C:/Users/ostro/IdeaProjects/kzen-project/kzen-project-jvm/build/libs/kzen-project-jvm-0.27.0.zip"
 //    projectArchetype.url = "https://github.com/alexoooo/kzen-project/releases/download/v0.26.0/kzen-project-0.26.0.zip"
     kzenProperties.archetypes.add(projectArchetype)
 
@@ -155,9 +155,7 @@ private fun Routing.routeRequests(
         }
     }
 
-    static(staticResourcePath) {
-        resources(staticResourceDir)
-    }
+    staticResources(staticResourcePath, staticResourceDir)
 
     routeRest(context.restApi)
 }

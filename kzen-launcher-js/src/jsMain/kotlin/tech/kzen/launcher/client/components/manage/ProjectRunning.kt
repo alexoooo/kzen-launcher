@@ -1,7 +1,5 @@
 package tech.kzen.launcher.client.components.manage
 
-import csstype.em
-import csstype.px
 import emotion.react.css
 import js.core.jso
 import mui.material.Button
@@ -16,6 +14,8 @@ import react.dom.html.ReactHTML.span
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.shellRestApi
 import tech.kzen.launcher.client.wrap.*
+import web.cssom.em
+import web.cssom.px
 
 
 //---------------------------------------------------------------------------------------------------------------------

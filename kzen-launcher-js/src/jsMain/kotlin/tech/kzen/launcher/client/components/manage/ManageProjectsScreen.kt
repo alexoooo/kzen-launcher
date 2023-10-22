@@ -1,15 +1,14 @@
 package tech.kzen.launcher.client.components.manage
 
-import csstype.Margin
-import csstype.NamedColor
-import csstype.PropertyName.Companion.margin
-import csstype.em
 import emotion.react.css
 import mui.material.Card
 import mui.material.CardContent
 import react.*
 import tech.kzen.launcher.client.wrap.*
 import tech.kzen.launcher.common.dto.ProjectDetail
+import web.cssom.Margin
+import web.cssom.NamedColor
+import web.cssom.em
 
 
 //-----------------------------------------------------------------------------------------------------------------

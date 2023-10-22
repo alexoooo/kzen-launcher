@@ -27,7 +27,6 @@ dependencies {
     implementation("org.jetbrains.kotlin-wrappers:kotlin-css-jvm:1.0.0-$wrapperKotlinVersion")
 
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
-//    implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("com.google.guava:guava:$guavaVersion")
     implementation("org.apache.commons:commons-compress:$commonsCompressVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonModuleKotlin")
@@ -49,13 +48,16 @@ dependencies {
 
 tasks.withType<ProcessResources> {
     val jsProject = project(":kzen-launcher-js")
-    val task = jsProject.tasks.getByName("browserProductionWebpack") as KotlinWebpack
 
-    from(task.destinationDirectory) {
+    val browserDistributionTask = jsProject.tasks.getByName("jsBrowserDistribution")
+    dependsOn(browserDistributionTask)
+
+    val task = jsProject.tasks.getByName("jsBrowserProductionWebpack") as KotlinWebpack
+    dependsOn(task)
+
+    from(task.outputDirectory) {
         into("static")
     }
-
-    dependsOn(task)
 }
 
 

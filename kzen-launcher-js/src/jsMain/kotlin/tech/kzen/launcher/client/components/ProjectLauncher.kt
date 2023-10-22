@@ -18,6 +18,8 @@ import tech.kzen.launcher.client.wrap.*
 import tech.kzen.launcher.common.api.staticResourcePath
 import tech.kzen.launcher.common.dto.ArchetypeDetail
 import tech.kzen.launcher.common.dto.ProjectDetail
+import web.cssom.*
+import kotlin.Float
 
 
 //---------------------------------------------------------------------------------------------------------------------
@@ -223,7 +225,7 @@ class ProjectLauncher(
 
                 div {
                     css {
-                        float = Float.left
+                        float = web.cssom.Float.left
 
                         marginLeft = 1.em
                         marginTop = (0.5).em
@@ -234,7 +236,7 @@ class ProjectLauncher(
 
                 div {
                     css {
-                        float = csstype.Float.left
+                        float = web.cssom.Float.left
                         marginTop = (-5).px
                     }
 
@@ -273,7 +275,7 @@ class ProjectLauncher(
 
                 div {
                     css {
-                        float = csstype.Float.left
+                        float = web.cssom.Float.left
 
                         fontStyle = FontStyle.italic
                         fontSize = 1.5.em

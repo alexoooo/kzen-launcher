@@ -1,9 +1,6 @@
 package tech.kzen.launcher.client.components.manage
 
 
-import csstype.Float
-import csstype.em
-import csstype.px
 import emotion.react.css
 import kotlinx.coroutines.delay
 import mui.material.CircularProgress
@@ -18,6 +15,8 @@ import tech.kzen.launcher.client.api.shellRestApi
 import tech.kzen.launcher.client.wrap.RComponent
 import tech.kzen.launcher.client.wrap.setState
 import tech.kzen.launcher.common.dto.ProjectDetail
+import web.cssom.em
+import web.cssom.px
 
 
 //---------------------------------------------------------------------------------------------------------------------
@@ -118,7 +117,7 @@ class ProjectList(
         if (state.starting) {
             span {
                 css {
-                    float = Float.right
+                    float = web.cssom.Float.right
                     marginTop = (-55).px
                 }
                 CircularProgress {}
