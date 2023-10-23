@@ -31,7 +31,6 @@ kotlin {
     }
 
     sourceSets {
-        @Suppress("UNUSED_VARIABLE")
         val commonMain by getting {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
@@ -39,7 +38,6 @@ kotlin {
             }
         }
 
-        @Suppress("UNUSED_VARIABLE")
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
@@ -47,7 +45,6 @@ kotlin {
         }
 
 
-        @Suppress("UNUSED_VARIABLE")
         val jvmMain by getting {
             dependencies {
                 implementation("ch.qos.logback:logback-classic:$logbackVersion")
@@ -55,20 +52,17 @@ kotlin {
             }
         }
 
-        @Suppress("UNUSED_VARIABLE")
         val jvmTest by getting {
             dependencies {}
         }
 
 
-        @Suppress("UNUSED_VARIABLE")
         val jsMain by getting {
             dependencies {
                 api("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutinesVersion")
             }
         }
 
-        @Suppress("UNUSED_VARIABLE")
         val jsTest by getting {
             dependencies {}
         }
