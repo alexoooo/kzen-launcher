@@ -188,7 +188,8 @@ class ArchetypeRepo(
 
             archetypesBuilder.put(name, info)
         }
-        @Suppress("UnnecessaryVariable")
+
+        @Suppress("UnnecessaryVariable", "RedundantSuppression")
         val archetypes = archetypesBuilder.build()
 
         return archetypes
