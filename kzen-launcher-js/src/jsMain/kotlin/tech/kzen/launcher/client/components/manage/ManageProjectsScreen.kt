@@ -3,6 +3,7 @@ package tech.kzen.launcher.client.components.manage
 import emotion.react.css
 import mui.material.Card
 import mui.material.CardContent
+import mui.system.sx
 import react.*
 import tech.kzen.launcher.client.wrap.*
 import tech.kzen.launcher.common.dto.ProjectDetail
@@ -29,9 +30,9 @@ external interface ManageProjectsScreenState: State {
 
 //-----------------------------------------------------------------------------------------------------------------
 class ManageProjectsScreen(
-        props: ManageProjectsScreenProps
+    props: ManageProjectsScreenProps
 ):
-        RComponent<ManageProjectsScreenProps, ManageProjectsScreenState>(props)
+    RComponent<ManageProjectsScreenProps, ManageProjectsScreenState>(props)
 {
 
     //-----------------------------------------------------------------------------------------------------------------
@@ -81,7 +82,7 @@ class ManageProjectsScreen(
 
     private fun ChildrenBuilder.renderRunning() {
         Card {
-            css {
+            sx {
                 backgroundColor = NamedColor.white
                 margin = Margin(2.em, 2.em, 2.em, 2.em)
             }
@@ -105,7 +106,7 @@ class ManageProjectsScreen(
 
     private fun ChildrenBuilder.renderList() {
         Card {
-            css {
+            sx {
                 backgroundColor = NamedColor.white
                 margin = Margin(2.em, 2.em, 2.em, 2.em)
             }

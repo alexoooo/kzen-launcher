@@ -1,12 +1,11 @@
 package tech.kzen.launcher.client.components.manage
 
 import emotion.react.css
-import js.core.jso
+import js.objects.jso
 import mui.material.Button
 import mui.material.ButtonVariant
-import mui.material.HiddenImplementation.Companion.css
+import mui.system.sx
 import react.*
-import react.dom.*
 import react.dom.html.ReactHTML.a
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.h2
@@ -28,7 +27,7 @@ external interface ProjectRunningProps: Props {
 //---------------------------------------------------------------------------------------------------------------------
 @Suppress("unused")
 class ProjectRunning(
-        props: ProjectRunningProps
+    props: ProjectRunningProps
 ): RComponent<ProjectRunningProps, State>(props) {
     //-----------------------------------------------------------------------------------------------------------------
     private fun onStop(name: String) {
@@ -71,6 +70,8 @@ class ProjectRunning(
         else {
             for (project in projects) {
                 div {
+                    key = project
+
                     a {
                         href = "/$project/"
                         +(project)
@@ -79,7 +80,7 @@ class ProjectRunning(
                     Button {
                         variant = ButtonVariant.outlined
 
-                        css {
+                        sx {
                             marginLeft = 1.em
                         }
 

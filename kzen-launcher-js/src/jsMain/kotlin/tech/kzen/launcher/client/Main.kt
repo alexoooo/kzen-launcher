@@ -1,11 +1,8 @@
 package tech.kzen.launcher.client
 
-import react.dom.render
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.components.ProjectLauncher
-import kotlinx.browser.document
 import kotlinx.browser.window
-import kotlinx.dom.clear
 import react.Fragment
 import react.create
 import react.dom.client.createRoot
@@ -36,10 +33,6 @@ fun main() {
             createRoot(rootElement).render(Fragment.create {
                 ProjectLauncher::class.react {}
             })
-
-//            render(rootElement) {
-//                child(ProjectLauncher::class) {}
-//            }
         }
     }
 }

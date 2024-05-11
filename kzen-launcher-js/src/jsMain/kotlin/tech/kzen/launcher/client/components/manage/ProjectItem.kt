@@ -1,11 +1,11 @@
 package tech.kzen.launcher.client.components.manage
 
-import csstype.*
 import emotion.react.css
-import js.core.jso
+import js.objects.jso
 import mui.material.Button
 import mui.material.ButtonVariant
 import mui.material.TextField
+import mui.system.sx
 import react.*
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.span
@@ -234,7 +234,7 @@ class ProjectItem(
 
     private fun ChildrenBuilder.renderRenameTitle() {
         TextField  {
-            css {
+            sx {
                 width = 36.em
             }
 
@@ -335,7 +335,7 @@ class ProjectItem(
         div {
             if (state.changingArgs) {
                 TextField {
-                    css {
+                    sx {
                         width = 36.em
                     }
 

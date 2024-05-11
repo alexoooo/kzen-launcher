@@ -7,10 +7,14 @@ import tech.kzen.launcher.client.service.ClientRestService
  * Points to container shell
  */
 class ClientShellRestApi {
+    //-----------------------------------------------------------------------------------------------------------------
+    @Suppress("ConstPropertyName")
     private companion object {
         const val base = "/shell/project"
     }
 
+
+    //-----------------------------------------------------------------------------------------------------------------
     suspend fun runningProjects(): List<String> {
         val json = ClientRestService.getWithErrorIntercept(base)
 

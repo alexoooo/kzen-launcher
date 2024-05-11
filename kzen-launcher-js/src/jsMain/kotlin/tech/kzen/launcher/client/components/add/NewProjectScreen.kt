@@ -2,8 +2,9 @@ package tech.kzen.launcher.client.components.add
 
 import csstype.*
 import emotion.react.css
-import js.core.jso
+import js.objects.jso
 import mui.material.*
+import mui.system.sx
 import react.*
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.h2
@@ -147,7 +148,7 @@ class NewProjectScreen(
 //        console.log("render: ${props.artifacts} | ${state.name} | ${state.type}")
 
         Paper {
-            css {
+            sx {
                 backgroundColor = NamedColor.white
                 margin = Margin(2.em, 2.em, 2.em, 2.em)
             }
@@ -165,7 +166,7 @@ class NewProjectScreen(
         }
 
         Card {
-            css {
+            sx {
                 backgroundColor = NamedColor.white
                 margin = Margin(2.em, 2.em, 2.em, 2.em)
             }
@@ -255,7 +256,7 @@ class NewProjectScreen(
 
     private fun ChildrenBuilder.renderName() {
         TextField {
-            css {
+            sx {
                 width = 36.em
             }
 
@@ -308,7 +309,7 @@ class NewProjectScreen(
                 InputLabel {
                     htmlFor = selectId
 
-                    css {
+                    sx {
                         fontSize = 0.8.em
                     }
 
@@ -332,7 +333,7 @@ class NewProjectScreen(
 
     private fun ChildrenBuilder.renderPath() {
         TextField {
-            css {
+            sx {
                 width = 36.em
             }
 

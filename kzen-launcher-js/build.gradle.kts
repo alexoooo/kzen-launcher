@@ -24,9 +24,9 @@ kotlin {
                 }
 
             // https://youtrack.jetbrains.com/issue/KTIJ-26086
-            commonWebpackConfig(Action {
+            commonWebpackConfig {
                 mode = webpackMode
-            })
+            }
         }
 
         if (devMode) {
@@ -47,7 +47,7 @@ kotlin {
                 implementation("org.jetbrains.kotlin-wrappers:kotlin-react:$kotlinReactVersion")
                 implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:$kotlinReactDomVersion")
                 implementation("org.jetbrains.kotlin-wrappers:kotlin-emotion:$kotlinEmotionVersion")
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-mui:$kotlinMuiVersion")
+                implementation("org.jetbrains.kotlin-wrappers:kotlin-mui-material:$kotlinMuiVersion")
 
                 implementation(npm("core-js", coreJsVersion))
                 implementation(npm("@mui/icons-material", muiIconsVersion))
