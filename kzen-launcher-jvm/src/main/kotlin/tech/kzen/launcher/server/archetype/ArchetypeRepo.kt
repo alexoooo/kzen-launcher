@@ -25,6 +25,7 @@ class ArchetypeRepo(
     private val kzenProperties: KzenProperties
 ) {
     //-----------------------------------------------------------------------------------------------------------------
+    @Suppress("ConstPropertyName")
     companion object {
         private val logger = LoggerFactory.getLogger(ArchetypeRepo::class.java)!!
 
@@ -41,6 +42,10 @@ class ArchetypeRepo(
         private const val titleKey = "title"
         private const val descriptionKey = "description"
         private const val locationKey = "location"
+
+        init {
+            logger.info("archetypeMetadata: {}", archetypeMetadata.toAbsolutePath().normalize())
+        }
     }
 
 

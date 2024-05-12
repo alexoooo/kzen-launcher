@@ -40,7 +40,9 @@ data class KzenLauncherConfig(
 ) {
     //-----------------------------------------------------------------------------------------------------------------
     companion object {
+        @Suppress("ConstPropertyName")
         private const val serverPortPrefix = "--server.port="
+
         private val serverPortRegex = Regex(
             Regex.escape(serverPortPrefix) + "\\d+")
 
