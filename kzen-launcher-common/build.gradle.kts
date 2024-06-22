@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     kotlin("multiplatform")
 }
@@ -9,12 +12,16 @@ kotlin {
     }
 
     jvm {
-        @Suppress("UNUSED_VARIABLE")
-        val main by compilations.getting {
-            kotlinOptions {
-                jvmTarget = jvmTargetVersion
-            }
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        compilerOptions {
+            jvmTarget.set(JvmTarget.fromTarget(jvmTargetVersion))
         }
+//        @Suppress("UNUSED_VARIABLE")
+//        val main by compilations.getting {
+//            kotlinOptions {
+//                jvmTarget = jvmTargetVersion
+//            }
+//        }
     }
 
     js {

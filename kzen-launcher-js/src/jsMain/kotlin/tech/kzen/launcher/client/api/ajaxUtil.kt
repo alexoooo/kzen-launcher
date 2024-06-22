@@ -1,8 +1,8 @@
 package tech.kzen.launcher.client.api
 
 
-import org.w3c.xhr.XMLHttpRequest
 import kotlinx.browser.window
+import org.w3c.xhr.XMLHttpRequest
 import kotlin.coroutines.*
 import kotlin.js.Json
 import kotlin.js.Promise

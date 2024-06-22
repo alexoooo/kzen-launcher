@@ -1,6 +1,5 @@
 package tech.kzen.launcher.client.components.add
 
-import csstype.*
 import emotion.react.css
 import js.objects.jso
 import mui.material.*
@@ -37,6 +36,7 @@ class NewProjectScreen(
     props: NewProjectScreenProps
 ): RComponent<NewProjectScreenProps, NewProjectScreenState>(props) {
     //-----------------------------------------------------------------------------------------------------------------
+    @Suppress("ConstPropertyName")
     companion object {
         private const val defaultNamePrefix = "My New Project"
         private const val defaultImportPath = "../kzen-proj/existing-project-name"

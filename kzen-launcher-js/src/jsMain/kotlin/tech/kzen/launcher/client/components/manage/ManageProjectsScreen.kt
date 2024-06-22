@@ -1,11 +1,14 @@
 package tech.kzen.launcher.client.components.manage
 
-import emotion.react.css
 import mui.material.Card
 import mui.material.CardContent
 import mui.system.sx
-import react.*
-import tech.kzen.launcher.client.wrap.*
+import react.ChildrenBuilder
+import react.Props
+import react.State
+import react.react
+import tech.kzen.launcher.client.wrap.RComponent
+import tech.kzen.launcher.client.wrap.setState
 import tech.kzen.launcher.common.dto.ProjectDetail
 import web.cssom.Margin
 import web.cssom.NamedColor

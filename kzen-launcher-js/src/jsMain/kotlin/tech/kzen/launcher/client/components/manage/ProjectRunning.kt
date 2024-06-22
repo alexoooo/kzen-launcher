@@ -5,14 +5,18 @@ import js.objects.jso
 import mui.material.Button
 import mui.material.ButtonVariant
 import mui.system.sx
-import react.*
+import react.ChildrenBuilder
+import react.Props
+import react.State
 import react.dom.html.ReactHTML.a
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.h2
 import react.dom.html.ReactHTML.span
+import react.react
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.shellRestApi
-import tech.kzen.launcher.client.wrap.*
+import tech.kzen.launcher.client.wrap.RComponent
+import tech.kzen.launcher.client.wrap.StopIcon
 import web.cssom.em
 import web.cssom.px
 

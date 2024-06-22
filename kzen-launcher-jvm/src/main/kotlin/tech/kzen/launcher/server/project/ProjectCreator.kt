@@ -1,20 +1,18 @@
 package tech.kzen.launcher.server.project
 
+//import org.springframework.stereotype.Component
 import com.google.common.io.ByteStreams
 import com.google.common.io.MoreFiles
 import org.slf4j.LoggerFactory
-//import org.springframework.stereotype.Component
 import tech.kzen.launcher.server.archetype.ArchetypeRepo
 import tech.kzen.launcher.server.environment.LauncherEnvironment
-import java.io.*
+import java.io.InputStream
+import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.attribute.PosixFilePermission
-import java.util.zip.ZipInputStream
 import java.util.zip.ZipEntry
-import java.nio.file.FileSystems
-
-
+import java.util.zip.ZipInputStream
 
 
 //@Component

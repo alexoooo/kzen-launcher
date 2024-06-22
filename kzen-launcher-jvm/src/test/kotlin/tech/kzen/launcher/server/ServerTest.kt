@@ -1,6 +1,5 @@
 package tech.kzen.launcher.server
 
-import org.junit.Assert.assertEquals
 import kotlin.test.Test
 
 

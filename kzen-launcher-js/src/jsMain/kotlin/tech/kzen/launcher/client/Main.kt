@@ -1,12 +1,12 @@
 package tech.kzen.launcher.client
 
-import tech.kzen.launcher.client.api.async
-import tech.kzen.launcher.client.components.ProjectLauncher
 import kotlinx.browser.window
 import react.Fragment
 import react.create
 import react.dom.client.createRoot
 import react.react
+import tech.kzen.launcher.client.api.async
+import tech.kzen.launcher.client.components.ProjectLauncher
 import tech.kzen.launcher.common.api.rootHtmlElementId
 import web.html.HTMLElement
 

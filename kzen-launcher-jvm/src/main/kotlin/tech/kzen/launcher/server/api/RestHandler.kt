@@ -1,16 +1,13 @@
 package tech.kzen.launcher.server.api
 
 import com.google.common.collect.ImmutableMap
-import com.google.common.io.Resources
 import io.ktor.http.*
 import tech.kzen.launcher.common.api.CommonRestApi
 import tech.kzen.launcher.server.archetype.ArchetypeInfo
-import tech.kzen.launcher.server.project.ProjectCreator
 import tech.kzen.launcher.server.archetype.ArchetypeRepo
+import tech.kzen.launcher.server.project.ProjectCreator
 import tech.kzen.launcher.server.project.ProjectRepo
-import java.net.URI
 import java.nio.file.Files
-import java.nio.file.Path
 import java.nio.file.Paths
 
 

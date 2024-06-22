@@ -1,6 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
 
 
@@ -12,6 +12,9 @@ plugins {
 kotlin {
     jvmToolchain {
         languageVersion.set(JavaLanguageVersion.of(jvmToolchainVersion))
+    }
+    compilerOptions {
+        jvmTarget.set(JvmTarget.fromTarget(jvmTargetVersion))
     }
 }
 
@@ -56,10 +59,9 @@ tasks.withType<ProcessResources> {
 }
 
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
+tasks.named("compileKotlin", org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask::class.java) {
+    compilerOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = jvmTargetVersion
     }
 }
 

@@ -13,8 +13,8 @@ kzen:
 #      url: https://github.com/alexoooo/kzen-project/releases/download/v0.25.0/kzen-project-0.25.0.zip
 
 
-    - name: KzenProjectJar-0.28.0
+    - name: KzenProjectJar-0.28.1
       title: "Automation and Reporting"
-      description: "Visually control a browser and more - 0.28.0"
-      url: file:///C:/Users/ostro/IdeaProjects/kzen-project/kzen-project-jvm/build/libs/kzen-project-jvm-0.28.0.zip
+      description: "Visually control a browser and more - 0.28.1"
+      url: file:///C:/Users/ostro/IdeaProjects/kzen-project/kzen-project-jvm/build/libs/kzen-project-jvm-0.28.1.zip
 #      url: https://github.com/alexoooo/kzen-project/releases/download/v0.28.0/kzen-project-0.28.0.jar

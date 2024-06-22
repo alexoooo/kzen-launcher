@@ -4,7 +4,6 @@ package tech.kzen.launcher.client.wrap
 
 import react.Component
 import react.ReactElement
-import kotlin.js.Json
 
 
 // see: https://material-ui.com/style/icons/

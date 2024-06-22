@@ -15,7 +15,6 @@ import tech.kzen.launcher.common.api.staticResourceDir
 import tech.kzen.launcher.common.api.staticResourcePath
 import tech.kzen.launcher.common.dto.ArchetypeDetail
 import tech.kzen.launcher.server.api.RestHandler
-import tech.kzen.launcher.server.archetype.ArchetypeInfo
 import tech.kzen.launcher.server.archetype.ArchetypeRepo
 import tech.kzen.launcher.server.backend.indexPage
 import tech.kzen.launcher.server.project.ProjectCreator
@@ -94,11 +93,11 @@ private const val indexFilePath = "/$indexFileName"
 fun buildContext(args: Array<String>): KzenLauncherContext {
     val kzenProperties = KzenProperties()
     val projectArchetype = KzenProperties.Archetype()
-    projectArchetype.name = "KzenProjectJar-0.28.0"
+    projectArchetype.name = "KzenProjectJar-0.28.1"
     projectArchetype.title = "Automation and Reporting"
-    projectArchetype.description = "Visually control a browser and more - v0.28.0"
+    projectArchetype.description = "Visually control a browser and more - v0.28.1"
 //    projectArchetype.url = "file:///C:/Users/ostro/IdeaProjects/kzen-project/kzen-project-jvm/build/libs/kzen-project-0.28.0.zip"
-    projectArchetype.url = "https://github.com/alexoooo/kzen-project/releases/download/v0.28.0/kzen-project-0.28.0.zip"
+    projectArchetype.url = "https://github.com/alexoooo/kzen-project/releases/download/v0.28.1/kzen-project-0.28.1.zip"
     kzenProperties.archetypes.add(projectArchetype)
 
     val downloadService = DownloadService()
