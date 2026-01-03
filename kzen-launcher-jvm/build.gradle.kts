@@ -24,13 +24,13 @@ dependencies {
 
     implementation(kotlin("reflect"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$coroutinesVersion")
-    implementation("org.jetbrains.kotlin-wrappers:kotlin-css-jvm:1.0.0-$wrapperKotlinVersion")
+//    implementation("org.jetbrains.kotlin-wrappers:kotlin-css-jvm:1.0.0-$wrapperKotlinVersion")
 
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("com.google.guava:guava:$guavaVersion")
     implementation("org.apache.commons:commons-compress:$commonsCompressVersion")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonModuleKotlin")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:$jacksonDataformatYaml")
+    implementation("tools.jackson.module:jackson-module-kotlin:$jacksonModuleKotlin")
+    implementation("tools.jackson.dataformat:jackson-dataformat-yaml:$jacksonDataformatYaml")
 
 
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
@@ -59,11 +59,11 @@ tasks.withType<ProcessResources> {
 }
 
 
-tasks.named("compileKotlin", org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask::class.java) {
-    compilerOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-    }
-}
+//tasks.named("compileKotlin", org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask::class.java) {
+//    compilerOptions {
+//        freeCompilerArgs = listOf("-Xjsr305=strict")
+//    }
+//}
 
 
 tasks.compileJava {
@@ -72,7 +72,7 @@ tasks.compileJava {
 
 
 val dependenciesDir = "dependencies"
-task("copyDependencies", Copy::class) {
+tasks.register<Copy>("copyDependencies") {
     from(configurations.runtimeClasspath)
         .into("${layout.buildDirectory.get().asFile}/libs/$dependenciesDir")
 }

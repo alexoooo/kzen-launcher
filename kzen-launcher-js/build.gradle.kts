@@ -44,10 +44,16 @@ kotlin {
                 implementation(project(":kzen-launcher-common"))
 
                 implementation("org.jetbrains.kotlinx:kotlinx-html-assembly:$kotlinxHtmlAssemblyVersion")
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-react:$kotlinReactVersion")
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:$kotlinReactDomVersion")
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-emotion:$kotlinEmotionVersion")
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-mui-material:$kotlinMuiVersion")
+
+                implementation(kotlinWrappers.react)
+                implementation(kotlinWrappers.reactLegacy)
+                implementation(kotlinWrappers.reactDom)
+                implementation(kotlinWrappers.emotion.styled)
+                implementation(kotlinWrappers.mui.material)
+//                implementation("org.jetbrains.kotlin-wrappers:kotlin-react:$kotlinReactVersion")
+//                implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:$kotlinReactDomVersion")
+//                implementation("org.jetbrains.kotlin-wrappers:kotlin-emotion:$kotlinEmotionVersion")
+//                implementation("org.jetbrains.kotlin-wrappers:kotlin-mui-material:$kotlinMuiVersion")
 
                 implementation(npm("core-js", coreJsVersion))
                 implementation(npm("@mui/icons-material", muiIconsVersion))

@@ -1,7 +1,7 @@
 package tech.kzen.launcher.client.components.add
 
 import emotion.react.css
-import js.objects.jso
+import js.objects.unsafeJso
 import mui.material.*
 import mui.system.sx
 import react.*
@@ -10,9 +10,14 @@ import react.dom.html.ReactHTML.h2
 import react.dom.onChange
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.clientRestApi
-import tech.kzen.launcher.client.wrap.*
+import tech.kzen.launcher.client.wrap.CreateIcon
+import tech.kzen.launcher.client.wrap.InfoIcon
+import tech.kzen.launcher.client.wrap.ReactSelect
+import tech.kzen.launcher.client.wrap.ReactSelectOption
+import tech.kzen.launcher.client.wrap.RedoIcon
 import tech.kzen.launcher.common.dto.ArchetypeDetail
 import web.cssom.*
+import web.dom.ElementId
 import web.html.HTMLInputElement
 import kotlin.js.Date
 
@@ -34,7 +39,7 @@ external interface NewProjectScreenState: State {
 //---------------------------------------------------------------------------------------------------------------------
 class NewProjectScreen(
     props: NewProjectScreenProps
-): RComponent<NewProjectScreenProps, NewProjectScreenState>(props) {
+): tech.kzen.launcher.client.wrap.RComponent<NewProjectScreenProps, NewProjectScreenState>(props) {
     //-----------------------------------------------------------------------------------------------------------------
     @Suppress("ConstPropertyName")
     companion object {
@@ -210,7 +215,7 @@ class NewProjectScreen(
                     onClick = { onCreate() }
 
                     CreateIcon::class.react {
-                        style = jso {
+                        style = unsafeJso {
                             marginRight = 0.25.em
                         }
                     }
@@ -242,7 +247,7 @@ class NewProjectScreen(
                     onClick = { onImport() }
 
                     RedoIcon::class.react {
-                        style = jso {
+                        style = unsafeJso {
                             marginRight = 0.25.em
                         }
                     }
@@ -296,7 +301,7 @@ class NewProjectScreen(
                 val selectOptions = props
                         .archetypes!!
                         .map {
-                            val option: ReactSelectOption = jso {
+                            val option: ReactSelectOption = unsafeJso {
                                 value = it.name
                                 label = it.title + " - " + it.description
                             }
@@ -307,7 +312,7 @@ class NewProjectScreen(
                 val selectId = "material-react-select-id"
 
                 InputLabel {
-                    htmlFor = selectId
+                    htmlFor = ElementId(selectId)
 
                     sx {
                         fontSize = 0.8.em

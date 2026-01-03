@@ -1,17 +1,17 @@
 package tech.kzen.launcher.server.project
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.databind.node.TextNode
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.node.ObjectNode
+import tools.jackson.dataformat.yaml.YAMLFactory
 import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableSet
 import com.google.common.collect.Maps
 import org.slf4j.LoggerFactory
 import tech.kzen.launcher.common.api.CommonRestApi
 import tech.kzen.launcher.server.environment.LauncherEnvironment
+import tools.jackson.databind.node.StringNode
+import tools.jackson.dataformat.yaml.YAMLWriteFeature
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -27,8 +27,9 @@ class ProjectRepo {
                 .resolve("kzen-projects.yaml")
 
         private val parser = ObjectMapper(
-            YAMLFactory()
-                .disable(YAMLGenerator.Feature.SPLIT_LINES))
+            YAMLFactory.builder()
+                .disable(YAMLWriteFeature.SPLIT_LINES)
+                .build())
 
         private const val homeProperty = "home"
     }
@@ -53,7 +54,7 @@ class ProjectRepo {
     fun get(name: String): ProjectInfo {
         val current = read()
 
-        @Suppress("UnnecessaryVariable")
+//        @Suppress("UnnecessaryVariable")
         val info = current[name]
                 ?: throw IllegalArgumentException("Archetype not found: $name")
 
@@ -177,7 +178,7 @@ class ProjectRepo {
                 as? ObjectNode
                 ?: throw IllegalArgumentException("Key-value map expected")
 
-        val names = ImmutableSet.copyOf(metadataRoot.fieldNames())
+        val names = ImmutableSet.copyOf(metadataRoot.propertyNames())
 
         val archetypesBuilder = ImmutableMap.builder<String, ProjectInfo>()
         for (name in names) {
@@ -186,7 +187,7 @@ class ProjectRepo {
 
             archetypesBuilder.put(name, info)
         }
-        @Suppress("UnnecessaryVariable")
+//        @Suppress("UnnecessaryVariable")
         val archetypes = archetypesBuilder.build()
 
         return archetypes
@@ -197,13 +198,13 @@ class ProjectRepo {
         val properties = jsonNode as? ObjectNode
                 ?: throw IllegalArgumentException("Key-value map expected ($name): $jsonNode")
 
-        val propertyNames = ImmutableSet.copyOf(properties.fieldNames())
+        val propertyNames = ImmutableSet.copyOf(properties.propertyNames())
         check(propertyNames.contains(homeProperty)) {"Missing property ($name): $homeProperty"}
 
-        val path = properties[homeProperty] as? TextNode
+        val path = properties[homeProperty] as? StringNode
                 ?: throw IllegalStateException("Text expected ($name.$homeProperty): ${properties[homeProperty]}")
 
-        val jvmArgs = (properties[CommonRestApi.projectJvmArgs] as? TextNode)?.textValue() ?: ""
+        val jvmArgs = (properties[CommonRestApi.projectJvmArgs] as? StringNode)?.textValue() ?: ""
 
         return ProjectInfo(
             Paths.get(path.textValue()),

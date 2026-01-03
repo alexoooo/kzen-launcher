@@ -1,16 +1,27 @@
 package tech.kzen.launcher.client.components.manage
 
 import emotion.react.css
-import js.objects.jso
+import js.objects.unsafeJso
 import mui.material.Button
 import mui.material.ButtonVariant
 import mui.material.TextField
 import mui.system.sx
-import react.*
+import react.ChildrenBuilder
+import react.Component
+import react.Props
+import react.ReactNode
+import react.State
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.span
 import react.dom.onChange
-import tech.kzen.launcher.client.wrap.*
+import react.react
+import tech.kzen.launcher.client.wrap.DeleteIcon
+import tech.kzen.launcher.client.wrap.EditIcon
+import tech.kzen.launcher.client.wrap.IconProps
+import tech.kzen.launcher.client.wrap.PlayArrowIcon
+import tech.kzen.launcher.client.wrap.RemoveCircleOutlineIcon
+import tech.kzen.launcher.client.wrap.SaveIcon
+import tech.kzen.launcher.client.wrap.setState
 import tech.kzen.launcher.common.dto.ProjectDetail
 import web.cssom.*
 import web.html.HTMLInputElement
@@ -41,7 +52,7 @@ external interface ProjectItemState: State {
 //---------------------------------------------------------------------------------------------------------------------
 class ProjectItem(
         props: ProjectItemProps
-): RComponent<ProjectItemProps, ProjectItemState>(props) {
+): tech.kzen.launcher.client.wrap.RComponent<ProjectItemProps, ProjectItemState>(props) {
     //-----------------------------------------------------------------------------------------------------------------
     override fun ProjectItemState.init(props: ProjectItemProps) {
         renaming = false
@@ -198,7 +209,7 @@ class ProjectItem(
                 }
 
                 PlayArrowIcon::class.react {
-                    style = jso {
+                    style = unsafeJso {
                         marginRight = 0.25.em
                     }
                 }
@@ -221,7 +232,7 @@ class ProjectItem(
                 onClick = { onDelete() }
 
                 DeleteIcon::class.react {
-                    style = jso {
+                    style = unsafeJso {
                         marginRight = 0.25.em
                     }
                 }
@@ -277,7 +288,7 @@ class ProjectItem(
                         }
 
                 icon.react {
-                    style = jso {
+                    style = unsafeJso {
                         marginRight = 0.25.em
                     }
                 }
@@ -316,7 +327,7 @@ class ProjectItem(
                         }
 
                 icon.react {
-                    style = jso {
+                    style = unsafeJso {
                         marginRight = 0.25.em
                     }
                 }
@@ -370,7 +381,7 @@ class ProjectItem(
                 onClick = { onRemove() }
 
                 RemoveCircleOutlineIcon::class.react {
-                    style = jso {
+                    style = unsafeJso {
                         marginRight = 0.25.em
                     }
                 }

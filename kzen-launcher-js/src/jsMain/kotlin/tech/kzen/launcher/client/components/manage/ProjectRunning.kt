@@ -1,7 +1,7 @@
 package tech.kzen.launcher.client.components.manage
 
 import emotion.react.css
-import js.objects.jso
+import js.objects.unsafeJso
 import mui.material.Button
 import mui.material.ButtonVariant
 import mui.system.sx
@@ -93,7 +93,7 @@ class ProjectRunning(
                         }
 
                         StopIcon::class.react {
-                            style = jso {
+                            style = unsafeJso {
                                 marginRight = 0.25.em
                             }
                         }

@@ -1,19 +1,19 @@
 package tech.kzen.launcher.server.archetype
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.databind.node.TextNode
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.node.ObjectNode
 import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableSet
 import com.google.common.collect.Maps
 import org.slf4j.LoggerFactory
-//import org.springframework.stereotype.Component
 import tech.kzen.launcher.server.environment.LauncherEnvironment
 import tech.kzen.launcher.server.properties.KzenProperties
 import tech.kzen.launcher.server.service.DownloadService
+import tools.jackson.databind.node.StringNode
+import tools.jackson.dataformat.yaml.YAMLFactory
+import tools.jackson.dataformat.yaml.YAMLGenerator
+import tools.jackson.dataformat.yaml.YAMLWriteFeature
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
@@ -36,8 +36,9 @@ class ArchetypeRepo(
                 .resolve("kzen-archetypes.yaml")
 
         private val parser = ObjectMapper(
-            YAMLFactory()
-                .disable(YAMLGenerator.Feature.SPLIT_LINES))
+            YAMLFactory.builder()
+                .disable(YAMLWriteFeature.SPLIT_LINES)
+                .build())
 
         private const val titleKey = "title"
         private const val descriptionKey = "description"
@@ -90,7 +91,7 @@ class ArchetypeRepo(
     fun get(name: String): ArchetypeInfo {
         val current = read()
 
-        @Suppress("UnnecessaryVariable")
+//        @Suppress("UnnecessaryVariable")
         val info = current[name]
                 ?: throw IllegalArgumentException("Archetype not found: $name")
 
@@ -152,7 +153,7 @@ class ArchetypeRepo(
     //-----------------------------------------------------------------------------------------------------------------
     private fun write(archetypes: Map<String, ArchetypeInfo>) {
         val asJsonValue: Map<String, Any> =
-                Maps.transformValues(archetypes) { unbind(it!!) }
+                Maps.transformValues(archetypes) { unbind(it) }
 
         val metadataBytes = parser.writeValueAsBytes(asJsonValue)
 
@@ -184,7 +185,7 @@ class ArchetypeRepo(
             as? ObjectNode
             ?: throw IllegalArgumentException("Key-value map expected")
 
-        val names = ImmutableSet.copyOf(metadataRoot.fieldNames())
+        val names = ImmutableSet.copyOf(metadataRoot.propertyNames())
 
         val archetypesBuilder = ImmutableMap.builder<String, ArchetypeInfo>()
         for (name in names) {
@@ -205,19 +206,19 @@ class ArchetypeRepo(
         val properties = jsonNode as? ObjectNode
                 ?: throw IllegalArgumentException("Key-value map expected ($name): $jsonNode")
 
-        val title = properties[titleKey] as? TextNode
+        val title = properties[titleKey] as? StringNode
                 ?: throw IllegalStateException("Text expected ($name.$titleKey): ${properties[titleKey]}")
 
-        val description = properties[descriptionKey] as? TextNode
+        val description = properties[descriptionKey] as? StringNode
                 ?: throw IllegalStateException("Text expected ($name.$descriptionKey): ${properties[descriptionKey]}")
 
-        val location = properties[locationKey] as? TextNode
+        val location = properties[locationKey] as? StringNode
                 ?: throw IllegalStateException("Text expected ($name.$locationKey): ${properties[locationKey]}")
 
         return ArchetypeInfo(
-                title.textValue(),
-                description.textValue(),
-                Paths.get(location.textValue()))
+                title.asString(),
+                description.asString(),
+                Paths.get(location.asString()))
     }
 
 

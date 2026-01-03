@@ -8,6 +8,7 @@ import react.react
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.components.ProjectLauncher
 import tech.kzen.launcher.common.api.rootHtmlElementId
+import web.dom.ElementId
 import web.html.HTMLElement
 
 
@@ -17,7 +18,7 @@ fun main() {
 //    console.log("^^^^", withoutFile)
 
     fun emptyRootElement(): HTMLElement {
-        val rootElement = web.dom.document.getElementById(rootHtmlElementId)
+        val rootElement = web.dom.document.getElementById(ElementId(rootHtmlElementId))
             ?: throw IllegalStateException("'$rootHtmlElementId' element not found")
 
         while (rootElement.hasChildNodes()) {
