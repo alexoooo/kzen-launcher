@@ -147,7 +147,7 @@ class ProjectRepo {
     //-----------------------------------------------------------------------------------------------------------------
     private fun write(archetypes: Map<String, ProjectInfo>) {
         val asJsonValue: Map<String, Any> =
-                Maps.transformValues(archetypes) { unbind(it!!) }
+                Maps.transformValues(archetypes) { unbind(it) }
 
         val metadataBytes = parser.writeValueAsBytes(asJsonValue)
 
@@ -204,10 +204,10 @@ class ProjectRepo {
         val path = properties[homeProperty] as? StringNode
                 ?: throw IllegalStateException("Text expected ($name.$homeProperty): ${properties[homeProperty]}")
 
-        val jvmArgs = (properties[CommonRestApi.projectJvmArgs] as? StringNode)?.textValue() ?: ""
+        val jvmArgs = (properties[CommonRestApi.projectJvmArgs] as? StringNode)?.asString() ?: ""
 
         return ProjectInfo(
-            Paths.get(path.textValue()),
+            Paths.get(path.asString()),
             jvmArgs)
     }
 }
