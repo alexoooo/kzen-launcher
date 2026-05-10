@@ -3,15 +3,15 @@ const val jvmTargetVersion = "25"
 const val javaVersion = 25
 const val jvmToolchainVersion = 25
 
-const val coroutinesVersion = "1.10.2"
+const val coroutinesVersion = "1.11.0"
 
-const val ktorVersion = "3.3.3"
+const val ktorVersion = "3.4.3"
 
-const val logbackVersion = "1.5.23"
-const val guavaVersion = "33.5.0-jre"
+const val logbackVersion = "1.5.32"
+const val guavaVersion = "33.6.0-jre"
 const val commonsCompressVersion = "1.28.0"
-const val jacksonModuleKotlin = "3.0.3"
-const val jacksonDataformatYaml = "3.0.3"
+const val jacksonModuleKotlin = "3.1.3"
+const val jacksonDataformatYaml = "3.1.3"
 
 const val coreJsVersion = "3.47.0"
 const val kotlinxHtmlAssemblyVersion = "0.8.0"
