@@ -93,10 +93,10 @@ private const val indexFilePath = "/$indexFileName"
 fun buildContext(args: Array<String>): KzenLauncherContext {
     val kzenProperties = KzenProperties()
     val projectArchetype = KzenProperties.Archetype()
-    projectArchetype.name = "KzenProjectJar-0.29.0"
+    projectArchetype.name = "KzenProjectJar-0.29.1-SNAPSHOT"
     projectArchetype.title = "Automation and Reporting"
-    projectArchetype.description = "Visually control a browser and more - v0.29.0"
-    projectArchetype.url = "file:///C:/Users/ostro/IdeaProjects/kzen-project/kzen-project-jvm/build/libs/kzen-project-0.29.0.zip"
+    projectArchetype.description = "Visually control a browser and more - v0.29.1-SNAPSHOT"
+    projectArchetype.url = "file:///C:/Users/ostro/IdeaProjects/kzen-project/kzen-project-jvm/build/libs/kzen-project-0.29.1-SNAPSHOT.zip"
 //    projectArchetype.url = "https://github.com/alexoooo/kzen-project/releases/download/v0.28.1/kzen-project-0.28.1.zip"
     kzenProperties.archetypes.add(projectArchetype)
 
