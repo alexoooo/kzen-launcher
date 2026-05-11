@@ -67,6 +67,7 @@ The launcher fat jar gets repackaged into `kzen-launcher-<v>.zip` (hand-built, N
   Bumping the project version (or running on another machine) means editing this line *and* hand-rebuilding the `kzen-project-<v>.zip`. There's a commented-out GitHub releases URL on the next line as the alternate source.
 - **No connection to kzen-lib's notation model.** Don't reach for `ObjectLocation` / `GraphStructure` / etc. here — those concepts don't apply. The launcher is a plain Ktor REST app.
 - **`ProjectCreator.kt:62`** renames the downloaded archetype jar to `main.jar` inside the project home directory. kzen-shell's `MainJarRunner` always looks for `main.jar` — don't break this convention.
+- **kotlin-wrappers ceiling is `2025.12.11`** (same as kzen-auto). Blast radius for the future upgrade is tiny here: 19 `.kt` files total, only 4 use `RComponent` (`ProjectLauncher`, `ProjectList`, `ProjectRunning`, `ManageProjectsScreen`), zero `key`/`ChangeEvent` breakage. Whatever idiom kzen-auto adopts when it migrates, mirror it here. See [`../kzen-auto/docs/js-architecture.md`](../kzen-auto/docs/js-architecture.md) for the broader pre-refactor picture.
 
 ## Pointers
 
