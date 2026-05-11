@@ -13,13 +13,13 @@ const val commonsCompressVersion = "1.28.0"
 const val jacksonModuleKotlin = "3.1.3"
 const val jacksonDataformatYaml = "3.1.3"
 
-const val coreJsVersion = "3.47.0"
+const val coreJsVersion = "3.49.0"
 const val kotlinxHtmlAssemblyVersion = "0.8.0"
 const val kotlinxHtmlVersion = "0.12.0"
 
 const val reactSelectVersion = "5.10.2"
-const val muiIconsVersion = "7.3.6"
-const val babelCoreVersion = "7.28.5"
+const val muiIconsVersion = "7.3.11"
+const val babelCoreVersion = "7.29.0"
 
 //const val wrapperKotlinVersion = "pre.760"
 //const val kotlinReactVersion = "18.3.1-$wrapperKotlinVersion"
