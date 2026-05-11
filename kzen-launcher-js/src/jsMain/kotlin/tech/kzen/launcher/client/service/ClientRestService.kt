@@ -11,7 +11,7 @@ object ClientRestService {
             return value
         }
         catch (e: Exception) {
-            console.log("@#!@#!@#!@ getWithErrorIntercept", e)
+            console.error("getWithErrorIntercept failed:", url, e)
             ErrorBus.onError(e.message ?: "failed: $url")
             throw e
         }

@@ -6,17 +6,18 @@ import mui.material.Button
 import mui.material.ButtonVariant
 import mui.system.sx
 import react.ChildrenBuilder
+import react.Key
 import react.Props
 import react.State
 import react.dom.html.ReactHTML.a
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.h2
 import react.dom.html.ReactHTML.span
-import react.react
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.shellRestApi
 import tech.kzen.launcher.client.wrap.RComponent
 import tech.kzen.launcher.client.wrap.StopIcon
+import tech.kzen.launcher.client.wrap.react
 import web.cssom.em
 import web.cssom.px
 
@@ -74,7 +75,7 @@ class ProjectRunning(
         else {
             for (project in projects) {
                 div {
-                    key = project
+                    key = Key(project)
 
                     a {
                         href = "/$project/"

@@ -15,6 +15,8 @@ import tech.kzen.launcher.client.wrap.InfoIcon
 import tech.kzen.launcher.client.wrap.ReactSelect
 import tech.kzen.launcher.client.wrap.ReactSelectOption
 import tech.kzen.launcher.client.wrap.RedoIcon
+import tech.kzen.launcher.client.wrap.react
+import tech.kzen.launcher.client.wrap.setState
 import tech.kzen.launcher.common.dto.ArchetypeDetail
 import web.cssom.*
 import web.dom.ElementId
@@ -64,8 +66,6 @@ class NewProjectScreen(
 
     //-----------------------------------------------------------------------------------------------------------------
     override fun NewProjectScreenState.init(props: NewProjectScreenProps) {
-        console.log("init: props.archetypes - ${props.archetypes}")
-
         name = newInitialName()
         path = defaultImportPath
         type = props.archetypes?.iterator()?.let {
@@ -81,8 +81,6 @@ class NewProjectScreen(
         prevState: NewProjectScreenState,
         snapshot: Any
     ) {
-        console.log("update: ${state.type} - ${props.archetypes}")
-
         if (state.type == null && props.archetypes != null) {
             setState {
                 type = props.archetypes!!.iterator().next().name
@@ -93,8 +91,6 @@ class NewProjectScreen(
 
     //-----------------------------------------------------------------------------------------------------------------
     private fun onNameChange(projectName: String) {
-//        console.log("%%%%5 onNameChange", projectName)
-
         setState {
             name = projectName
         }
@@ -102,8 +98,6 @@ class NewProjectScreen(
 
 
     private fun onTypeChange(projectType: String) {
-//        console.log("%%%%5 onTypeChange", projectType)
-
         setState {
             type = projectType
         }
@@ -111,8 +105,6 @@ class NewProjectScreen(
 
 
     private fun onCreate() {
-//        console.log("onSubmit: props - ${state.name} | ${state.type}")
-
         async {
             check(state.type != null) {"Type missing"}
             clientRestApi.createProject(state.name, state.type!!)
@@ -150,8 +142,6 @@ class NewProjectScreen(
 
     //-----------------------------------------------------------------------------------------------------------------
     override fun ChildrenBuilder.render() {
-//        console.log("render: ${props.artifacts} | ${state.name} | ${state.type}")
-
         Paper {
             sx {
                 backgroundColor = NamedColor.white

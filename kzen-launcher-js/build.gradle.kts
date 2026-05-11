@@ -11,6 +11,9 @@ val devMode = properties.containsKey("jsWatch")
 
 kotlin {
     js {
+        // useEsModules() breaks @mui/icons-material 7.3.11 ('createSvgIcon' has no
+        // default export under ESM resolution). Stay on CommonJS until MUI is bumped
+        // to a version that ships ESM, or kotlin-wrappers updates the MUI binding.
         useCommonJs()
         binaries.executable()
 
@@ -46,14 +49,9 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-html-assembly:$kotlinxHtmlAssemblyVersion")
 
                 implementation(kotlinWrappers.react)
-                implementation(kotlinWrappers.reactLegacy)
                 implementation(kotlinWrappers.reactDom)
                 implementation(kotlinWrappers.emotion.styled)
                 implementation(kotlinWrappers.mui.material)
-//                implementation("org.jetbrains.kotlin-wrappers:kotlin-react:$kotlinReactVersion")
-//                implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:$kotlinReactDomVersion")
-//                implementation("org.jetbrains.kotlin-wrappers:kotlin-emotion:$kotlinEmotionVersion")
-//                implementation("org.jetbrains.kotlin-wrappers:kotlin-mui-material:$kotlinMuiVersion")
 
                 implementation(npm("core-js", coreJsVersion))
                 implementation(npm("@mui/icons-material", muiIconsVersion))
@@ -71,9 +69,6 @@ kotlin {
         }
     }
 }
-
-
-run {}
 
 
 // https://youtrack.jetbrains.com/issue/KT-52578/KJS-Gradle-KotlinNpmInstallTask-gradle-task-produces-unsolvable-warning-ignored-scripts-due-to-flag.

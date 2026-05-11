@@ -28,8 +28,6 @@ val shellRestApi = ClientShellRestApi()
 
 
 suspend fun httpGet(url: String): String = suspendCoroutine { c ->
-//    console.log("^^^ httpGet", url)
-
     val xhr = XMLHttpRequest()
     xhr.onreadystatechange = {
         if (xhr.readyState == XMLHttpRequest.DONE) {
@@ -43,7 +41,6 @@ suspend fun httpGet(url: String): String = suspendCoroutine { c ->
                         as? String
                         ?: "${xhr.status} - ${xhr.responseText}"
 
-//                console.log("^^^^^^^^^^^%^%^%^ xhr.response", message)
                 c.resumeWithException(RuntimeException(message))
             }
         }

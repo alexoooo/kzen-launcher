@@ -6,8 +6,8 @@ import mui.system.sx
 import react.ChildrenBuilder
 import react.Props
 import react.State
-import react.react
 import tech.kzen.launcher.client.wrap.RComponent
+import tech.kzen.launcher.client.wrap.react
 import tech.kzen.launcher.client.wrap.setState
 import tech.kzen.launcher.common.dto.ProjectDetail
 import web.cssom.Margin
@@ -40,8 +40,6 @@ class ManageProjectsScreen(
 
     //-----------------------------------------------------------------------------------------------------------------
     override fun ManageProjectsScreenState.init(props: ManageProjectsScreenProps) {
-//        console.log("ManageProjectsScreen State.init", props.projects, props.runningProjects, props)
-
         projects = props.projects
         runningProjects = props.runningProjects
     }
@@ -50,8 +48,6 @@ class ManageProjectsScreen(
     override fun componentDidUpdate(
         prevProps: ManageProjectsScreenProps, prevState: ManageProjectsScreenState, snapshot: Any
     ) {
-//        console.log("ManageProjectsScreen componentDidUpdate", props, prevProps)
-
         if (props.projects != prevProps.projects) {
             setState {
                 projects = props.projects
@@ -68,8 +64,6 @@ class ManageProjectsScreen(
 
     //-----------------------------------------------------------------------------------------------------------------
     override fun ChildrenBuilder.render() {
-//        console.log("ManageProjectsScreen - render", state, props)
-
 //        styledDiv {
             renderRunning()
 //        }

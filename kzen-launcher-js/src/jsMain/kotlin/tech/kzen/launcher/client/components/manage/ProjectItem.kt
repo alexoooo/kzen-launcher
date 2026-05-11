@@ -14,13 +14,13 @@ import react.State
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.span
 import react.dom.onChange
-import react.react
 import tech.kzen.launcher.client.wrap.DeleteIcon
 import tech.kzen.launcher.client.wrap.EditIcon
 import tech.kzen.launcher.client.wrap.IconProps
 import tech.kzen.launcher.client.wrap.PlayArrowIcon
 import tech.kzen.launcher.client.wrap.RemoveCircleOutlineIcon
 import tech.kzen.launcher.client.wrap.SaveIcon
+import tech.kzen.launcher.client.wrap.react
 import tech.kzen.launcher.client.wrap.setState
 import tech.kzen.launcher.common.dto.ProjectDetail
 import web.cssom.*

@@ -1,18 +1,18 @@
 package tech.kzen.launcher.server.service
 
-import com.google.common.io.ByteStreams
 import org.slf4j.LoggerFactory
-//import org.springframework.stereotype.Component
 import java.io.BufferedOutputStream
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
 import java.security.cert.X509Certificate
-//import javax.annotation.PostConstruct
-import javax.net.ssl.*
+import javax.net.ssl.HostnameVerifier
+import javax.net.ssl.HttpsURLConnection
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 
 
-//@Component
 class DownloadService {
     //-----------------------------------------------------------------------------------------------------------------
     companion object {
@@ -22,8 +22,6 @@ class DownloadService {
 
     //-----------------------------------------------------------------------------------------------------------------
     // TODO: implement proper certificate management
-    @Suppress("unused")
-//    @PostConstruct
     fun trustBadCertificate() {
         // https://stackoverflow.com/a/24501156
 
@@ -55,7 +53,7 @@ class DownloadService {
             location
                 .toURL()
                 .openStream()
-                .use { input -> ByteStreams.copy(input, output) }
+                .use { input -> input.copyTo(output) }
         }
 
         logger.info("download complete: {}", bytes)

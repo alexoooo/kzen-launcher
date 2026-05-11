@@ -4,19 +4,15 @@ import kotlinx.browser.window
 import react.Fragment
 import react.create
 import react.dom.client.createRoot
-import react.react
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.components.ProjectLauncher
+import tech.kzen.launcher.client.wrap.react
 import tech.kzen.launcher.common.api.rootHtmlElementId
 import web.dom.ElementId
 import web.html.HTMLElement
 
 
 fun main() {
-//    val pathname = window.location.pathname
-//    val withoutFile = pathname.substringBeforeLast("/")
-//    console.log("^^^^", withoutFile)
-
     fun emptyRootElement(): HTMLElement {
         val rootElement = web.dom.document.getElementById(ElementId(rootHtmlElementId))
             ?: throw IllegalStateException("'$rootHtmlElementId' element not found")

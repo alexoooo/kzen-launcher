@@ -16,6 +16,7 @@ import tech.kzen.launcher.client.service.ErrorBus
 import tech.kzen.launcher.client.wrap.AddCircleOutlineIcon
 import tech.kzen.launcher.client.wrap.LaunchIcon
 import tech.kzen.launcher.client.wrap.RComponent
+import tech.kzen.launcher.client.wrap.react
 import tech.kzen.launcher.client.wrap.setState
 import tech.kzen.launcher.common.api.staticResourcePath
 import tech.kzen.launcher.common.dto.ArchetypeDetail
@@ -113,8 +114,6 @@ class ProjectLauncher(
 
         if (needArchetypes) {
             val response = clientRestApi.listArchetypes()
-//            console.log("$$ artifacts: $response")
-
             setState {
                 archetypes = response
             }
@@ -122,8 +121,6 @@ class ProjectLauncher(
 
         if (needProjects) {
             val response = clientRestApi.listProjects()
-//            console.log("$$ projects: $response")
-
             setState {
                 projects = response
             }
@@ -131,8 +128,6 @@ class ProjectLauncher(
 
         if (needRunningProjects) {
             val response = shellRestApi.runningProjects()
-//            console.log("$$ running: $response")
-
             setState {
                 runningProjects = response
             }

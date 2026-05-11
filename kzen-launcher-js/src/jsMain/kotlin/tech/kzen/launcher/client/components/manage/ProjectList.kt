@@ -6,16 +6,17 @@ import kotlinx.coroutines.delay
 import mui.material.CircularProgress
 import mui.material.Divider
 import react.ChildrenBuilder
+import react.Key
 import react.Props
 import react.State
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.h2
 import react.dom.html.ReactHTML.span
-import react.react
 import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.clientRestApi
 import tech.kzen.launcher.client.api.shellRestApi
 import tech.kzen.launcher.client.wrap.RComponent
+import tech.kzen.launcher.client.wrap.react
 import tech.kzen.launcher.client.wrap.setState
 import tech.kzen.launcher.common.dto.ProjectDetail
 import web.cssom.em
@@ -73,7 +74,6 @@ class ProjectList(
 
 
     private fun onRemove(project: ProjectDetail) {
-//        console.log("onRemove: name - $name")
         async {
             clientRestApi.removeProject(project.name)
             props.didRemove?.invoke()
@@ -82,7 +82,6 @@ class ProjectList(
 
 
     private fun onDelete(project: ProjectDetail) {
-//        console.log("onDelete: name - $name")
         async {
             clientRestApi.deleteProject(project.name)
             props.didDelete?.invoke()
@@ -91,7 +90,6 @@ class ProjectList(
 
 
     private fun onRename(project: ProjectDetail, newName: String) {
-//        console.log("onDelete: name - $name")
         async {
             clientRestApi.renameProject(project.name, newName)
             props.didRename?.invoke()
@@ -100,7 +98,6 @@ class ProjectList(
 
 
     private fun onChangeJvmArguments(project: ProjectDetail, newArguments: String) {
-//        console.log("onDelete: name - $name")
         async {
             clientRestApi.changeJvmArgumentsForProject(project.name, newArguments)
             props.didChangeJvmArgs?.invoke()
@@ -150,7 +147,7 @@ class ProjectList(
     private fun ChildrenBuilder.renderProjects(projects: List<ProjectDetail>) {
         for (project in projects) {
             div {
-                key = project.name
+                key = Key(project.name)
 
                 Divider {}
 
