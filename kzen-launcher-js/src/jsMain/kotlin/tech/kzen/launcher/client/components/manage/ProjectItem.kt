@@ -146,7 +146,7 @@ class ProjectItem(
             css {
                 marginBottom = 1.em
 
-                if (! props.project.exists) {
+                if (!props.project.exists) {
                     // TODO: should not apply to 'remove' button
                     opacity = number(0.5)
                 }
@@ -164,7 +164,7 @@ class ProjectItem(
                     +(props.project.name)
                 }
 
-                if (! props.project.exists) {
+                if (!props.project.exists) {
                     +" (missing)"
                 }
             }
@@ -339,7 +339,7 @@ class ProjectItem(
 
 
     private fun ChildrenBuilder.renderJvmArgs() {
-        if (! state.changingArgs && props.project.jvmArgs.isEmpty()) {
+        if (!state.changingArgs && props.project.jvmArgs.isEmpty()) {
             return
         }
 

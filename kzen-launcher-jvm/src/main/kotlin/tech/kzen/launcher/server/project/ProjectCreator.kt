@@ -45,7 +45,7 @@ class ProjectCreator(
     ): Path {
         val home = LauncherEnvironment.projectHome.resolve(name)
 
-        check(! Files.exists(home)) {"already exists: $home"}
+        check(!Files.exists(home)) {"already exists: $home"}
 
         val archetypeInfo = archetypeRepo.get(archetypeName)
 

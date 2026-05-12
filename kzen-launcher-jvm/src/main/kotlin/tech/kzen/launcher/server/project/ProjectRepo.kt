@@ -151,7 +151,7 @@ class ProjectRepo {
 
         val metadataBytes = parser.writeValueAsBytes(asJsonValue)
 
-        if (! Files.exists(projectMetadata)) {
+        if (!Files.exists(projectMetadata)) {
             Files.createDirectories(projectMetadata.toAbsolutePath().parent)
         }
 
@@ -168,7 +168,7 @@ class ProjectRepo {
 
     //-----------------------------------------------------------------------------------------------------------------
     private fun read(): ImmutableMap<String, ProjectInfo> {
-        if (! Files.exists(projectMetadata)) {
+        if (!Files.exists(projectMetadata)) {
             return ImmutableMap.of()
         }
 

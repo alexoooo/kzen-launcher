@@ -56,7 +56,7 @@ class ArchetypeRepo(
         val initial = read()
 
         for (archetype in kzenProperties.archetypes) {
-            if (! initial.containsKey(archetype.name)) {
+            if (!initial.containsKey(archetype.name)) {
                 val artifactName = archetype.url!!.substringAfterLast('/')
                 val locationUri = URI(archetype.url!!)
 
@@ -142,7 +142,7 @@ class ArchetypeRepo(
             archetypeInfo: ArchetypeInfo,
             download: URI
     ) {
-        check(! contains(name)) {"Already installed: $name"}
+        check(!contains(name)) {"Already installed: $name"}
 
         downloadService.download(download, archetypeInfo.location)
 
@@ -157,7 +157,7 @@ class ArchetypeRepo(
 
         val metadataBytes = parser.writeValueAsBytes(asJsonValue)
 
-        if (! Files.exists(archetypeMetadata)) {
+        if (!Files.exists(archetypeMetadata)) {
             Files.createDirectories(archetypeMetadata.toAbsolutePath().parent)
         }
 
@@ -175,7 +175,7 @@ class ArchetypeRepo(
 
     //-----------------------------------------------------------------------------------------------------------------
     private fun read(): ImmutableMap<String, ArchetypeInfo> {
-        if (! Files.exists(archetypeMetadata)) {
+        if (!Files.exists(archetypeMetadata)) {
             return ImmutableMap.of()
         }
 

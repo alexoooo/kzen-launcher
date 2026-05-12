@@ -104,7 +104,7 @@ class ProjectLauncher(
         val needProjects = (state.projects == null)
         val needRunningProjects = (state.runningProjects == null)
 
-        if (! (needArchetypes || needProjects || needRunningProjects)) {
+        if (!(needArchetypes || needProjects || needRunningProjects)) {
             return
         }
 
@@ -143,7 +143,7 @@ class ProjectLauncher(
     //-----------------------------------------------------------------------------------------------------------------
     private fun onCreateToggle() {
         setState {
-            creating = ! state.creating
+            creating = !state.creating
             errorMessage = null
         }
     }
@@ -248,7 +248,7 @@ class ProjectLauncher(
 //                        onChange = { _, index: Int ->
                         asDynamic().onChange = { _: Any, index: Int ->
                             if (state.creating && index == 0 ||
-                                ! state.creating && index == 1) {
+                                !state.creating && index == 1) {
                                 onCreateToggle()
                             }
                         }

@@ -111,7 +111,7 @@ class ManageProjectsScreen(
             CardContent {
                 ProjectList::class.react {
                     projects = state.projects
-                        ?.filter{ ! (state.runningProjects?.contains(it.name) ?: false) }
+                        ?.filter{ !(state.runningProjects?.contains(it.name) ?: false) }
 
                     didStart = {
                         props.onRunningChanged?.invoke()
