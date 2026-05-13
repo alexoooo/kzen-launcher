@@ -13,11 +13,7 @@ import tech.kzen.launcher.client.api.shellRestApi
 import tech.kzen.launcher.client.components.add.NewProjectScreen
 import tech.kzen.launcher.client.components.manage.ManageProjectsScreen
 import tech.kzen.launcher.client.service.ErrorBus
-import tech.kzen.launcher.client.wrap.AddCircleOutlineIcon
-import tech.kzen.launcher.client.wrap.LaunchIcon
-import tech.kzen.launcher.client.wrap.RComponent
-import tech.kzen.launcher.client.wrap.react
-import tech.kzen.launcher.client.wrap.setState
+import tech.kzen.launcher.client.wrap.*
 import tech.kzen.launcher.common.api.staticResourcePath
 import tech.kzen.launcher.common.dto.ArchetypeDetail
 import tech.kzen.launcher.common.dto.ProjectDetail

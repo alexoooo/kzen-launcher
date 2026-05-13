@@ -1,8 +1,5 @@
 package tech.kzen.launcher.server.archetype
 
-import tools.jackson.databind.JsonNode
-import tools.jackson.databind.ObjectMapper
-import tools.jackson.databind.node.ObjectNode
 import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableSet
 import com.google.common.collect.Maps
@@ -10,9 +7,11 @@ import org.slf4j.LoggerFactory
 import tech.kzen.launcher.server.environment.LauncherEnvironment
 import tech.kzen.launcher.server.properties.KzenProperties
 import tech.kzen.launcher.server.service.DownloadService
+import tools.jackson.databind.JsonNode
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.node.ObjectNode
 import tools.jackson.databind.node.StringNode
 import tools.jackson.dataformat.yaml.YAMLFactory
-import tools.jackson.dataformat.yaml.YAMLGenerator
 import tools.jackson.dataformat.yaml.YAMLWriteFeature
 import java.net.URI
 import java.nio.file.Files

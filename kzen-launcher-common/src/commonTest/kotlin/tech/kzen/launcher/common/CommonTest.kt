@@ -2,7 +2,6 @@ package tech.kzen.launcher.common
 
 //import tech.kzen.launcher.platform.getAnswer
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 class CommonTest {
     // Caveat: Kotlin/JS test runners will not accept methods with spaces, so you cannot use backtick syntax. All test
