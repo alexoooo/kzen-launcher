@@ -10,6 +10,7 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlin.system.exitProcess
 import tech.kzen.launcher.common.api.CommonRestApi
 import tech.kzen.launcher.common.api.staticResourceDir
 import tech.kzen.launcher.common.api.staticResourcePath
@@ -27,7 +28,50 @@ import tech.kzen.launcher.server.service.DownloadService
 fun main(args: Array<String>) {
     val context = buildContext(args)
     context.init()
+
+    if (context.config.managedLifeline) {
+        startManagedLifeline()
+    }
+    context.config.parentPid?.let { startParentWatchdog(it) }
+
     kzenLauncherMain(context)
+}
+
+
+// Managed-child lifeline (intentionally duplicated from kzen-auto's KzenAutoMain — the launcher
+//  depends on neither kzen-lib nor kzen-auto, so there is no shared home worth the coupling for
+//  ~20 lines). kzen-shell keeps our stdin open as a PIPE; when it closes that stream (graceful
+//  stop) or dies (the OS then closes the inherited pipe on every platform) we observe EOF, and
+//  exitProcess(0) frees the port. OS-agnostic, unlike Process.destroy() which is a hookless hard
+//  kill (TerminateProcess) on Windows. The launcher holds no resources needing orderly shutdown.
+private fun startManagedLifeline() {
+    val thread = Thread({
+        try {
+            System.`in`.bufferedReader().use { reader ->
+                while (true) {
+                    val line = reader.readLine() ?: break  // null == EOF (pipe closed / parent gone)
+                    if (line.trim() == "SHUTDOWN") {
+                        break
+                    }
+                }
+            }
+        }
+        catch (ignored: Throwable) {
+            // A read failure (e.g. the parent vanished mid-read) is itself a death signal.
+        }
+        exitProcess(0)
+    }, "kzen-managed-lifeline")
+    thread.isDaemon = true
+    thread.start()
+}
+
+
+// Backup reaper: self-exit if the parent process exits, even if stdin EOF was somehow never
+//  delivered (e.g. a future stdin redirect, or a Windows handle-inheritance corner case).
+private fun startParentWatchdog(parentPid: Long) {
+    ProcessHandle.of(parentPid).ifPresent { parent ->
+        parent.onExit().thenRun { exitProcess(0) }
+    }
 }
 
 
@@ -35,7 +79,12 @@ fun main(args: Array<String>) {
 data class KzenLauncherConfig(
     val jsModuleName: String,
     val port: Int = 80,
-    val host: String = "127.0.0.1"
+    val host: String = "127.0.0.1",
+
+    // Managed-child lifeline flags (set by kzen-shell when it spawns the launcher; absent for
+    //  interactive runs). See KzenLauncherMain.startManagedLifeline.
+    val managedLifeline: Boolean = false,
+    val parentPid: Long? = null
 ) {
     //-----------------------------------------------------------------------------------------------------------------
     companion object {
@@ -45,6 +94,12 @@ data class KzenLauncherConfig(
         private val serverPortRegex = Regex(
             Regex.escape(serverPortPrefix) + "\\d+")
 
+        @Suppress("ConstPropertyName")
+        private const val managedLifelinePrefix = "--managed.lifeline="
+
+        @Suppress("ConstPropertyName")
+        private const val parentPidPrefix = "--parent.pid="
+
         fun readPort(args: Array<String>): Int? {
             val match = args
                 .lastOrNull { it.matches(serverPortRegex) }
@@ -52,6 +107,22 @@ data class KzenLauncherConfig(
 
             val portText = match.substring(serverPortPrefix.length)
             return portText.toInt()
+        }
+
+        fun readManagedLifeline(args: Array<String>): Boolean {
+            val match = args
+                .lastOrNull { it.startsWith(managedLifelinePrefix) }
+                ?: return false
+
+            return match.substring(managedLifelinePrefix.length) == "stdin"
+        }
+
+        fun readParentPid(args: Array<String>): Long? {
+            val match = args
+                .lastOrNull { it.startsWith(parentPidPrefix) }
+                ?: return null
+
+            return match.substring(parentPidPrefix.length).toLongOrNull()
         }
     }
 
@@ -111,7 +182,9 @@ fun buildContext(args: Array<String>): KzenLauncherContext {
 
     val config = KzenLauncherConfig(
         kzenLauncherJsModuleName,
-        port = port
+        port = port,
+        managedLifeline = KzenLauncherConfig.readManagedLifeline(args),
+        parentPid = KzenLauncherConfig.readParentPid(args)
     )
 
     return KzenLauncherContext(
