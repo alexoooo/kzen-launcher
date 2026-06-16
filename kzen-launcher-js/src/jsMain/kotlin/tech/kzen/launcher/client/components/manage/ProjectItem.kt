@@ -269,12 +269,12 @@ class ProjectItem(
                 }
 
                 val icon: KClass<out Component<IconProps, State>> =
-                        if (state.renaming) {
-                            SaveIcon::class
-                        }
-                        else {
-                            EditIcon::class
-                        }
+                    if (state.renaming) {
+                        SaveIcon::class
+                    }
+                    else {
+                        EditIcon::class
+                    }
 
                 icon.react {
                     style = unsafeJso {
@@ -308,12 +308,12 @@ class ProjectItem(
                 }
 
                 val icon: KClass<out Component<IconProps, State>> =
-                        if (state.changingArgs) {
-                            SaveIcon::class
-                        }
-                        else {
-                            EditIcon::class
-                        }
+                    if (state.changingArgs) {
+                        SaveIcon::class
+                    }
+                    else {
+                        EditIcon::class
+                    }
 
                 icon.react {
                     style = unsafeJso {
