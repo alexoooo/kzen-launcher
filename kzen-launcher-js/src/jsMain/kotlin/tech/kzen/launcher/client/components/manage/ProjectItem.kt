@@ -41,7 +41,7 @@ external interface ProjectItemState: State {
 //---------------------------------------------------------------------------------------------------------------------
 class ProjectItem(
         props: ProjectItemProps
-): tech.kzen.launcher.client.wrap.RComponent<ProjectItemProps, ProjectItemState>(props) {
+): RComponent<ProjectItemProps, ProjectItemState>(props) {
     //-----------------------------------------------------------------------------------------------------------------
     override fun ProjectItemState.init(props: ProjectItemProps) {
         renaming = false

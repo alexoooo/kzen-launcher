@@ -38,7 +38,7 @@ external interface NewProjectScreenState: State {
 //---------------------------------------------------------------------------------------------------------------------
 class NewProjectScreen(
     props: NewProjectScreenProps
-): tech.kzen.launcher.client.wrap.RComponent<NewProjectScreenProps, NewProjectScreenState>(props) {
+): RComponent<NewProjectScreenProps, NewProjectScreenState>(props) {
     //-----------------------------------------------------------------------------------------------------------------
     @Suppress("ConstPropertyName")
     companion object {

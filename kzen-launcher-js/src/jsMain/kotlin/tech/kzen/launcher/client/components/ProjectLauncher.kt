@@ -217,7 +217,7 @@ class ProjectLauncher(
 
                 div {
                     css {
-                        float = web.cssom.Float.left
+                        float = Float.left
 
                         marginLeft = 1.em
                         marginTop = (0.5).em
@@ -228,7 +228,7 @@ class ProjectLauncher(
 
                 div {
                     css {
-                        float = web.cssom.Float.left
+                        float = Float.left
                         marginTop = (-5).px
                     }
 
@@ -268,7 +268,7 @@ class ProjectLauncher(
 
                 div {
                     css {
-                        float = web.cssom.Float.left
+                        float = Float.left
 
                         fontStyle = FontStyle.italic
                         fontSize = 1.5.em

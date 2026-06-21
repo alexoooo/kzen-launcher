@@ -15,9 +15,11 @@ val devMode = providers.gradleProperty("jsWatch").isPresent
 
 kotlin {
     js {
-        // useEsModules() breaks @mui/icons-material 7.3.11 ('createSvgIcon' has no
-        // default export under ESM resolution). Stay on CommonJS until MUI is bumped
-        // to a version that ships ESM, or kotlin-wrappers updates the MUI binding.
+        // useEsModules() breaks @mui/icons-material ('createSvgIcon' has no default
+        // export under ESM resolution). Stay on CommonJS until MUI is bumped to a
+        // version that ships ESM, or kotlin-wrappers updates the MUI binding.
+        // NB: @mui/icons-material is pinned to match the @mui/material version the
+        // kotlin-wrappers BOM resolves (6.5.0) — keep them aligned on any wrappers bump.
         useCommonJs()
         binaries.executable()
 
@@ -46,33 +48,29 @@ kotlin {
     }
 
     sourceSets {
-        val jsMain by getting {
-            dependencies {
-                implementation(project(":kzen-launcher-common"))
+        jsMain.dependencies {
+            implementation(project(":kzen-launcher-common"))
 
-                implementation("org.jetbrains.kotlinx:kotlinx-html-assembly:$kotlinxHtmlAssemblyVersion")
+            implementation("org.jetbrains.kotlinx:kotlinx-html-assembly:$kotlinxHtmlAssemblyVersion")
 
-                implementation(kotlinWrappers.react)
-                implementation(kotlinWrappers.reactDom)
-                implementation(kotlinWrappers.emotion.styled)
-                implementation(kotlinWrappers.mui.material)
+            implementation(kotlinWrappers.react)
+            implementation(kotlinWrappers.reactDom)
+            implementation(kotlinWrappers.emotion.styled)
+            implementation(kotlinWrappers.mui.material)
 
-                implementation(npm("core-js", coreJsVersion))
-                implementation(npm("@mui/icons-material", muiIconsVersion))
-                implementation(npm("react-select", reactSelectVersion))
+            implementation(npm("core-js", coreJsVersion))
+            implementation(npm("@mui/icons-material", muiIconsVersion))
+            implementation(npm("react-select", reactSelectVersion))
 
-                // NB: avoid "unmet peer dependency" warning
-                implementation(npm("@babel/core", babelCoreVersion))
+            // NB: avoid "unmet peer dependency" warning
+            implementation(npm("@babel/core", babelCoreVersion))
 
-                // esbuild bundler (replaces webpack) — see jsEsbuildBundle task below
-                implementation(npm("esbuild", esbuildVersion))
-            }
+            // esbuild bundler (replaces webpack) — see jsEsbuildBundle task below
+            implementation(npm("esbuild", esbuildVersion))
         }
 
-        val jsTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-            }
+        jsTest.dependencies {
+            implementation(kotlin("test"))
         }
     }
 }

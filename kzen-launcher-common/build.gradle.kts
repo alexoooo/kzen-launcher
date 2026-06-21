@@ -38,40 +38,24 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
-            dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+        commonMain.dependencies {
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
 //                implementation("org.jetbrains.kotlin-wrappers:kotlin-css:$kotlinCssVersion")
-            }
         }
 
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-            }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
         }
 
 
-        val jvmMain by getting {
-            dependencies {
-                implementation("ch.qos.logback:logback-classic:$logbackVersion")
+        jvmMain.dependencies {
+            implementation("ch.qos.logback:logback-classic:$logbackVersion")
 //                implementation("org.jetbrains.kotlin-wrappers:kotlin-css-jvm:$kotlinCssVersion")
-            }
-        }
-
-        val jvmTest by getting {
-            dependencies {}
         }
 
 
-        val jsMain by getting {
-            dependencies {
-                api("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutinesVersion")
-            }
-        }
-
-        val jsTest by getting {
-            dependencies {}
+        jsMain.dependencies {
+            api("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$coroutinesVersion")
         }
     }
 }
