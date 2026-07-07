@@ -147,7 +147,7 @@ val jsEsbuildBundle = tasks.register<Exec>("jsEsbuildBundle") {
     commandLine(invocation)
 }
 
-// esbuild (jsEsbuildBundle) replaces webpack for this module; disable the now-unused webpack tasks so
+// esbuild (jsEsbuildBundle) replaces webpack for this module; disable the webpack tasks so
 // `build`/`assemble` don't pay the webpack cost. Re-enable them to fall back to webpack.
 tasks.matching {
     it.name == "jsBrowserProductionWebpack" ||
