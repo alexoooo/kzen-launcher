@@ -55,18 +55,27 @@ class ArchetypeRepo(
         val initial = read()
 
         for (archetype in kzenProperties.archetypes) {
-            if (!initial.containsKey(archetype.name)) {
-                val artifactName = archetype.url!!.substringAfterLast('/')
-                val locationUri = URI(archetype.url!!)
+            val locationUri = URI(archetype.url!!)
+            val alreadyInstalled = initial.containsKey(archetype.name)
 
-                val archetypeInfo = ArchetypeInfo(
-                        archetype.title!!,
-                        archetype.description!!,
-                        locate(artifactName)
-                )
-
-                install(archetype.name!!, archetypeInfo, locationUri)
+            // Dev (file://) sources are mutable SNAPSHOTs — re-acquire so a rebuilt project zip is
+            //  picked up; https release artifacts are immutable per version, so install them once.
+            if (alreadyInstalled && locationUri.scheme != "file") {
+                continue
             }
+            if (alreadyInstalled) {
+                remove(archetype.name!!)
+            }
+
+            val artifactName = archetype.url!!.substringAfterLast('/')
+
+            val archetypeInfo = ArchetypeInfo(
+                    archetype.title!!,
+                    archetype.description!!,
+                    locate(artifactName)
+            )
+
+            install(archetype.name!!, archetypeInfo, locationUri)
         }
     }
 

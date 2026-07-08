@@ -10,6 +10,9 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.util.Properties
 import kotlin.system.exitProcess
 import tech.kzen.launcher.common.api.CommonRestApi
 import tech.kzen.launcher.common.api.staticResourceDir
@@ -154,21 +157,55 @@ data class KzenLauncherContext(
 
 //---------------------------------------------------------------------------------------------------------------------
 const val kzenLauncherJsModuleName = "kzen-launcher-js"
+
 //const val jsResourcePath = "$staticResourcePath/$jsFileName"
 
 private const val indexFileName = "index.html"
 private const val indexFilePath = "/$indexFileName"
 
 
+// Resolve the project-archetype source from kzen-launcher.properties (a bundled classpath resource,
+//  readable regardless of the launcher's working directory). Candidates are tried in order: a local
+//  path is used only if it exists (resolved against the working directory, which differs between a
+//  standalone run and a kzen-shell-spawned run); an http(s) URL is used as-is. See that file for the
+//  candidate list and rationale.
+private fun resolveArchetypeUrl(): String {
+    val candidatePrefix = "archetype.project."
+
+    val properties = Properties()
+    KzenLauncherContext::class.java.getResourceAsStream("/kzen-launcher.properties")?.use {
+        properties.load(it)
+    }
+
+    val candidates = properties.stringPropertyNames()
+        .filter { it.startsWith(candidatePrefix) }
+        .sortedBy { it.removePrefix(candidatePrefix).toIntOrNull() ?: Int.MAX_VALUE }
+        .map { properties.getProperty(it) }
+
+    for (candidate in candidates) {
+        val lower = candidate.lowercase()
+        if (lower.startsWith("http://") || lower.startsWith("https://") || lower.startsWith("file:")) {
+            return candidate
+        }
+
+        val path = Paths.get(candidate)
+        if (Files.exists(path)) {
+            return path.toAbsolutePath().normalize().toUri().toString()
+        }
+    }
+
+    error("No project archetype source resolved from kzen-launcher.properties: $candidates")
+}
+
+
 //---------------------------------------------------------------------------------------------------------------------
 fun buildContext(args: Array<String>): KzenLauncherContext {
     val kzenProperties = KzenProperties()
     val projectArchetype = KzenProperties.Archetype()
-    projectArchetype.name = "KzenProjectJar-0.29.1-SNAPSHOT"
+    projectArchetype.name = "kzen-project"
     projectArchetype.title = "Automation and Reporting"
-    projectArchetype.description = "Visually control a browser and more - v0.29.1-SNAPSHOT"
-    projectArchetype.url = "file:///C:/Users/ostro/IdeaProjects/kzen-project/kzen-project-jvm/build/libs/kzen-project-0.29.1-SNAPSHOT.zip"
-//    projectArchetype.url = "https://github.com/alexoooo/kzen-project/releases/download/v0.28.1/kzen-project-0.28.1.zip"
+    projectArchetype.description = "Visually control a browser and more"
+    projectArchetype.url = resolveArchetypeUrl()
     kzenProperties.archetypes.add(projectArchetype)
 
     val downloadService = DownloadService()

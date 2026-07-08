@@ -90,3 +90,15 @@ tasks.getByName<Jar>("jar") {
             }
     }
 }
+
+
+// Distribution zip: main.jar (the thin jar, Class-Path -> dependencies/) + dependencies/ at the
+//  root — the layout kzen-shell's ArtifactRepo and the launcher's ProjectCreator both expect.
+tasks.register<Zip>("dist") {
+    dependsOn("jar", "copyDependencies")
+    archiveFileName.set("kzen-launcher-$version.zip")
+    destinationDirectory.set(layout.buildDirectory.dir("dist"))
+
+    from(tasks.named("jar")) { rename { "main.jar" } }
+    from(layout.buildDirectory.dir("libs/$dependenciesDir")) { into(dependenciesDir) }
+}
