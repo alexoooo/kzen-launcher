@@ -15,12 +15,12 @@ val devMode = providers.gradleProperty("jsWatch").isPresent
 
 kotlin {
     js {
-        // useEsModules() breaks @mui/icons-material ('createSvgIcon' has no default
-        // export under ESM resolution). Stay on CommonJS until MUI is bumped to a
-        // version that ships ESM, or kotlin-wrappers updates the MUI binding.
+        // ESM output (MUI 9 ships proper ESM via package.json exports, which unblocked this —
+        // under MUI 6, useEsModules() broke @mui/icons-material with "'createSvgIcon' has no
+        // default export").
         // NB: @mui/icons-material is pinned to match the @mui/material version the
-        // kotlin-wrappers BOM resolves (6.5.0) — keep them aligned on any wrappers bump.
-        useCommonJs()
+        // kotlin-wrappers BOM resolves (9.2.0) — keep them aligned on any wrappers bump.
+        useEsModules()
         binaries.executable()
 
         browser {
@@ -95,7 +95,7 @@ val npmPackageName = "${rootProject.name}-${project.name}"
 // the entry stays byte-identical, and jsEsbuildBundle wrongly stays UP-TO-DATE.
 val esbuildInputDir = rootProject.layout.buildDirectory
     .dir("js/packages/$npmPackageName/kotlin")
-val esbuildEntry = esbuildInputDir.map { it.file("$npmPackageName.js") }
+val esbuildEntry = esbuildInputDir.map { it.file("$npmPackageName.mjs") }
 val esbuildOutFile = layout.buildDirectory
     .file("dist/js/productionExecutable/${project.name}.js")
 

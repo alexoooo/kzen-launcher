@@ -369,7 +369,7 @@ class ProjectItem(
                 variant = ButtonVariant.outlined
                 onClick = { onRemove() }
 
-                RemoveCircleOutlineIcon::class.react {
+                RemoveCircleOutlinedIcon::class.react {
                     style = unsafeJso {
                         marginRight = 0.25.em
                     }

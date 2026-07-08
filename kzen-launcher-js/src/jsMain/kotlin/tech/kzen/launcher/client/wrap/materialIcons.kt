@@ -21,14 +21,14 @@ external interface IconProps: react.Props {
 }
 
 
-@JsName("AddCircleOutline")
-external class AddCircleOutlineIcon: Component<IconProps, react.State> {
+@JsName("AddCircleOutlined")
+external class AddCircleOutlinedIcon: Component<IconProps, react.State> {
     override fun render(): ReactElement<IconProps>?
 }
 
 
-@JsName("RemoveCircleOutline")
-external class RemoveCircleOutlineIcon: Component<IconProps, react.State> {
+@JsName("RemoveCircleOutlined")
+external class RemoveCircleOutlinedIcon: Component<IconProps, react.State> {
     override fun render(): ReactElement<IconProps>?
 }
 

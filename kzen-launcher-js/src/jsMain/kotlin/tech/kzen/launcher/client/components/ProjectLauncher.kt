@@ -260,7 +260,7 @@ class ProjectLauncher(
                         Tab {
                             label = ReactNode("New Project")
                             icon = Fragment.create {
-                                AddCircleOutlineIcon::class.react {}
+                                AddCircleOutlinedIcon::class.react {}
                             }
                         }
                     }
