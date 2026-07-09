@@ -87,7 +87,11 @@ data class KzenLauncherConfig(
     // Managed-child lifeline flags (set by kzen-shell when it spawns the launcher; absent for
     //  interactive runs). See KzenLauncherMain.startManagedLifeline.
     val managedLifeline: Boolean = false,
-    val parentPid: Long? = null
+    val parentPid: Long? = null,
+
+    // Version + build timestamp of the running artifact, loaded from a baked-in classpath resource
+    //  (see BuildInfo). Surfaced to the client via indexPage as logo hover text.
+    val buildInfo: BuildInfo? = null
 ) {
     //-----------------------------------------------------------------------------------------------------------------
     companion object {
@@ -221,7 +225,8 @@ fun buildContext(args: Array<String>): KzenLauncherContext {
         kzenLauncherJsModuleName,
         port = port,
         managedLifeline = KzenLauncherConfig.readManagedLifeline(args),
-        parentPid = KzenLauncherConfig.readParentPid(args)
+        parentPid = KzenLauncherConfig.readParentPid(args),
+        buildInfo = BuildInfo.load("/kzen-launcher-build.properties")
     )
 
     return KzenLauncherContext(

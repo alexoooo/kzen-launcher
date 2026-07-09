@@ -18,6 +18,8 @@ import tech.kzen.launcher.common.api.staticResourcePath
 import tech.kzen.launcher.common.dto.ArchetypeDetail
 import tech.kzen.launcher.common.dto.ProjectDetail
 import web.cssom.*
+import web.dom.document
+import web.html.HTMLMetaElement
 
 
 //---------------------------------------------------------------------------------------------------------------------
@@ -284,6 +286,17 @@ class ProjectLauncher(
     }
 
 
+    // Logo hover text: "Kzen (home)" plus the running server's version + build timestamp (from the
+    //  kzen-build meta tag emitted by indexPage), so the live build is always identifiable. Falls back
+    //  to just "Kzen (home)" when the meta is absent/blank (e.g. a pure-IDE dev run without the stamp).
+    private fun logoTitle(): String {
+        val build = (document.querySelector("meta[name=\"kzen-build\"]") as? HTMLMetaElement)
+            ?.content
+            ?.takeIf { it.isNotBlank() }
+        return if (build == null) "Kzen (home)" else "Kzen (home)\n$build"
+    }
+
+
     private fun ChildrenBuilder.renderLogo() {
         a {
             href = "/"
@@ -295,7 +308,7 @@ class ProjectLauncher(
                     height = 52.px
                 }
 
-                title = "Kzen (home)"
+                title = logoTitle()
             }
         }
     }
