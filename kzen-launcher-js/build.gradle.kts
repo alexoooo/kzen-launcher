@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.targets.js.yarn.yarn
 
 plugins {
     kotlin("multiplatform")
+    kotlin("plugin.serialization")
 }
 
 
@@ -51,8 +52,6 @@ kotlin {
         jsMain.dependencies {
             implementation(project(":kzen-launcher-common"))
 
-            implementation("org.jetbrains.kotlinx:kotlinx-html-assembly:$kotlinxHtmlAssemblyVersion")
-
             implementation(kotlinWrappers.react)
             implementation(kotlinWrappers.reactDom)
             implementation(kotlinWrappers.emotion.styled)
@@ -60,7 +59,6 @@ kotlin {
 
             implementation(npm("core-js", coreJsVersion))
             implementation(npm("@mui/icons-material", muiIconsVersion))
-            implementation(npm("react-select", reactSelectVersion))
 
             // NB: avoid "unmet peer dependency" warning
             implementation(npm("@babel/core", babelCoreVersion))

@@ -10,11 +10,12 @@ import react.Key
 import react.Props
 import react.State
 import react.dom.html.ReactHTML.div
-import react.dom.html.ReactHTML.h2
 import react.dom.html.ReactHTML.span
-import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.clientRestApi
+import tech.kzen.launcher.client.api.launchUiAction
 import tech.kzen.launcher.client.api.shellRestApi
+import tech.kzen.launcher.client.components.sectionHeading
+import tech.kzen.launcher.client.state.LauncherStore
 import tech.kzen.launcher.client.wrap.RComponent
 import tech.kzen.launcher.client.wrap.react
 import tech.kzen.launcher.client.wrap.setState
@@ -26,12 +27,6 @@ import web.cssom.px
 //---------------------------------------------------------------------------------------------------------------------
 external interface ProjectListProps: Props {
     var projects: List<ProjectDetail>?
-
-    var didStart: (() -> Unit)?
-    var didRemove: (() -> Unit)?
-    var didDelete: (() -> Unit)?
-    var didRename: (() -> Unit)?
-    var didChangeJvmArgs: (() -> Unit)?
 }
 
 
@@ -57,12 +52,12 @@ class ProjectList(
             starting = true
         }
 
-        async {
+        launchUiAction {
             delay(1)
 
             try {
                 shellRestApi.startProject(project.name, project.path, project.jvmArgs)
-                props.didStart?.invoke()
+                LauncherStore.invalidateRunning()
             }
             finally {
                 setState {
@@ -74,45 +69,40 @@ class ProjectList(
 
 
     private fun onRemove(project: ProjectDetail) {
-        async {
+        launchUiAction {
             clientRestApi.removeProject(project.name)
-            props.didRemove?.invoke()
+            LauncherStore.invalidateProjects()
         }
     }
 
 
     private fun onDelete(project: ProjectDetail) {
-        async {
+        launchUiAction {
             clientRestApi.deleteProject(project.name)
-            props.didDelete?.invoke()
+            LauncherStore.invalidateProjects()
         }
     }
 
 
     private fun onRename(project: ProjectDetail, newName: String) {
-        async {
+        launchUiAction {
             clientRestApi.renameProject(project.name, newName)
-            props.didRename?.invoke()
+            LauncherStore.invalidateProjects()
         }
     }
 
 
     private fun onChangeJvmArguments(project: ProjectDetail, newArguments: String) {
-        async {
+        launchUiAction {
             clientRestApi.changeJvmArgumentsForProject(project.name, newArguments)
-            props.didChangeJvmArgs?.invoke()
+            LauncherStore.invalidateProjects()
         }
     }
 
 
     //-----------------------------------------------------------------------------------------------------------------
     override fun ChildrenBuilder.render() {
-        h2 {
-            css {
-                marginTop = 0.px
-            }
-            +"Available Projects"
-        }
+        sectionHeading("Available Projects")
 
         if (state.starting) {
             span {

@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     kotlin("multiplatform")
+    kotlin("plugin.serialization")
 }
 
 
@@ -40,7 +41,10 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
-//                implementation("org.jetbrains.kotlin-wrappers:kotlin-css:$kotlinCssVersion")
+
+            // api (not implementation) so consumers — notably kzen-launcher-js, which decodes the DTOs —
+            // get the serialization runtime transitively.
+            api("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion")
         }
 
         commonTest.dependencies {

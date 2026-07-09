@@ -1,6 +1,8 @@
 package tech.kzen.launcher.client.api
 
+import kotlinx.serialization.decodeFromString
 import tech.kzen.launcher.client.service.ClientRestService
+import tech.kzen.launcher.common.api.CommonRestApi
 
 
 /**
@@ -8,37 +10,27 @@ import tech.kzen.launcher.client.service.ClientRestService
  */
 class ClientShellRestApi {
     //-----------------------------------------------------------------------------------------------------------------
-    @Suppress("ConstPropertyName")
-    private companion object {
-        const val base = "/shell/project"
-    }
-
-
-    //-----------------------------------------------------------------------------------------------------------------
     suspend fun runningProjects(): List<String> {
-        val json = ClientRestService.getWithErrorIntercept(base)
-
-        val projectNames = JSON.parse<Array<String>>(json)
-
-        return projectNames.toList()
+        return clientJson.decodeFromString(get(CommonRestApi.shellProject))
     }
 
 
     suspend fun startProject(name: String, location: String, jvmArgs: String) {
-        val encodedName = encodeURIComponent(name)
-        val encodedLocation = encodeURIComponent(location)
-        val encodedJvmArgs = encodeURIComponent(jvmArgs)
-        ClientRestService.getWithErrorIntercept("$base/start" +
-                "?name=$encodedName" +
-                "&location=$encodedLocation" +
-                "&args=$encodedJvmArgs")
+        get(CommonRestApi.startProject,
+                CommonRestApi.projectName to name,
+                CommonRestApi.projectLocation to location,
+                CommonRestApi.projectJvmArgs to jvmArgs)
     }
 
 
     suspend fun stopProject(name: String) {
-        val encodedName = encodeURIComponent(name)
-        ClientRestService.getWithErrorIntercept("$base/stop?name=$encodedName")
+        get(CommonRestApi.stopProject,
+                CommonRestApi.projectName to name)
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
+    private suspend fun get(path: String, vararg params: Pair<String, String>): String {
+        return ClientRestService.getWithErrorIntercept(restUrl(path, *params))
     }
 }
-
-

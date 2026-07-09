@@ -7,16 +7,12 @@ import react.*
 import react.dom.html.ReactHTML.a
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.img
-import tech.kzen.launcher.client.api.async
-import tech.kzen.launcher.client.api.clientRestApi
-import tech.kzen.launcher.client.api.shellRestApi
 import tech.kzen.launcher.client.components.add.NewProjectScreen
 import tech.kzen.launcher.client.components.manage.ManageProjectsScreen
 import tech.kzen.launcher.client.service.ErrorBus
+import tech.kzen.launcher.client.state.LauncherStore
 import tech.kzen.launcher.client.wrap.*
 import tech.kzen.launcher.common.api.staticResourcePath
-import tech.kzen.launcher.common.dto.ArchetypeDetail
-import tech.kzen.launcher.common.dto.ProjectDetail
 import web.cssom.*
 import web.dom.document
 import web.html.HTMLMetaElement
@@ -24,13 +20,7 @@ import web.html.HTMLMetaElement
 
 //---------------------------------------------------------------------------------------------------------------------
 external interface ProjectLauncherState: State {
-    var archetypes: List<ArchetypeDetail>?
-    var projects: List<ProjectDetail>?
-    var runningProjects: List<String>?
-
-    var loading: Boolean
     var errorMessage: String?
-
     var creating: Boolean
 }
 
@@ -40,14 +30,11 @@ class ProjectLauncher(
     props: Props
 ):
     RComponent<Props, ProjectLauncherState>(props),
-    ErrorBus.Subscriber
+    ErrorBus.Subscriber,
+    LauncherStore.Observer
 {
     //-----------------------------------------------------------------------------------------------------------------
     override fun ProjectLauncherState.init(props: Props) {
-        archetypes = null
-        projects = null
-        runningProjects = null
-        loading = false
         errorMessage = null
         creating = false
     }
@@ -55,22 +42,25 @@ class ProjectLauncher(
 
     //-----------------------------------------------------------------------------------------------------------------
     override fun componentDidMount() {
-        loadFromServerIfRequired()
+        LauncherStore.subscribe(this)
         ErrorBus.subscribe(this)
+        LauncherStore.loadIfRequired()
     }
 
 
     override fun componentWillUnmount() {
+        LauncherStore.unSubscribe(this)
         ErrorBus.unSubscribe(this)
     }
 
 
-    override fun componentDidUpdate(prevProps: Props, prevState: ProjectLauncherState, snapshot: Any) {
-        loadFromServerIfRequired()
+    //-----------------------------------------------------------------------------------------------------------------
+    override fun onLauncherStoreChanged() {
+        // Re-render from the store's latest snapshot.
+        setState { }
     }
 
 
-    //-----------------------------------------------------------------------------------------------------------------
     override fun onSuccess() {
         setState {
             errorMessage = null
@@ -81,59 +71,6 @@ class ProjectLauncher(
     override fun onError(message: String) {
         setState {
             this.errorMessage = message
-        }
-    }
-
-
-    //-----------------------------------------------------------------------------------------------------------------
-    private fun loadFromServerIfRequired() {
-        if (state.loading) {
-            return
-        }
-
-        async {
-            loadFromServerAsync()
-        }
-    }
-
-
-    private suspend fun loadFromServerAsync() {
-        val needArchetypes = (state.archetypes == null)
-        val needProjects = (state.projects == null)
-        val needRunningProjects = (state.runningProjects == null)
-
-        if (!(needArchetypes || needProjects || needRunningProjects)) {
-            return
-        }
-
-        setState {
-            loading = true
-        }
-
-        if (needArchetypes) {
-            val response = clientRestApi.listArchetypes()
-            setState {
-                archetypes = response
-            }
-        }
-
-        if (needProjects) {
-            val response = clientRestApi.listProjects()
-            setState {
-                projects = response
-            }
-        }
-
-        if (needRunningProjects) {
-            val response = shellRestApi.runningProjects()
-            setState {
-                runningProjects = response
-            }
-        }
-
-
-        setState {
-            loading = false
         }
     }
 
@@ -170,35 +107,20 @@ class ProjectLauncher(
 
         if (state.creating) {
             NewProjectScreen::class.react {
-                archetypes = state.archetypes
+                archetypes = LauncherStore.archetypes
 
                 didCreate = {
                     setState {
                         creating = false
-                        projects = null
                     }
-                    loadFromServerIfRequired()
+                    LauncherStore.invalidateProjects()
                 }
             }
         }
         else {
             ManageProjectsScreen::class.react {
-                projects = state.projects
-                runningProjects = state.runningProjects
-
-                onProjectsChanged = {
-                    setState {
-                        projects = null
-                    }
-                    loadFromServerIfRequired()
-                }
-
-                onRunningChanged = {
-                    setState {
-                        runningProjects = null
-                    }
-                    loadFromServerIfRequired()
-                }
+                projects = LauncherStore.projects
+                runningProjects = LauncherStore.runningProjects
             }
         }
     }

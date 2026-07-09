@@ -6,18 +6,19 @@ import mui.material.*
 import mui.system.sx
 import react.ChildrenBuilder
 import react.Props
-import react.ReactNode
 import react.State
 import react.dom.html.ReactHTML.div
-import react.dom.html.ReactHTML.h2
-import react.dom.onChange
-import tech.kzen.launcher.client.api.async
 import tech.kzen.launcher.client.api.clientRestApi
+import tech.kzen.launcher.client.api.launchUiAction
+import tech.kzen.launcher.client.components.buttonIcon
+import tech.kzen.launcher.client.components.sectionHeading
+import tech.kzen.launcher.client.components.whiteCard
+import tech.kzen.launcher.client.components.wideTextField
 import tech.kzen.launcher.client.wrap.*
+import tech.kzen.launcher.client.wrap.select.SelectOption
+import tech.kzen.launcher.client.wrap.select.muiAutocompleteField
 import tech.kzen.launcher.common.dto.ArchetypeDetail
 import web.cssom.*
-import web.dom.ElementId
-import web.html.HTMLInputElement
 import kotlin.js.Date
 
 
@@ -32,6 +33,9 @@ external interface NewProjectScreenState: State {
     var name: String
     var type: String?
     var path: String
+
+    var creating: Boolean
+    var importing: Boolean
 }
 
 
@@ -70,6 +74,8 @@ class NewProjectScreen(
                 it.next().name
             else null
         }
+        creating = false
+        importing = false
     }
 
 
@@ -102,16 +108,26 @@ class NewProjectScreen(
 
 
     private fun onCreate() {
-        async {
-            check(state.type != null) {"Type missing"}
-            clientRestApi.createProject(state.name, state.type!!)
+        setState {
+            creating = true
+        }
 
-            setState {
-                name = newInitialName()
-                type = null
+        launchUiAction {
+            try {
+                clientRestApi.createProject(state.name, state.type!!)
+
+                setState {
+                    name = newInitialName()
+                    type = null
+                }
+
+                props.didCreate?.invoke()
             }
-
-            props.didCreate?.invoke()
+            finally {
+                setState {
+                    creating = false
+                }
+            }
         }
     }
 
@@ -124,55 +140,39 @@ class NewProjectScreen(
 
 
     private fun onImport() {
-        async {
-            check(state.path.isNotBlank()) {"Path missing"}
-            clientRestApi.importProject(state.path)
+        setState {
+            importing = true
+        }
 
-            setState {
-                path = defaultImportPath
+        launchUiAction {
+            try {
+                clientRestApi.importProject(state.path)
+
+                setState {
+                    path = defaultImportPath
+                }
+
+                props.didCreate?.invoke()
             }
-
-            props.didCreate?.invoke()
+            finally {
+                setState {
+                    importing = false
+                }
+            }
         }
     }
 
 
     //-----------------------------------------------------------------------------------------------------------------
     override fun ChildrenBuilder.render() {
-        Paper {
-            sx {
-                backgroundColor = NamedColor.white
-                margin = Margin(2.em, 2.em, 2.em, 2.em)
-            }
-
-            CardContent {
-                h2 {
-                    css {
-                        marginTop = 0.px
-                    }
-                    +"Create New"
-                }
-
-                renderCreate()
-            }
+        whiteCard {
+            sectionHeading("Create New")
+            renderCreate()
         }
 
-        Card {
-            sx {
-                backgroundColor = NamedColor.white
-                margin = Margin(2.em, 2.em, 2.em, 2.em)
-            }
-
-            CardContent {
-                h2 {
-                    css {
-                        marginTop = 0.px
-                    }
-                    +"Import Existing"
-                }
-
-                renderImport()
-            }
+        whiteCard {
+            sectionHeading("Import Existing")
+            renderImport()
         }
     }
 
@@ -199,12 +199,20 @@ class NewProjectScreen(
             div {
                 Button {
                     variant = ButtonVariant.outlined
+                    disabled = state.creating || state.type == null
                     onClick = { onCreate() }
 
-                    CreateIcon::class.react {
-                        style = unsafeJso {
-                            marginRight = 0.25.em
+                    if (state.creating) {
+                        CircularProgress {
+                            sx {
+                                width = 1.em
+                                height = 1.em
+                                marginRight = 0.25.em
+                            }
                         }
+                    }
+                    else {
+                        buttonIcon(CreateIcon::class)
                     }
 
                     +"Create"
@@ -231,12 +239,20 @@ class NewProjectScreen(
             div {
                 Button {
                     variant = ButtonVariant.outlined
+                    disabled = state.importing || state.path.isBlank()
                     onClick = { onImport() }
 
-                    RedoIcon::class.react {
-                        style = unsafeJso {
-                            marginRight = 0.25.em
+                    if (state.importing) {
+                        CircularProgress {
+                            sx {
+                                width = 1.em
+                                height = 1.em
+                                marginRight = 0.25.em
+                            }
                         }
+                    }
+                    else {
+                        buttonIcon(RedoIcon::class)
                     }
 
                     +"Import"
@@ -247,19 +263,7 @@ class NewProjectScreen(
 
 
     private fun ChildrenBuilder.renderName() {
-        TextField {
-            sx {
-                width = 36.em
-            }
-
-            label = ReactNode("Name")
-            value = state.name
-
-            onChange = {
-                val target = it.target as HTMLInputElement
-                onNameChange(target.value)
-            }
-        }
+        wideTextField("Name", state.name, ::onNameChange)
 
         div {
             title = "Must be a valid file name"
@@ -276,19 +280,19 @@ class NewProjectScreen(
 
 
     private fun ChildrenBuilder.renderTypeSelect() {
-        if (props.archetypes == null || state.type == null) {
-            +"Loading... ${props.archetypes} - ${state.type}"
+        val archetypes = props.archetypes
+        if (archetypes == null || state.type == null) {
+            +"Loading..."
         }
         else {
             div {
                 css {
                     width = 36.em
-                    position = Position.relative
                 }
-                val selectOptions = props
-                        .archetypes!!
+
+                val selectOptions = archetypes
                         .map {
-                            val option: ReactSelectOption = unsafeJso {
+                            val option: SelectOption = unsafeJso {
                                 value = it.name
                                 label = it.title + " - " + it.description
                             }
@@ -296,46 +300,19 @@ class NewProjectScreen(
                         }
                         .toTypedArray()
 
-                val selectId = "material-react-select-id"
-
-                InputLabel {
-                    htmlFor = ElementId(selectId)
-
-                    sx {
-                        fontSize = 0.8.em
-                    }
-
-                    +"Type"
-                }
-
-                ReactSelect::class.react {
-                    id = selectId
-                    value = selectOptions.find { it.value == state.type }
-
-                    options = selectOptions
-
-                    onChange = {
-                        onTypeChange(it.value)
-                    }
-                }
+                muiAutocompleteField(
+                        label = "Type",
+                        options = selectOptions,
+                        selectedOption = selectOptions.find { it.value == state.type },
+                        onSelect = { onTypeChange(it.value) },
+                        disableClearable = true,
+                        disabled = state.creating)
             }
         }
     }
 
 
     private fun ChildrenBuilder.renderPath() {
-        TextField {
-            sx {
-                width = 36.em
-            }
-
-            label = ReactNode("Path")
-            value = state.path
-
-            onChange = {
-                val target = it.target as HTMLInputElement
-                onPathChange(target.value)
-            }
-        }
+        wideTextField("Path", state.path, ::onPathChange)
     }
 }

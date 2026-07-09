@@ -1,20 +1,16 @@
 package tech.kzen.launcher.client.components.manage
 
 import emotion.react.css
-import js.objects.unsafeJso
 import mui.material.Button
 import mui.material.ButtonVariant
-import mui.material.TextField
-import mui.system.sx
 import react.*
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.span
-import react.dom.onChange
+import tech.kzen.launcher.client.components.buttonIcon
+import tech.kzen.launcher.client.components.wideTextField
 import tech.kzen.launcher.client.wrap.*
 import tech.kzen.launcher.common.dto.ProjectDetail
 import web.cssom.*
-import web.html.HTMLInputElement
-import kotlin.reflect.KClass
 
 
 //---------------------------------------------------------------------------------------------------------------------
@@ -49,15 +45,6 @@ class ProjectItem(
 
         changingArgs = false
         newJvmArgs = props.project.jvmArgs
-    }
-
-
-    override fun componentDidUpdate(prevProps: ProjectItemProps, prevState: ProjectItemState, snapshot: Any) {
-//        if (state.renaming && != prevState.renaming) {
-//            setState {
-//                type = props.artifacts!!.iterator().next().name
-//            }
-//        }
     }
 
 
@@ -170,8 +157,16 @@ class ProjectItem(
                 if (props.project.exists) {
                     renderRun()
                     renderDelete()
-                    renderRename()
-                    renderChangeArgs()
+                    renderEditToggleButton(
+                        editing = state.renaming,
+                        label = "Rename",
+                        onStartEdit = ::onRenameStart,
+                        onCommit = ::onRenameCommit)
+                    renderEditToggleButton(
+                        editing = state.changingArgs,
+                        label = "JVM Arguments",
+                        onStartEdit = ::onChangeArgsStart,
+                        onCommit = ::onChangeArgsCommit)
                 }
                 else {
                     renderRemove()
@@ -197,11 +192,7 @@ class ProjectItem(
                     disabled = true
                 }
 
-                PlayArrowIcon::class.react {
-                    style = unsafeJso {
-                        marginRight = 0.25.em
-                    }
-                }
+                buttonIcon(PlayArrowIcon::class)
 
                 +"Run"
             }
@@ -220,11 +211,7 @@ class ProjectItem(
                 variant = ButtonVariant.outlined
                 onClick = { onDelete() }
 
-                DeleteIcon::class.react {
-                    style = unsafeJso {
-                        marginRight = 0.25.em
-                    }
-                }
+                buttonIcon(DeleteIcon::class)
 
                 +"Delete"
             }
@@ -233,23 +220,18 @@ class ProjectItem(
 
 
     private fun ChildrenBuilder.renderRenameTitle() {
-        TextField  {
-            sx {
-                width = 36.em
-            }
-
-            label = ReactNode("New name")
-            value = state.newName
-
-            onChange = {
-                val target = it.target as HTMLInputElement
-                onRenameChange(target.value)
-            }
-        }
+        wideTextField("New name", state.newName, ::onRenameChange)
     }
 
 
-    private fun ChildrenBuilder.renderRename() {
+    // Shared by the Rename and JVM-Arguments controls: an outlined button that toggles between an
+    // Edit (start editing) and Save (commit) affordance based on whether that field is currently editing.
+    private fun ChildrenBuilder.renderEditToggleButton(
+        editing: Boolean,
+        label: String,
+        onStartEdit: () -> Unit,
+        onCommit: () -> Unit
+    ) {
         div {
             css {
                 display = Display.inlineBlock
@@ -260,68 +242,17 @@ class ProjectItem(
                 variant = ButtonVariant.outlined
 
                 onClick = {
-                    if (state.renaming) {
-                        onRenameCommit()
+                    if (editing) {
+                        onCommit()
                     }
                     else {
-                        onRenameStart()
+                        onStartEdit()
                     }
                 }
 
-                val icon: KClass<out Component<IconProps, State>> =
-                    if (state.renaming) {
-                        SaveIcon::class
-                    }
-                    else {
-                        EditIcon::class
-                    }
+                buttonIcon(if (editing) SaveIcon::class else EditIcon::class)
 
-                icon.react {
-                    style = unsafeJso {
-                        marginRight = 0.25.em
-                    }
-                }
-
-                +"Rename"
-            }
-        }
-    }
-
-
-    private fun ChildrenBuilder.renderChangeArgs() {
-        div {
-            css {
-                display = Display.inlineBlock
-                marginLeft = 1.em
-            }
-
-            Button {
-                variant = ButtonVariant.outlined
-
-                onClick = {
-                    if (state.changingArgs) {
-                        onChangeArgsCommit()
-                    }
-                    else {
-                        onChangeArgsStart()
-                    }
-                }
-
-                val icon: KClass<out Component<IconProps, State>> =
-                    if (state.changingArgs) {
-                        SaveIcon::class
-                    }
-                    else {
-                        EditIcon::class
-                    }
-
-                icon.react {
-                    style = unsafeJso {
-                        marginRight = 0.25.em
-                    }
-                }
-
-                +"JVM Arguments"
+                +label
             }
         }
     }
@@ -334,19 +265,7 @@ class ProjectItem(
 
         div {
             if (state.changingArgs) {
-                TextField {
-                    sx {
-                        width = 36.em
-                    }
-
-                    label = ReactNode("New JVM Arguments")
-                    value = state.newJvmArgs
-
-                    onChange = {
-                        val target = it.target as HTMLInputElement
-                        onChangeArgs(target.value)
-                    }
-                }
+                wideTextField("New JVM Arguments", state.newJvmArgs, ::onChangeArgs)
             }
             else {
                 css {
@@ -369,11 +288,7 @@ class ProjectItem(
                 variant = ButtonVariant.outlined
                 onClick = { onRemove() }
 
-                RemoveCircleOutlinedIcon::class.react {
-                    style = unsafeJso {
-                        marginRight = 0.25.em
-                    }
-                }
+                buttonIcon(RemoveCircleOutlinedIcon::class)
 
                 +"Remove"
             }

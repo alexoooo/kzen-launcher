@@ -1,0 +1,80 @@
+package tech.kzen.launcher.client.components
+
+import emotion.react.css
+import js.objects.unsafeJso
+import mui.material.Card
+import mui.material.CardContent
+import mui.material.TextField
+import mui.system.sx
+import react.ChildrenBuilder
+import react.Component
+import react.ReactNode
+import react.dom.html.ReactHTML.h2
+import react.dom.onChange
+import tech.kzen.launcher.client.wrap.IconProps
+import tech.kzen.launcher.client.wrap.react
+import web.cssom.Margin
+import web.cssom.NamedColor
+import web.cssom.em
+import web.cssom.px
+import web.html.HTMLInputElement
+import kotlin.reflect.KClass
+
+
+// Shared view fragments for the launcher screens — extracted from the copy-pasted blocks that recurred
+// across NewProjectScreen / ManageProjectsScreen / ProjectList / ProjectItem / ProjectRunning.
+
+
+// The white surface panel every screen section sits in (a Card with the standard white fill + 2em margin,
+// wrapping its content in CardContent).
+fun ChildrenBuilder.whiteCard(block: ChildrenBuilder.() -> Unit) {
+    Card {
+        sx {
+            backgroundColor = NamedColor.white
+            margin = Margin(2.em, 2.em, 2.em, 2.em)
+        }
+
+        CardContent {
+            block()
+        }
+    }
+}
+
+
+// A section heading (top-margin cleared so it hugs the top of its CardContent).
+fun ChildrenBuilder.sectionHeading(text: String) {
+    h2 {
+        css {
+            marginTop = 0.px
+        }
+        +text
+    }
+}
+
+
+// The 36em labelled text field used by every name / path / rename / jvm-args input.
+fun ChildrenBuilder.wideTextField(label: String, value: String, onValueChange: (String) -> Unit) {
+    TextField {
+        sx {
+            width = 36.em
+        }
+
+        this.label = ReactNode(label)
+        this.value = value
+
+        onChange = {
+            val target = it.target as HTMLInputElement
+            onValueChange(target.value)
+        }
+    }
+}
+
+
+// A Material icon rendered with the small right margin used for button leading-icons.
+fun ChildrenBuilder.buttonIcon(icon: KClass<out Component<IconProps, *>>) {
+    icon.react {
+        style = unsafeJso {
+            marginRight = 0.25.em
+        }
+    }
+}

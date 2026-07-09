@@ -51,104 +51,14 @@ external class PlayArrowIcon: Component<IconProps, react.State> {
 }
 
 
-@JsName("Replay")
-external class ReplayIcon: Component<IconProps, react.State> {
-    override fun render(): ReactElement<IconProps>?
-}
-
-
-@JsName("KeyboardArrowUp")
-external class KeyboardArrowUpIcon: Component<IconProps, react.State> {
-    override fun render(): ReactElement<IconProps>?
-}
-
-
-@JsName("KeyboardArrowDown")
-external class KeyboardArrowDownIcon: Component<IconProps, react.State> {
-    override fun render(): ReactElement<IconProps>?
-}
-
-
 @JsName("Save")
 external class SaveIcon: Component<IconProps, react.State> {
     override fun render(): ReactElement<IconProps>?
 }
 
 
-@JsName("Cancel")
-external class CancelIcon: Component<IconProps, react.State> {
-    override fun render(): ReactElement<IconProps>?
-}
-
-
-@JsName("Close")
-external class CloseIcon: Component<IconProps, react.State> {
-    override fun render(): ReactElement<IconProps>?
-}
-
-
-@JsName("ArrowDownward")
-external class ArrowDownwardIcon: Component<IconProps, react.State> {
-    override fun render(): ReactElement<IconProps>?
-}
-
-
-@JsName("OpenInNew")
-external class OpenInNewIcon: Component<IconProps, react.State> {
-    override fun render(): ReactElement<IconProps>?
-}
-
-
-@JsName("Http")
-external class HttpIcon: Component<IconProps, react.State> {
-    override fun render(): ReactElement<IconProps>?
-}
-
-
-@JsName("Keyboard")
-external class KeyboardIcon: Component<IconProps, react.State> {
-    override fun render(): ReactElement<IconProps>?
-}
-
-
-@JsName("TouchApp")
-external class TouchAppIcon: Component<IconProps, react.State> {
-    override fun render(): ReactElement<IconProps>?
-}
-
-
-@JsName("Message")
-external class MessageIcon: Component<IconProps, react.State> {
-    override fun render(): ReactElement<IconProps>?
-}
-
-
-@JsName("Texture")
-external class TextureIcon: Component<IconProps, react.State> {
-    override fun render(): ReactElement<IconProps>?
-}
-
-
-@JsName("Timer")
-external class TimerIcon: Component<IconProps, react.State> {
-    override fun render(): ReactElement<IconProps>?
-}
-
-
 @JsName("Edit")
 external class EditIcon: Component<IconProps, react.State> {
-    override fun render(): ReactElement<IconProps>?
-}
-
-
-@JsName("Pause")
-external class PauseIcon: Component<IconProps, react.State> {
-    override fun render(): ReactElement<IconProps>?
-}
-
-
-@JsName("Send")
-external class SendIcon: Component<IconProps, react.State> {
     override fun render(): ReactElement<IconProps>?
 }
 
@@ -175,6 +85,3 @@ external class RedoIcon: Component<IconProps, react.State> {
 external class InfoIcon: Component<IconProps, react.State> {
     override fun render(): ReactElement<IconProps>?
 }
-
-
-

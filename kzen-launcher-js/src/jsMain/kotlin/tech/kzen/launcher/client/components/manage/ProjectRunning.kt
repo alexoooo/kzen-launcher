@@ -1,7 +1,6 @@
 package tech.kzen.launcher.client.components.manage
 
 import emotion.react.css
-import js.objects.unsafeJso
 import mui.material.Button
 import mui.material.ButtonVariant
 import mui.system.sx
@@ -11,21 +10,20 @@ import react.Props
 import react.State
 import react.dom.html.ReactHTML.a
 import react.dom.html.ReactHTML.div
-import react.dom.html.ReactHTML.h2
 import react.dom.html.ReactHTML.span
-import tech.kzen.launcher.client.api.async
+import tech.kzen.launcher.client.api.launchUiAction
 import tech.kzen.launcher.client.api.shellRestApi
+import tech.kzen.launcher.client.components.buttonIcon
+import tech.kzen.launcher.client.components.sectionHeading
+import tech.kzen.launcher.client.state.LauncherStore
 import tech.kzen.launcher.client.wrap.RComponent
 import tech.kzen.launcher.client.wrap.StopIcon
-import tech.kzen.launcher.client.wrap.react
 import web.cssom.em
-import web.cssom.px
 
 
 //---------------------------------------------------------------------------------------------------------------------
 external interface ProjectRunningProps: Props {
     var projects: List<String>?
-    var didStop: (() -> Unit)?
 }
 
 
@@ -36,23 +34,17 @@ class ProjectRunning(
 ): RComponent<ProjectRunningProps, State>(props) {
     //-----------------------------------------------------------------------------------------------------------------
     private fun onStop(name: String) {
-        async {
+        launchUiAction {
             shellRestApi.stopProject(name)
 
-            props.didStop?.invoke()
+            LauncherStore.invalidateRunning()
         }
     }
 
 
     //-----------------------------------------------------------------------------------------------------------------
     override fun ChildrenBuilder.render() {
-        h2 {
-            css {
-                marginTop = 0.px
-            }
-
-            +"Running Projects"
-        }
+        sectionHeading("Running Projects")
 
         if (props.projects != null) {
             renderList(props.projects!!)
@@ -93,11 +85,7 @@ class ProjectRunning(
                             onStop(project)
                         }
 
-                        StopIcon::class.react {
-                            style = unsafeJso {
-                                marginRight = 0.25.em
-                            }
-                        }
+                        buttonIcon(StopIcon::class)
 
                         +"Stop"
                     }

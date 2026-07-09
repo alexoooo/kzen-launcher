@@ -14,10 +14,9 @@ const val jacksonModuleKotlin = "3.2.0"
 const val jacksonDataformatYaml = "3.2.0"
 
 const val coreJsVersion = "3.49.0"
-const val kotlinxHtmlAssemblyVersion = "0.8.0"
 const val kotlinxHtmlVersion = "0.12.0"
+const val kotlinxSerializationVersion = "1.9.0"
 
-const val reactSelectVersion = "5.10.2"
 const val muiIconsVersion = "9.2.0"
 const val babelCoreVersion = "7.29.7"
 const val esbuildVersion = "0.28.1"

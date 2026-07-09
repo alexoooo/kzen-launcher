@@ -17,8 +17,14 @@ object CommonRestApi {
     const val renameProject = "${projectCommandPrefix}rename"
     const val jvmArgumentsProject = "${projectCommandPrefix}args"
 
+    // Shell (container reverse-proxy) endpoints — served by kzen-shell, in front of the launcher.
+    const val shellProject = "/shell/project"
+    const val startProject = "${shellProject}/start"
+    const val stopProject = "${shellProject}/stop"
+
     const val projectName = "name"
     const val projectPath = "path"
+    const val projectLocation = "location"
     const val projectExists = "exists"
     const val projectJvmArgs = "args"
     const val createProjectType = "type"
