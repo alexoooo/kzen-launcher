@@ -4,6 +4,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicLong
 
 
 // In-memory stand-in for kzen-shell's project lifecycle, active only when the launcher runs standalone
@@ -25,6 +26,14 @@ class ShellSimulator {
     data class Status(val name: String, val state: String)
 
 
+    // Per-project record. `sequence` is a monotonic start ordinal so list() can render newest-first,
+    //  matching the real ProjectRegistry; it is preserved across a starting->running/failed transition.
+    private class Entry(
+        @Volatile var state: State,
+        val sequence: Long
+    )
+
+
     private companion object {
         const val startMillis = 2_000L
         const val stopMillis = 1_000L
@@ -36,7 +45,9 @@ class ShellSimulator {
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    private val states = ConcurrentHashMap<String, State>()
+    private val states = ConcurrentHashMap<String, Entry>()
+
+    private val sequenceCounter = AtomicLong()
 
     private val scheduler: ScheduledExecutorService =
         Executors.newSingleThreadScheduledExecutor { runnable ->
@@ -45,42 +56,54 @@ class ShellSimulator {
 
 
     //-----------------------------------------------------------------------------------------------------------------
+    // Newest-first, matching kzen-shell's ProjectRegistry.list().
     fun list(): List<Status> {
-        return states.map { Status(it.key, it.value.wire) }
+        return states.entries
+            .sortedByDescending { it.value.sequence }
+            .map { Status(it.key, it.value.state.wire) }
     }
 
 
     // Idempotent, matching the real ProjectRegistry: a start for an already-active name is a no-op; a
-    //  start for a previously-FAILED name restarts it.
+    //  start for a previously-FAILED name restarts it (fresh sequence, so it jumps to the top).
     fun start(name: String) {
-        val previous = states.putIfAbsent(name, State.STARTING)
-        if (previous != null && previous != State.FAILED) {
-            return
+        var created: Entry? = null
+        states.compute(name) { _, existing ->
+            if (existing != null && existing.state != State.FAILED) {
+                existing
+            }
+            else {
+                Entry(State.STARTING, sequenceCounter.incrementAndGet()).also { created = it }
+            }
         }
-        states[name] = State.STARTING
+
+        val fresh = created
+            ?: return
 
         val target = if (name.contains(failTrigger)) State.FAILED else State.RUNNING
         scheduler.schedule({
-            states.computeIfPresent(name) { _, current ->
-                if (current == State.STARTING) target else current
+            // Preserve the entry (and its sequence); only flip state, and only if still starting and
+            //  still the entry we created (a stop/restart may have replaced it in the meantime).
+            if (fresh.state == State.STARTING && states[name] === fresh) {
+                fresh.state = target
             }
         }, startMillis, TimeUnit.MILLISECONDS)
     }
 
 
     fun stop(name: String): Boolean {
-        val current = states[name]
+        val entry = states[name]
             ?: return false
 
         // FAILED -> dismiss immediately; anything else -> brief STOPPING then gone.
-        if (current == State.FAILED) {
-            states.remove(name)
+        if (entry.state == State.FAILED) {
+            states.remove(name, entry)
             return true
         }
 
-        states[name] = State.STOPPING
+        entry.state = State.STOPPING
         scheduler.schedule({
-            states.remove(name)
+            states.remove(name, entry)
         }, stopMillis, TimeUnit.MILLISECONDS)
         return true
     }

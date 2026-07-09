@@ -3,6 +3,8 @@ package tech.kzen.launcher.client.components.manage
 import emotion.react.css
 import mui.material.Button
 import mui.material.ButtonVariant
+import mui.material.CircularProgress
+import mui.system.sx
 import react.*
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.span
@@ -11,6 +13,7 @@ import tech.kzen.launcher.client.components.wideTextField
 import tech.kzen.launcher.client.wrap.*
 import tech.kzen.launcher.common.dto.ProjectDetail
 import web.cssom.*
+import kotlin.js.Promise
 
 
 //---------------------------------------------------------------------------------------------------------------------
@@ -19,7 +22,7 @@ external interface ProjectItemProps: Props {
 
     var onStart: ((ProjectDetail) -> Unit)
     var onRemove: ((ProjectDetail) -> Unit)
-    var onDelete: ((ProjectDetail) -> Unit)
+    var onDelete: ((ProjectDetail) -> Promise<Unit>)
     var onRename: ((ProjectDetail, String) -> Unit)
     var onChangeJvmArgs: ((ProjectDetail, String) -> Unit)
 }
@@ -30,6 +33,7 @@ external interface ProjectItemState: State {
     var changingArgs: Boolean
     var newName: String
     var newJvmArgs: String
+    var deleting: Boolean
 }
 
 
@@ -44,6 +48,8 @@ class ProjectItem(
 
         changingArgs = false
         newJvmArgs = props.project.jvmArgs
+
+        deleting = false
     }
 
 
@@ -58,8 +64,28 @@ class ProjectItem(
     }
 
 
+    // Fire the delete and show a spinner on the button until it settles. On success the project drops out
+    //  of the list and this row unmounts; on failure it stays (error surfaced by the interceptor) and the
+    //  spinner clears so the user can retry.
     private fun onDelete() {
+        if (state.deleting) {
+            return
+        }
+
+        setState {
+            deleting = true
+        }
+
         props.onDelete(props.project)
+            .then { clearDeleting() }
+            .catch { clearDeleting() }
+    }
+
+
+    private fun clearDeleting() {
+        setState {
+            deleting = false
+        }
     }
 
 
@@ -204,9 +230,21 @@ class ProjectItem(
 
             Button {
                 variant = ButtonVariant.outlined
+                disabled = state.deleting
                 onClick = { onDelete() }
 
-                buttonIcon(DeleteIcon::class)
+                if (state.deleting) {
+                    CircularProgress {
+                        sx {
+                            width = 1.em
+                            height = 1.em
+                            marginRight = 0.25.em
+                        }
+                    }
+                }
+                else {
+                    buttonIcon(DeleteIcon::class)
+                }
 
                 +"Delete"
             }

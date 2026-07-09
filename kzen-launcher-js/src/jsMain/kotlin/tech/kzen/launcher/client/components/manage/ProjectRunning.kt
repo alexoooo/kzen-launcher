@@ -3,11 +3,18 @@ package tech.kzen.launcher.client.components.manage
 import emotion.react.css
 import mui.material.Button
 import mui.material.ButtonVariant
+import mui.material.Chip
+import mui.material.ChipColor
+import mui.material.ChipVariant
+import mui.material.CircularProgress
+import mui.material.Divider
+import mui.material.Size
 import mui.system.sx
 import react.ChildrenBuilder
 import react.Component
 import react.Key
 import react.Props
+import react.ReactNode
 import react.State
 import react.dom.html.ReactHTML.a
 import react.dom.html.ReactHTML.div
@@ -23,10 +30,14 @@ import tech.kzen.launcher.client.wrap.RemoveCircleOutlinedIcon
 import tech.kzen.launcher.client.wrap.StopIcon
 import tech.kzen.launcher.common.dto.RunningProject
 import tech.kzen.launcher.common.dto.RunningState
+import web.cssom.AlignItems
 import web.cssom.Color
+import web.cssom.Display
 import web.cssom.FontWeight
-import web.cssom.NamedColor
+import web.cssom.Padding
 import web.cssom.em
+import web.cssom.number
+import web.cssom.px
 import kotlin.reflect.KClass
 
 
@@ -74,58 +85,119 @@ class ProjectRunning(
                 }
                 +"None, start one in Available Projects (below)"
             }
+            return
+        }
+
+        for ((index, project) in projects.withIndex()) {
+            div {
+                key = Key(project.name)
+
+                // A separator between rows (not above the first) — the newest-started project is on top.
+                if (index > 0) {
+                    Divider {}
+                }
+
+                renderProjectRow(project)
+            }
+        }
+    }
+
+
+    // One project as a flex row: name/link on the left, then a status chip (with a spinner while it is
+    //  transitioning) and an action, pushed to the right. Running = link + Stop; failed = Dismiss.
+    private fun ChildrenBuilder.renderProjectRow(project: RunningProject) {
+        div {
+            css {
+                display = Display.flex
+                alignItems = AlignItems.center
+                padding = Padding(0.5.em, 0.25.em)
+                borderRadius = 6.px
+
+                hover {
+                    backgroundColor = Color("rgba(0, 0, 0, 0.03)")
+                }
+            }
+
+            div {
+                css {
+                    flexGrow = number(1.0)
+                    fontWeight = FontWeight.bold
+                }
+                renderName(project)
+            }
+
+            if (project.state == RunningState.STARTING || project.state == RunningState.STOPPING) {
+                CircularProgress {
+                    sx {
+                        width = 1.em
+                        height = 1.em
+                        marginLeft = 0.5.em
+                    }
+                }
+            }
+
+            renderStatusChip(project.state)
+
+            when (project.state) {
+                RunningState.RUNNING ->
+                    renderActionButton(project.name, "Stop", StopIcon::class)
+
+                RunningState.FAILED ->
+                    renderActionButton(project.name, "Dismiss", RemoveCircleOutlinedIcon::class)
+
+                RunningState.STARTING,
+                RunningState.STOPPING -> {
+                    // Transitional: no action, just the chip + spinner above.
+                }
+            }
+        }
+    }
+
+
+    private fun ChildrenBuilder.renderName(project: RunningProject) {
+        // Only a running child is reverse-proxyable, so only it is a link.
+        if (project.state == RunningState.RUNNING) {
+            a {
+                href = "/${project.name}/"
+                +project.name
+            }
         }
         else {
-            for (project in projects) {
-                div {
-                    key = Key(project.name)
-
-                    renderProject(project)
-                }
-            }
+            +project.name
         }
     }
 
 
-    private fun ChildrenBuilder.renderProject(project: RunningProject) {
-        when (project.state) {
-            RunningState.RUNNING -> {
-                a {
-                    href = "/${project.name}/"
-                    +project.name
-                }
-                renderActionButton(project.name, "Stop", StopIcon::class)
-            }
+    private fun ChildrenBuilder.renderStatusChip(state: RunningState) {
+        Chip {
+            size = Size.small
+            variant = ChipVariant.filled
+            label = ReactNode(statusLabel(state))
+            color = statusColor(state)
 
-            RunningState.STARTING ->
-                renderTransitionLabel(project.name, "starting…", NamedColor.gray)
-
-            RunningState.STOPPING ->
-                renderTransitionLabel(project.name, "stopping…", NamedColor.gray)
-
-            RunningState.FAILED -> {
-                renderTransitionLabel(project.name, "failed", NamedColor.darkred)
-                renderActionButton(project.name, "Dismiss", RemoveCircleOutlinedIcon::class)
-            }
-        }
-    }
-
-
-    // A non-interactive row shown while a project is transitioning (or has failed): the name plus a
-    //  state suffix, no link (the child is not proxyable in these states).
-    private fun ChildrenBuilder.renderTransitionLabel(name: String, state: String, color: Color) {
-        span {
-            css {
-                fontWeight = FontWeight.bold
-            }
-            +name
-        }
-        span {
-            css {
+            sx {
                 marginLeft = 0.5.em
-                this.color = color
             }
-            +"($state)"
+        }
+    }
+
+
+    private fun statusLabel(state: RunningState): String {
+        return when (state) {
+            RunningState.STARTING -> "starting"
+            RunningState.RUNNING -> "running"
+            RunningState.STOPPING -> "stopping"
+            RunningState.FAILED -> "failed"
+        }
+    }
+
+
+    private fun statusColor(state: RunningState): ChipColor {
+        return when (state) {
+            RunningState.STARTING -> ChipColor.info
+            RunningState.RUNNING -> ChipColor.success
+            RunningState.STOPPING -> ChipColor.warning
+            RunningState.FAILED -> ChipColor.error
         }
     }
 

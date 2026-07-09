@@ -22,6 +22,14 @@ class ClientProjectRestApi(
     }
 
 
+    // Same fetch, but WITHOUT the ErrorBus success/error interception — for the background poll loop, so
+    //  a routine tick neither clears an error banner the user should still see nor spams one on a transient
+    //  failure. Mirrors ClientShellRestApi.runningProjectsSilent(). Interactive calls use listProjects().
+    suspend fun listProjectsSilent(): List<ProjectDetail> {
+        return clientJson.decodeFromString(httpGet("$baseUrl${restUrl(CommonRestApi.listProjects)}"))
+    }
+
+
     suspend fun createProject(name: String, type: String) {
         get(CommonRestApi.createProject,
                 CommonRestApi.projectName to name,

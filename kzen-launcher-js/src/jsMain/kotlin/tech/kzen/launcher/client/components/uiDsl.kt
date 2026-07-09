@@ -1,18 +1,20 @@
 package tech.kzen.launcher.client.components
 
-import emotion.react.css
 import js.objects.unsafeJso
 import mui.material.Card
 import mui.material.CardContent
 import mui.material.TextField
+import mui.material.Typography
+import mui.material.styles.TypographyVariant
 import mui.system.sx
 import react.ChildrenBuilder
 import react.Component
 import react.ReactNode
-import react.dom.html.ReactHTML.h2
 import react.dom.onChange
 import tech.kzen.launcher.client.wrap.IconProps
 import tech.kzen.launcher.client.wrap.react
+import web.cssom.BoxShadow
+import web.cssom.Color
 import web.cssom.Margin
 import web.cssom.NamedColor
 import web.cssom.em
@@ -25,13 +27,15 @@ import kotlin.reflect.KClass
 // across NewProjectScreen / ManageProjectsScreen / ProjectList / ProjectItem / ProjectRunning.
 
 
-// The white surface panel every screen section sits in (a Card with the standard white fill + 2em margin,
-// wrapping its content in CardContent).
+// The white surface panel every screen section sits in: a rounded, softly-elevated Card with the standard
+// white fill + 2em margin, wrapping its content in CardContent.
 fun ChildrenBuilder.whiteCard(block: ChildrenBuilder.() -> Unit) {
     Card {
         sx {
             backgroundColor = NamedColor.white
             margin = Margin(2.em, 2.em, 2.em, 2.em)
+            borderRadius = 12.px
+            boxShadow = BoxShadow(0.px, 2.px, 8.px, Color("rgba(0, 0, 0, 0.10)"))
         }
 
         CardContent {
@@ -41,11 +45,13 @@ fun ChildrenBuilder.whiteCard(block: ChildrenBuilder.() -> Unit) {
 }
 
 
-// A section heading (top-margin cleared so it hugs the top of its CardContent).
+// A section heading (MUI h6 Typography, muted, hugging the top of its CardContent).
 fun ChildrenBuilder.sectionHeading(text: String) {
-    h2 {
-        css {
-            marginTop = 0.px
+    Typography {
+        variant = TypographyVariant.h6
+        sx {
+            marginBottom = 0.5.em
+            color = Color("#455a64")
         }
         +text
     }

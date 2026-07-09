@@ -18,6 +18,7 @@ import tech.kzen.launcher.client.wrap.RComponent
 import tech.kzen.launcher.client.wrap.react
 import tech.kzen.launcher.common.dto.ProjectDetail
 import web.cssom.em
+import kotlin.js.Promise
 
 
 //---------------------------------------------------------------------------------------------------------------------
@@ -51,11 +52,10 @@ class ProjectList(
     }
 
 
-    private fun onDelete(project: ProjectDetail) {
-        launchUiAction {
-            clientRestApi.deleteProject(project.name)
-            LauncherStore.invalidateProjects()
-        }
+    // Delegates to the store, which returns a Promise so ProjectItem can show a delete spinner until it
+    //  settles. The store also refreshes the project list, dropping the deleted project (and its row).
+    private fun onDelete(project: ProjectDetail): Promise<Unit> {
+        return LauncherStore.deleteProject(project.name)
     }
 
 
