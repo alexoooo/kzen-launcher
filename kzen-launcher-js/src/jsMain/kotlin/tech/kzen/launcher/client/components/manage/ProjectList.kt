@@ -11,7 +11,6 @@ import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.span
 import tech.kzen.launcher.client.api.clientRestApi
 import tech.kzen.launcher.client.api.launchUiAction
-import tech.kzen.launcher.client.api.shellRestApi
 import tech.kzen.launcher.client.components.sectionHeading
 import tech.kzen.launcher.client.state.LauncherStore
 import tech.kzen.launcher.client.wrap.RComponent
@@ -33,14 +32,12 @@ class ProjectList(
         props: ProjectListProps
 ): RComponent<ProjectListProps, State>(props) {
     //-----------------------------------------------------------------------------------------------------------------
-    // Fire-and-forget: the shell registers the project as "starting" and returns immediately; the
-    //  running-projects poll (and this eager refresh) surface the starting -> running transition. No
-    //  local spinner — the project's state now lives on the server and shows in the Running section.
+    // Delegates to the store, which speculatively adds the project to Running as "starting" right away (so
+    //  the row appears the instant Run is clicked, before any round-trip), fires the actual start, and
+    //  reconciles from the shell. No local spinner — the project's state lives on the server and shows in
+    //  the Running section.
     private fun onStart(project: ProjectDetail) {
-        launchUiAction {
-            shellRestApi.startProject(project.name, project.path, project.jvmArgs)
-            LauncherStore.invalidateRunning()
-        }
+        LauncherStore.startProject(project)
     }
 
 

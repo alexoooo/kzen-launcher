@@ -48,6 +48,12 @@ object LauncherStore {
     //  picks up projects added/deleted in another open window.
     private var polling: Boolean = false
 
+    // Names the user just clicked Run on that the shell hasn't reported back yet. Kept visible as a
+    //  synthetic "starting" row (see mergePendingStarts) so the optimistic start survives a poll tick that
+    //  races ahead of the start request, and is cleared the moment the shell's list confirms it (or the
+    //  start request fails).
+    private val pendingStartNames = mutableSetOf<String>()
+
     private val observers = mutableListOf<Observer>()
 
 
@@ -139,6 +145,32 @@ object LauncherStore {
     }
 
 
+    // Optimistic start: show the project at the top of Running as "starting" immediately — before the shell
+    //  round-trips — so clicking Run feels instant. The project also leaves Available at once (it is filtered
+    //  out by running-name). Only then do we fire the actual start and reconcile against the shell's
+    //  authoritative list; the adaptive poll drives the eventual starting -> running. The speculative row is
+    //  held (via pendingStartNames / mergePendingStarts) until the shell confirms it, so a poll tick that
+    //  races ahead of the start request can't briefly erase it.
+    fun startProject(project: ProjectDetail) {
+        pendingStartNames.add(project.name)
+        publishRunning(runningProjects ?: emptyList())
+
+        launchUiAction {
+            try {
+                shellRestApi.startProject(project.name, project.path, project.jvmArgs)
+            }
+            catch (e: Throwable) {
+                // The start request failed (already surfaced to the user via the interceptor); drop the
+                //  speculative row so it doesn't linger as a phantom "starting".
+                pendingStartNames.remove(project.name)
+                publishRunning((runningProjects ?: emptyList()).filter { it.name != project.name })
+                throw e
+            }
+            publishRunning(shellRestApi.runningProjects())
+        }
+    }
+
+
     //-----------------------------------------------------------------------------------------------------------------
     // Background polling of the shell-side lifecycle state and the project list. Started by the root
     //  component while the manage screen is mounted; stopped on unmount. This is what makes starting/
@@ -197,11 +229,31 @@ object LauncherStore {
 
 
     // Publish only when the snapshot actually changed, so an unchanged poll tick triggers no re-render.
+    //  Any freshly-fetched list is first reconciled with still-pending optimistic starts.
     private fun publishRunning(latest: List<RunningProject>) {
-        if (latest != runningProjects) {
-            runningProjects = latest
+        val reconciled = mergePendingStarts(latest)
+        if (reconciled != runningProjects) {
+            runningProjects = reconciled
             notifyChanged()
         }
+    }
+
+
+    // Fold not-yet-confirmed optimistic starts into a running list. A pending name the shell now reports (in
+    //  any state) is confirmed, so it's dropped from the set and shown authoritatively; a pending name the
+    //  shell doesn't yet know about is prepended as a synthetic "starting" row, so an in-flight start can't
+    //  be transiently erased by a poll tick that raced ahead of the start request.
+    private fun mergePendingStarts(latest: List<RunningProject>): List<RunningProject> {
+        if (pendingStartNames.isEmpty()) {
+            return latest
+        }
+
+        pendingStartNames.removeAll(latest.map { it.name }.toSet())
+        if (pendingStartNames.isEmpty()) {
+            return latest
+        }
+
+        return pendingStartNames.map { RunningProject(it, RunningState.STARTING) } + latest
     }
 
 
