@@ -45,10 +45,12 @@ class ProjectLauncher(
         LauncherStore.subscribe(this)
         ErrorBus.subscribe(this)
         LauncherStore.loadIfRequired()
+        LauncherStore.startPolling()
     }
 
 
     override fun componentWillUnmount() {
+        LauncherStore.stopPolling()
         LauncherStore.unSubscribe(this)
         ErrorBus.unSubscribe(this)
     }

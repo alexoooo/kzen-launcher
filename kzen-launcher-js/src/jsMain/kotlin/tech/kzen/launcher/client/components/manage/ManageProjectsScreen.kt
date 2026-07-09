@@ -7,12 +7,13 @@ import tech.kzen.launcher.client.components.whiteCard
 import tech.kzen.launcher.client.wrap.RComponent
 import tech.kzen.launcher.client.wrap.react
 import tech.kzen.launcher.common.dto.ProjectDetail
+import tech.kzen.launcher.common.dto.RunningProject
 
 
 //-----------------------------------------------------------------------------------------------------------------
 external interface ManageProjectsScreenProps: Props {
     var projects: List<ProjectDetail>?
-    var runningProjects: List<String>?
+    var runningProjects: List<RunningProject>?
 }
 
 
@@ -42,9 +43,12 @@ class ManageProjectsScreen(
 
 
     private fun ChildrenBuilder.renderList() {
+        val activeNames = props.runningProjects?.map { it.name }?.toSet() ?: emptySet()
         ProjectList::class.react {
+            // Hide any project that currently has an active job (starting/running/stopping/failed) — it
+            //  is shown in the Running section instead.
             projects = props.projects
-                ?.filter { !(props.runningProjects?.contains(it.name) ?: false) }
+                ?.filter { it.name !in activeNames }
         }
     }
 }

@@ -17,24 +17,6 @@ class RestHandler(
     private val projectCreator: ProjectCreator
 ) {
     //-----------------------------------------------------------------------------------------------------------------
-    fun runningProjectsDummy(): List<Any> {
-        return when {
-            Math.random() < 0.5 ->
-                listOf("foo")
-
-            Math.random() < 0.5 ->
-                listOf("foo", "bar", "baz")
-
-            Math.random() < 0.5 ->
-                (0 .. (Math.random() * 100).toInt()).map { "proj $it" }
-
-            else ->
-                listOf()
-        }
-    }
-
-
-    //-----------------------------------------------------------------------------------------------------------------
     fun listArchetypes(): ImmutableMap<String, ArchetypeInfo> {
         return archetypeRepo.all()
     }

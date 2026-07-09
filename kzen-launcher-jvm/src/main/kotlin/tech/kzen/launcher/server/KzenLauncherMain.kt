@@ -21,6 +21,7 @@ import tech.kzen.launcher.common.dto.ArchetypeDetail
 import tech.kzen.launcher.server.api.RestHandler
 import tech.kzen.launcher.server.archetype.ArchetypeRepo
 import tech.kzen.launcher.server.backend.indexPage
+import tech.kzen.launcher.server.dev.ShellSimulator
 import tech.kzen.launcher.server.project.ProjectCreator
 import tech.kzen.launcher.server.project.ProjectRepo
 import tech.kzen.launcher.server.properties.KzenProperties
@@ -89,6 +90,11 @@ data class KzenLauncherConfig(
     val managedLifeline: Boolean = false,
     val parentPid: Long? = null,
 
+    // Dev-only: when true, the launcher serves the /shell/project[/start|/stop] endpoints itself from
+    //  an in-memory ShellSimulator instead of relying on a real kzen-shell in front. Set by
+    //  FrontendDevelopment; false in production (where kzen-shell owns those routes). See ShellSimulator.
+    val simulateShell: Boolean = false,
+
     // Version + build timestamp of the running artifact, loaded from a baked-in classpath resource
     //  (see BuildInfo). Surfaced to the client via indexPage as logo hover text.
     val buildInfo: BuildInfo? = null
@@ -150,6 +156,7 @@ data class KzenLauncherContext(
     val restApi: RestHandler,
     val downloadService: DownloadService,
     val archetypeRepo: ArchetypeRepo,
+    val shellSimulator: ShellSimulator,
 ) {
     fun init() {
         downloadService.trustBadCertificate()
@@ -230,7 +237,7 @@ fun buildContext(args: Array<String>): KzenLauncherContext {
     )
 
     return KzenLauncherContext(
-        config, restHandler, downloadService, archetypeRepo)
+        config, restHandler, downloadService, archetypeRepo, ShellSimulator())
 }
 
 
@@ -275,6 +282,39 @@ private fun Routing.routeRequests(
     staticResources(staticResourcePath, staticResourceDir)
 
     routeRest(context.restApi)
+
+    // Dev only: stand in for kzen-shell's /shell/project endpoints when running standalone. In
+    //  production kzen-shell owns these routes (it reverse-proxies the launcher), so they are not
+    //  registered here.
+    if (context.config.simulateShell) {
+        routeShellSimulator(context.shellSimulator)
+    }
+}
+
+
+private fun Routing.routeShellSimulator(
+    shellSimulator: ShellSimulator
+) {
+    get(CommonRestApi.shellProject) {
+        call.respond(shellSimulator.list())
+    }
+    get(CommonRestApi.startProject) {
+        val name = call.parameters[CommonRestApi.projectName]
+        if (name == null) {
+            call.respond(HttpStatusCode.BadRequest)
+            return@get
+        }
+        shellSimulator.start(name)
+        call.respondText("started")
+    }
+    get(CommonRestApi.stopProject) {
+        val name = call.parameters[CommonRestApi.projectName]
+        if (name == null) {
+            call.respond(HttpStatusCode.BadRequest)
+            return@get
+        }
+        call.respond(shellSimulator.stop(name))
+    }
 }
 
 
@@ -318,11 +358,5 @@ private fun Routing.routeRest(
     get(CommonRestApi.jvmArgumentsProject) {
         restHandler.jvmArgumentsProject(call.parameters)
         call.response.status(HttpStatusCode.OK)
-    }
-
-    // Used for inline testing
-    get("/shell/project") {
-        val response = restHandler.runningProjectsDummy()
-        call.respond(response)
     }
 }

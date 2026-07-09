@@ -15,7 +15,10 @@ private val logger = LoggerFactory.getLogger("tech.kzen.launcher.server.dev.Fron
 
 
 fun main(args: Array<String>) {
-    val context = buildContext(args)
+    val base = buildContext(args)
+    // Stand up the in-memory shell simulator so /shell/project[/start|/stop] work without a real
+    //  kzen-shell in front (production has the shell; a standalone dev run does not).
+    val context = base.copy(config = base.config.copy(simulateShell = true))
     context.init()
     frontendDevelopmentMain(context)
 }

@@ -16,7 +16,6 @@ import web.cssom.*
 //---------------------------------------------------------------------------------------------------------------------
 external interface ProjectItemProps: Props {
     var project: ProjectDetail
-    var starting: Boolean
 
     var onStart: ((ProjectDetail) -> Unit)
     var onRemove: ((ProjectDetail) -> Unit)
@@ -187,10 +186,6 @@ class ProjectItem(
             Button {
                 variant = ButtonVariant.outlined
                 onClick = { onStart() }
-
-                if (props.starting) {
-                    disabled = true
-                }
 
                 buttonIcon(PlayArrowIcon::class)
 

@@ -1,10 +1,12 @@
 package tech.kzen.launcher.client.state
 
+import kotlinx.coroutines.delay
 import tech.kzen.launcher.client.api.clientRestApi
 import tech.kzen.launcher.client.api.launchUiAction
 import tech.kzen.launcher.client.api.shellRestApi
 import tech.kzen.launcher.common.dto.ArchetypeDetail
 import tech.kzen.launcher.common.dto.ProjectDetail
+import tech.kzen.launcher.common.dto.RunningProject
 
 
 // Single source of truth for the launcher's server-backed data (archetypes / projects / running projects).
@@ -13,6 +15,9 @@ import tech.kzen.launcher.common.dto.ProjectDetail
 // rename/…) without drilling callbacks up the component tree. Observers (the root component) are notified on
 // every change so they re-render from the store.
 object LauncherStore {
+    private const val pollIntervalMs = 2_000L
+
+
     interface Observer {
         fun onLauncherStoreChanged()
     }
@@ -24,12 +29,16 @@ object LauncherStore {
     var projects: List<ProjectDetail>? = null
         private set
 
-    var runningProjects: List<String>? = null
+    var runningProjects: List<RunningProject>? = null
         private set
 
 
     // Guards against concurrent loads; a load re-checks for freshly-invalidated data when it finishes.
     private var loading: Boolean = false
+
+    // While true, a background loop re-fetches runningProjects every pollIntervalMs so the UI reflects
+    //  shell-side lifecycle transitions (starting -> running, stopping -> gone) and survives a refresh.
+    private var polling: Boolean = false
 
     private val observers = mutableListOf<Observer>()
 
@@ -98,8 +107,56 @@ object LauncherStore {
         loadIfRequired()
     }
 
+
+    // Immediate (error-surfacing) refresh of the running list after a start/stop click, so the UI reacts
+    //  without waiting for the next poll tick. Does not null the field first — the Running section updates
+    //  in place rather than flashing "Loading...".
     fun invalidateRunning() {
-        runningProjects = null
-        loadIfRequired()
+        launchUiAction {
+            publishRunning(shellRestApi.runningProjects())
+        }
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
+    // Background polling of the shell-side lifecycle state. Started by the root component while the manage
+    //  screen is mounted; stopped on unmount. This is what makes starting/stopping survive a page refresh:
+    //  the state lives on the server, not in a component.
+    fun startPolling() {
+        if (polling) {
+            return
+        }
+        polling = true
+
+        launchUiAction {
+            while (polling) {
+                delay(pollIntervalMs)
+                if (! polling) {
+                    break
+                }
+
+                try {
+                    publishRunning(shellRestApi.runningProjectsSilent())
+                }
+                catch (e: Throwable) {
+                    // A transient poll failure must not kill the loop; keep polling.
+                    console.error("running-projects poll failed", e)
+                }
+            }
+        }
+    }
+
+
+    fun stopPolling() {
+        polling = false
+    }
+
+
+    // Publish only when the snapshot actually changed, so an unchanged poll tick triggers no re-render.
+    private fun publishRunning(latest: List<RunningProject>) {
+        if (latest != runningProjects) {
+            runningProjects = latest
+            notifyChanged()
+        }
     }
 }

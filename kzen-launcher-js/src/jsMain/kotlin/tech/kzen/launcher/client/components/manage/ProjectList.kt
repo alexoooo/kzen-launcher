@@ -2,8 +2,6 @@ package tech.kzen.launcher.client.components.manage
 
 
 import emotion.react.css
-import kotlinx.coroutines.delay
-import mui.material.CircularProgress
 import mui.material.Divider
 import react.ChildrenBuilder
 import react.Key
@@ -18,10 +16,8 @@ import tech.kzen.launcher.client.components.sectionHeading
 import tech.kzen.launcher.client.state.LauncherStore
 import tech.kzen.launcher.client.wrap.RComponent
 import tech.kzen.launcher.client.wrap.react
-import tech.kzen.launcher.client.wrap.setState
 import tech.kzen.launcher.common.dto.ProjectDetail
 import web.cssom.em
-import web.cssom.px
 
 
 //---------------------------------------------------------------------------------------------------------------------
@@ -30,40 +26,19 @@ external interface ProjectListProps: Props {
 }
 
 
-external interface ProjectListState: State {
-    var starting: Boolean
-}
-
-
 //---------------------------------------------------------------------------------------------------------------------
 @Suppress("unused")
 class ProjectList(
         props: ProjectListProps
-): RComponent<ProjectListProps, ProjectListState>(props) {
+): RComponent<ProjectListProps, State>(props) {
     //-----------------------------------------------------------------------------------------------------------------
-    override fun ProjectListState.init(props: ProjectListProps) {
-        starting = false
-    }
-
-
-    //-----------------------------------------------------------------------------------------------------------------
+    // Fire-and-forget: the shell registers the project as "starting" and returns immediately; the
+    //  running-projects poll (and this eager refresh) surface the starting -> running transition. No
+    //  local spinner — the project's state now lives on the server and shows in the Running section.
     private fun onStart(project: ProjectDetail) {
-        setState {
-            starting = true
-        }
-
         launchUiAction {
-            delay(1)
-
-            try {
-                shellRestApi.startProject(project.name, project.path, project.jvmArgs)
-                LauncherStore.invalidateRunning()
-            }
-            finally {
-                setState {
-                    starting = false
-                }
-            }
+            shellRestApi.startProject(project.name, project.path, project.jvmArgs)
+            LauncherStore.invalidateRunning()
         }
     }
 
@@ -104,16 +79,6 @@ class ProjectList(
     override fun ChildrenBuilder.render() {
         sectionHeading("Available Projects")
 
-        if (state.starting) {
-            span {
-                css {
-                    float = web.cssom.Float.right
-                    marginTop = (-55).px
-                }
-                CircularProgress {}
-            }
-        }
-
         val projects = props.projects
         if (projects != null) {
             if (projects.isEmpty()) {
@@ -143,7 +108,6 @@ class ProjectList(
 
                 ProjectItem::class.react {
                     this.project = project
-                    starting = state.starting
 
                     onStart = ::onStart
                     onRemove = ::onRemove
