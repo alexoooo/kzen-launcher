@@ -209,14 +209,26 @@ private fun resolveArchetypeUrl(): String {
 }
 
 
+// The archetype's version, read from its artifact filename (kzen-project-<version>.zip), so the new-
+//  project screen shows which project build a new project is created from (0.29.1, or -SNAPSHOT in dev).
+private fun archetypeVersion(archetypeUrl: String): String {
+    return archetypeUrl
+        .substringAfterLast('/')
+        .removePrefix("kzen-project-")
+        .removeSuffix(".zip")
+}
+
+
 //---------------------------------------------------------------------------------------------------------------------
 fun buildContext(args: Array<String>): KzenLauncherContext {
     val kzenProperties = KzenProperties()
+    val archetypeUrl = resolveArchetypeUrl()
     val projectArchetype = KzenProperties.Archetype()
     projectArchetype.name = "kzen-project"
     projectArchetype.title = "Automation and Reporting"
-    projectArchetype.description = "Visually control a browser and more"
-    projectArchetype.url = resolveArchetypeUrl()
+    projectArchetype.description =
+        "Visually control a browser and more - ${archetypeVersion(archetypeUrl)}"
+    projectArchetype.url = archetypeUrl
     kzenProperties.archetypes.add(projectArchetype)
 
     val downloadService = DownloadService()
