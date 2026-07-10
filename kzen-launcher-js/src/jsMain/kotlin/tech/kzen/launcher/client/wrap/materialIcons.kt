@@ -39,8 +39,8 @@ external class StopIcon: Component<IconProps, react.State> {
 }
 
 
-@JsName("Delete")
-external class DeleteIcon: Component<IconProps, react.State> {
+@JsName("DeleteForever")
+external class DeleteForeverIcon: Component<IconProps, react.State> {
     override fun render(): ReactElement<IconProps>?
 }
 

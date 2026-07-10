@@ -91,7 +91,15 @@ class ProjectRepo {
         val location = previous[name]?.home
                 ?: throw IllegalArgumentException("Project not found: $name")
 
-        location.toFile().deleteRecursively()
+        val locationFile = location.toFile()
+        val deleted = locationFile.deleteRecursively()
+        if (!deleted && locationFile.exists()) {
+            // deleteRecursively() returns false and leaves files behind when one is locked — on Windows this
+            //  is exactly what happens if the project is still running. Fail loudly instead of removing the
+            //  list entry and orphaning the directory.
+            throw IllegalStateException(
+                "Could not fully delete project directory (is the project still running?): $location")
+        }
 
         removeAndWrite(name, previous)
     }

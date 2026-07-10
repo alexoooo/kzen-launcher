@@ -2,8 +2,14 @@ package tech.kzen.launcher.client.components.manage
 
 import emotion.react.css
 import mui.material.Button
+import mui.material.ButtonColor
 import mui.material.ButtonVariant
 import mui.material.CircularProgress
+import mui.material.Dialog
+import mui.material.DialogActions
+import mui.material.DialogContent
+import mui.material.DialogContentText
+import mui.material.DialogTitle
 import mui.system.sx
 import react.*
 import react.dom.html.ReactHTML.div
@@ -34,6 +40,7 @@ external interface ProjectItemState: State {
     var newName: String
     var newJvmArgs: String
     var deleting: Boolean
+    var confirmingDelete: Boolean
 }
 
 
@@ -50,6 +57,7 @@ class ProjectItem(
         newJvmArgs = props.project.jvmArgs
 
         deleting = false
+        confirmingDelete = false
     }
 
 
@@ -64,15 +72,32 @@ class ProjectItem(
     }
 
 
-    // Fire the delete and show a spinner on the button until it settles. On success the project drops out
-    //  of the list and this row unmounts; on failure it stays (error surfaced by the interceptor) and the
-    //  spinner clears so the user can retry.
-    private fun onDelete() {
+    // "Delete and Remove" is destructive — it permanently deletes the project directory from disk — so it
+    //  is confirmed first (the plain "Remove" only drops the list entry and needs no confirmation).
+    private fun onDeleteRequest() {
         if (state.deleting) {
             return
         }
 
         setState {
+            confirmingDelete = true
+        }
+    }
+
+
+    private fun onDeleteCancel() {
+        setState {
+            confirmingDelete = false
+        }
+    }
+
+
+    // Fire the delete and show a spinner on the button until it settles. On success the project drops out
+    //  of the list and this row unmounts; on failure it stays (error surfaced by the interceptor) and the
+    //  spinner clears so the user can retry.
+    private fun onDeleteConfirm() {
+        setState {
+            confirmingDelete = false
             deleting = true
         }
 
@@ -181,7 +206,8 @@ class ProjectItem(
             div {
                 if (props.project.exists) {
                     renderRun()
-                    renderDelete()
+                    renderRemove()
+                    renderDeleteAndRemove()
                     renderEditToggleButton(
                         editing = state.renaming,
                         label = "Rename",
@@ -221,7 +247,7 @@ class ProjectItem(
     }
 
 
-    private fun ChildrenBuilder.renderDelete() {
+    private fun ChildrenBuilder.renderDeleteAndRemove() {
         div {
             css {
                 display = Display.inlineBlock
@@ -231,7 +257,7 @@ class ProjectItem(
             Button {
                 variant = ButtonVariant.outlined
                 disabled = state.deleting
-                onClick = { onDelete() }
+                onClick = { onDeleteRequest() }
 
                 if (state.deleting) {
                     CircularProgress {
@@ -243,10 +269,59 @@ class ProjectItem(
                     }
                 }
                 else {
-                    buttonIcon(DeleteIcon::class)
+                    buttonIcon(DeleteForeverIcon::class)
                 }
 
-                +"Delete"
+                +"Delete and Remove"
+            }
+
+            renderDeleteConfirmDialog()
+        }
+    }
+
+
+    // Confirmation for the destructive "Delete and Remove". Backdrop click / Escape / Cancel all abort;
+    //  only the red confirm button fires the delete (which then shows the button spinner above).
+    private fun ChildrenBuilder.renderDeleteConfirmDialog() {
+        Dialog {
+            open = state.confirmingDelete
+            onClose = { _, _ -> onDeleteCancel() }
+
+            DialogTitle {
+                +"Delete and remove project?"
+            }
+
+            DialogContent {
+                DialogContentText {
+                    +"This permanently deletes \"${props.project.name}\" and its project directory from disk:"
+                }
+
+                DialogContentText {
+                    sx {
+                        fontFamily = FontFamily.monospace
+                        marginTop = 0.5.em
+                    }
+                    +props.project.path
+                }
+            }
+
+            DialogActions {
+                Button {
+                    variant = ButtonVariant.outlined
+                    onClick = { onDeleteCancel() }
+
+                    +"Cancel"
+                }
+
+                Button {
+                    variant = ButtonVariant.contained
+                    color = ButtonColor.error
+                    onClick = { onDeleteConfirm() }
+
+                    buttonIcon(DeleteForeverIcon::class)
+
+                    +"Delete and Remove"
+                }
             }
         }
     }
@@ -315,6 +390,7 @@ class ProjectItem(
         div {
             css {
                 display = Display.inlineBlock
+                marginLeft = 1.em
             }
 
             Button {
