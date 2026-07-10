@@ -14,9 +14,11 @@ import tools.jackson.databind.node.StringNode
 import tools.jackson.dataformat.yaml.YAMLFactory
 import tools.jackson.dataformat.yaml.YAMLWriteFeature
 import java.net.URI
+import java.nio.file.AtomicMoveNotSupportedException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 
 
 class ArchetypeRepo(
@@ -42,6 +44,10 @@ class ArchetypeRepo(
         private const val titleKey = "title"
         private const val descriptionKey = "description"
         private const val locationKey = "location"
+
+        // Downloaded to a sibling .part file and atomically moved into place, so the cached artifact
+        //  only ever exists complete — a truncated download can't be mistaken for an installed archetype.
+        private const val partSuffix = ".part"
 
         init {
             logger.info("archetypeMetadata: {}", archetypeMetadata.toAbsolutePath().normalize())
@@ -152,9 +158,24 @@ class ArchetypeRepo(
     ) {
         check(!contains(name)) {"Already installed: $name"}
 
-        downloadService.download(download, archetypeInfo.location)
+        val target = archetypeInfo.location
+        val partial = target.resolveSibling(target.fileName.toString() + partSuffix)
+        downloadService.download(download, partial)
+        moveIntoPlace(partial, target)
 
         add(name, archetypeInfo)
+    }
+
+
+    private fun moveIntoPlace(partial: Path, target: Path) {
+        try {
+            Files.move(partial, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
+        }
+        catch (e: AtomicMoveNotSupportedException) {
+            // partial and target on different stores — a plain move copies then deletes.
+            logger.info("atomic move unsupported ({}), copying across stores: {} -> {}", e.message, partial, target)
+            Files.move(partial, target, StandardCopyOption.REPLACE_EXISTING)
+        }
     }
 
 
