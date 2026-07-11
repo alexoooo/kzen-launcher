@@ -25,6 +25,7 @@ import tech.kzen.launcher.server.dev.ShellSimulator
 import tech.kzen.launcher.server.project.ProjectCreator
 import tech.kzen.launcher.server.project.ProjectRepo
 import tech.kzen.launcher.server.properties.KzenProperties
+import tech.kzen.launcher.server.security.SecurityGate
 import tech.kzen.launcher.server.service.DownloadService
 
 
@@ -159,7 +160,6 @@ data class KzenLauncherContext(
     val shellSimulator: ShellSimulator,
 ) {
     fun init() {
-        downloadService.trustBadCertificate()
         archetypeRepo.init()
     }
 }
@@ -227,7 +227,7 @@ fun buildContext(args: Array<String>): KzenLauncherContext {
     projectArchetype.name = "kzen-project"
     projectArchetype.title = "Automation and Reporting"
     projectArchetype.description =
-        "Visually control a browser and more - ${archetypeVersion(archetypeUrl)}"
+        "Visually control a browser and more - v${archetypeVersion(archetypeUrl)}"
     projectArchetype.url = archetypeUrl
     kzenProperties.archetypes.add(projectArchetype)
 
@@ -272,6 +272,8 @@ fun Application.ktorMain(
         jackson()
     }
 
+    SecurityGate.install(this)
+
     routing {
         routeRequests(context)
     }
@@ -286,6 +288,10 @@ private fun Routing.routeRequests(
         call.respondRedirect(indexFileName)
     }
     get(indexFilePath) {
+        // The static route below revalidates via no-cache; the page itself must too, or a
+        //  heuristically-cached index.html keeps serving a stale kzen-build meta (the version
+        //  display) and bundle reference after an upgrade.
+        call.response.headers.append(HttpHeaders.CacheControl, "no-cache")
         call.respondHtml(HttpStatusCode.OK) {
             indexPage(context.config)
         }
@@ -353,27 +359,40 @@ private fun Routing.routeRest(
         call.respond(response)
     }
     get(CommonRestApi.createProject) {
-        restHandler.createProject(call.parameters)
-        call.response.status(HttpStatusCode.OK)
+        respondCommand { restHandler.createProject(call.parameters) }
     }
     get(CommonRestApi.importProject) {
-        restHandler.importProject(call.parameters)
-        call.response.status(HttpStatusCode.OK)
+        respondCommand { restHandler.importProject(call.parameters) }
     }
     get(CommonRestApi.removeProject) {
-        restHandler.removeProject(call.parameters)
-        call.response.status(HttpStatusCode.OK)
+        respondCommand { restHandler.removeProject(call.parameters) }
     }
     get(CommonRestApi.deleteProject) {
-        restHandler.deleteProject(call.parameters)
-        call.response.status(HttpStatusCode.OK)
+        respondCommand { restHandler.deleteProject(call.parameters) }
     }
     get(CommonRestApi.renameProject) {
-        restHandler.renameProject(call.parameters)
-        call.response.status(HttpStatusCode.OK)
+        respondCommand { restHandler.renameProject(call.parameters) }
     }
     get(CommonRestApi.jvmArgumentsProject) {
-        restHandler.jvmArgumentsProject(call.parameters)
+        respondCommand { restHandler.jvmArgumentsProject(call.parameters) }
+    }
+}
+
+
+// Command failures are user-actionable, not server bugs: IllegalArgumentException (missing or
+//  malformed params, rejected project names) → 400; IllegalStateException (state conflicts —
+//  project already exists, directory still locked by a running project) → 409. Both would
+//  otherwise surface as a message-less generic 500. JSON with a `message` field is the error
+//  shape the client parses (see ajaxUtil.httpGet).
+private suspend fun RoutingContext.respondCommand(command: () -> Unit) {
+    try {
+        command()
         call.response.status(HttpStatusCode.OK)
+    }
+    catch (e: IllegalArgumentException) {
+        call.respond(HttpStatusCode.BadRequest, mapOf("message" to (e.message ?: "invalid request")))
+    }
+    catch (e: IllegalStateException) {
+        call.respond(HttpStatusCode.Conflict, mapOf("message" to (e.message ?: "conflicting state")))
     }
 }

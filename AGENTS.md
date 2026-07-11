@@ -51,7 +51,8 @@ The `:kzen-launcher-jvm:dist` Gradle `Zip` task packages `main.jar` (the thin ja
 | `api/RestHandler.kt` | REST endpoints handler |
 | `archetype/` | `ArchetypeInfo`, `ArchetypeRepo` — known project archetype catalog |
 | `project/` | `ProjectInfo`, `ProjectRepo`, `ProjectCreator` — user-created project instances |
-| `service/DownloadService.kt` | Downloads archetype zips; trusts bad certs (dev convenience) |
+| `security/SecurityGate.kt` | Fetch-metadata + Host gate (CSRF / DNS-rebinding); duplicated from kzen-shell — keep in sync |
+| `service/DownloadService.kt` | Downloads archetype zips; validates TLS certs (custom trust store via `-Djavax.net.ssl.trustStore`) |
 | `properties/KzenProperties.kt` | Config & archetype defaults |
 | `backend/Pages.kt` | Index page rendering |
 | `dev/FrontendDevelopment.kt` | IDE-launched dev main |

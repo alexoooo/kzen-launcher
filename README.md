@@ -13,3 +13,9 @@ To build self-contained jar and executable it from CLI:
 
 Web:
 > http://localhost:8080/
+
+
+Notes:
+- Archetype downloads validate TLS certificates with the JVM's default trust store. In
+  environments with TLS-intercepting proxies (corporate MITM), supply your own trust store via
+  `-Djavax.net.ssl.trustStore=<path>`.

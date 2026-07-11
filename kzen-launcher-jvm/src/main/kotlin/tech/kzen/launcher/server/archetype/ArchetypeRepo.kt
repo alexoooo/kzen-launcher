@@ -58,21 +58,8 @@ class ArchetypeRepo(
     //-----------------------------------------------------------------------------------------------------------------
 //    @PostConstruct
     fun init() {
-        val initial = read()
-
         for (archetype in kzenProperties.archetypes) {
             val locationUri = URI(archetype.url!!)
-            val alreadyInstalled = initial.containsKey(archetype.name)
-
-            // Dev (file://) sources are mutable SNAPSHOTs — re-acquire so a rebuilt project zip is
-            //  picked up; https release artifacts are immutable per version, so install them once.
-            if (alreadyInstalled && locationUri.scheme != "file") {
-                continue
-            }
-            if (alreadyInstalled) {
-                remove(archetype.name!!)
-            }
-
             val artifactName = archetype.url!!.substringAfterLast('/')
 
             val archetypeInfo = ArchetypeInfo(
@@ -81,8 +68,51 @@ class ArchetypeRepo(
                     locate(artifactName)
             )
 
+            val existing = read()[archetype.name]
+            if (existing != null) {
+                // Dev (file://) sources are mutable SNAPSHOTs — re-acquire so a rebuilt project
+                //  zip is picked up. https release artifacts are immutable per *version*: keep
+                //  the cached artifact only while the config still names the same file — a
+                //  version bump (new artifact filename) re-acquires, so an upgraded install
+                //  can't stay pinned to the previous version's template.
+                val artifactUpToDate =
+                    locationUri.scheme != "file" &&
+                    existing.location.fileName.toString() == artifactName
+
+                if (artifactUpToDate) {
+                    // The artifact is current, but the displayed metadata (title/description,
+                    //  which carries the visible version) still follows the config.
+                    if (existing.title != archetypeInfo.title ||
+                            existing.description != archetypeInfo.description) {
+                        update(archetype.name!!, archetypeInfo)
+                    }
+                    continue
+                }
+
+                remove(archetype.name!!)
+            }
+
             install(archetype.name!!, archetypeInfo, locationUri)
         }
+
+        pruneDangling()
+    }
+
+
+    // A catalog entry whose cached artifact is gone can only fail at create time — drop it.
+    //  Config-declared sources were just (re-)acquired above; a legacy per-version entry without
+    //  its zip has nothing left to offer.
+    private fun pruneDangling() {
+        val current = read()
+
+        val dangling = current.filterValues { !Files.exists(it.location) }.keys
+        if (dangling.isEmpty()) {
+            return
+        }
+
+        logger.info("Pruning archetypes with missing artifacts: {}", dangling)
+        write(ImmutableMap.copyOf(
+                Maps.filterKeys(current) { it !in dangling }))
     }
 
 
@@ -137,12 +167,25 @@ class ArchetypeRepo(
         val artifact = previous[name]?.location
                 ?: throw IllegalArgumentException("Archetype not found: $name")
 
-        Files.deleteIfExists(artifact)
+        // The cached zip can be shared (e.g. a legacy per-version entry pointing at the same
+        //  artifact as the config-declared one): only delete the file when no other entry
+        //  references it.
+        val shared = previous.any { it.key != name && it.value.location == artifact }
+        if (!shared) {
+            Files.deleteIfExists(artifact)
+        }
 
         val next = ImmutableMap.copyOf(
                 Maps.filterKeys(previous) { it != name})
 
         write(next)
+    }
+
+
+    private fun update(name: String, archetypeInfo: ArchetypeInfo) {
+        val asMutable = read().toMutableMap()
+        asMutable[name] = archetypeInfo
+        write(ImmutableMap.copyOf(asMutable))
     }
 
 

@@ -6,6 +6,7 @@ import tech.kzen.launcher.common.api.CommonRestApi
 import tech.kzen.launcher.server.archetype.ArchetypeInfo
 import tech.kzen.launcher.server.archetype.ArchetypeRepo
 import tech.kzen.launcher.server.project.ProjectCreator
+import tech.kzen.launcher.server.project.ProjectNameValidation
 import tech.kzen.launcher.server.project.ProjectRepo
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -43,6 +44,8 @@ class RestHandler(
         val projectName = parameters.getParam(CommonRestApi.projectName)
         val archetypeName = parameters.getParam(CommonRestApi.createProjectType)
 
+        ProjectNameValidation.check(projectName)
+
         val projectHome = projectCreator.create(projectName, archetypeName)
         projectRepo.add(projectName, projectHome)
     }
@@ -71,6 +74,8 @@ class RestHandler(
     fun renameProject(parameters: Parameters) {
         val projectName = parameters.getParam(CommonRestApi.projectName)
         val newName = parameters.getParam(CommonRestApi.projectNewName)
+
+        ProjectNameValidation.check(newName)
 
         projectRepo.rename(projectName, newName)
     }

@@ -1,8 +1,10 @@
 package tech.kzen.launcher.client.components
 
 import emotion.react.css
+import kotlinx.browser.window
 import mui.material.*
 import mui.system.sx
+import org.w3c.dom.events.Event
 import react.*
 import react.dom.html.ReactHTML.a
 import react.dom.html.ReactHTML.div
@@ -34,22 +36,39 @@ class ProjectLauncher(
     LauncherStore.Observer
 {
     //-----------------------------------------------------------------------------------------------------------------
-    override fun ProjectLauncherState.init(props: Props) {
-        errorMessage = null
-        creating = false
+    @Suppress("ConstPropertyName")
+    companion object {
+        // The selected tab is mirrored in the URL fragment so a refresh (or back/forward)
+        //  restores the same screen. The fragment never reaches the server, so the shell
+        //  proxy and routing contract are unaffected.
+        private const val newProjectHash = "#new"
     }
 
 
     //-----------------------------------------------------------------------------------------------------------------
+    override fun ProjectLauncherState.init(props: Props) {
+        errorMessage = null
+        creating = window.location.hash == newProjectHash
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
+    private val hashChangeListener: (Event) -> Unit = {
+        syncCreatingFromHash()
+    }
+
+
     override fun componentDidMount() {
         LauncherStore.subscribe(this)
         ErrorBus.subscribe(this)
+        window.addEventListener("hashchange", hashChangeListener)
         LauncherStore.loadIfRequired()
         LauncherStore.startPolling()
     }
 
 
     override fun componentWillUnmount() {
+        window.removeEventListener("hashchange", hashChangeListener)
         LauncherStore.stopPolling()
         LauncherStore.unSubscribe(this)
         ErrorBus.unSubscribe(this)
@@ -78,10 +97,22 @@ class ProjectLauncher(
 
 
     //-----------------------------------------------------------------------------------------------------------------
+    // The fragment is the single source of truth for the selected tab: toggling writes the URL,
+    //  and hashChangeListener folds it back into state — so a user-driven back/forward and an
+    //  in-app toggle take the identical path.
     private fun onCreateToggle() {
-        setState {
-            creating = !state.creating
-            errorMessage = null
+        window.location.hash =
+            if (state.creating) { "" } else { newProjectHash }
+    }
+
+
+    private fun syncCreatingFromHash() {
+        val creatingFromHash = window.location.hash == newProjectHash
+        if (creatingFromHash != state.creating) {
+            setState {
+                creating = creatingFromHash
+                errorMessage = null
+            }
         }
     }
 
@@ -112,9 +143,7 @@ class ProjectLauncher(
                 archetypes = LauncherStore.archetypes
 
                 didCreate = {
-                    setState {
-                        creating = false
-                    }
+                    window.location.hash = ""
                     LauncherStore.invalidateProjects()
                 }
             }
@@ -239,13 +268,17 @@ class ProjectLauncher(
 
 
     private fun ChildrenBuilder.renderErrorMessage() {
-        if (state.errorMessage != null) {
-            div {
-                css {
-                    color = NamedColor.darkred
-                    fontWeight = FontWeight.bolder
-                }
+        // Always render the container (empty when there is no error): conditionally inserting it
+        //  would shift the unkeyed sibling below (NewProjectScreen / ManageProjectsScreen) to a
+        //  new child position, which React reconciles as a remount — wiping the form state
+        //  exactly when the user needs to correct their input.
+        div {
+            css {
+                color = NamedColor.darkred
+                fontWeight = FontWeight.bolder
+            }
 
+            if (state.errorMessage != null) {
                 +"Error: ${state.errorMessage}"
             }
         }
