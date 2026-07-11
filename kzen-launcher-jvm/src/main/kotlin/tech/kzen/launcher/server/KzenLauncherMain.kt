@@ -24,7 +24,6 @@ import tech.kzen.launcher.server.backend.indexPage
 import tech.kzen.launcher.server.dev.ShellSimulator
 import tech.kzen.launcher.server.project.ProjectCreator
 import tech.kzen.launcher.server.project.ProjectRepo
-import tech.kzen.launcher.server.properties.KzenProperties
 import tech.kzen.launcher.server.security.SecurityGate
 import tech.kzen.launcher.server.service.DownloadService
 
@@ -175,22 +174,26 @@ private const val indexFileName = "index.html"
 private const val indexFilePath = "/$indexFileName"
 
 
-// Resolve the project-archetype source from kzen-launcher.properties (a bundled classpath resource,
-//  readable regardless of the launcher's working directory). Candidates are tried in order: a local
-//  path is used only if it exists (resolved against the working directory, which differs between a
-//  standalone run and a kzen-shell-spawned run); an http(s) URL is used as-is. See that file for the
-//  candidate list and rationale.
-private fun resolveArchetypeUrl(): String {
-    val candidatePrefix = "archetype.project."
-
+// kzen-launcher.properties is a bundled classpath resource, readable regardless of the launcher's
+//  working directory. See that file for the archetype source keys and rationale.
+private fun loadLauncherProperties(): Properties {
     val properties = Properties()
     KzenLauncherContext::class.java.getResourceAsStream("/kzen-launcher.properties")?.use {
         properties.load(it)
     }
+    return properties
+}
+
+
+// Resolve the current-version archetype source: numbered candidates are tried in order; a local
+//  path is used only if it exists (resolved against the working directory, which differs between
+//  a standalone run and a kzen-shell-spawned run); an http(s) URL is used as-is.
+private fun resolveArchetypeUrl(properties: Properties): String {
+    val candidatePrefix = "archetype.project."
 
     val candidates = properties.stringPropertyNames()
-        .filter { it.startsWith(candidatePrefix) }
-        .sortedBy { it.removePrefix(candidatePrefix).toIntOrNull() ?: Int.MAX_VALUE }
+        .filter { it.startsWith(candidatePrefix) && it.removePrefix(candidatePrefix).toIntOrNull() != null }
+        .sortedBy { it.removePrefix(candidatePrefix).toInt() }
         .map { properties.getProperty(it) }
 
     for (candidate in candidates) {
@@ -209,30 +212,18 @@ private fun resolveArchetypeUrl(): String {
 }
 
 
-// The archetype's version, read from its artifact filename (kzen-project-<version>.zip), so the new-
-//  project screen shows which project build a new project is created from (0.29.1, or -SNAPSHOT in dev).
-private fun archetypeVersion(archetypeUrl: String): String {
-    return archetypeUrl
-        .substringAfterLast('/')
-        .removePrefix("kzen-project-")
-        .removeSuffix(".zip")
-}
-
-
 //---------------------------------------------------------------------------------------------------------------------
 fun buildContext(args: Array<String>): KzenLauncherContext {
-    val kzenProperties = KzenProperties()
-    val archetypeUrl = resolveArchetypeUrl()
-    val projectArchetype = KzenProperties.Archetype()
-    projectArchetype.name = "kzen-project"
-    projectArchetype.title = "Automation and Reporting"
-    projectArchetype.description =
-        "Visually control a browser and more - v${archetypeVersion(archetypeUrl)}"
-    projectArchetype.url = archetypeUrl
-    kzenProperties.archetypes.add(projectArchetype)
+    val launcherProperties = loadLauncherProperties()
 
     val downloadService = DownloadService()
-    val archetypeRepo = ArchetypeRepo(downloadService, kzenProperties)
+    val archetypeRepo = ArchetypeRepo(
+        downloadService,
+        archetypeName = "kzen-project",
+        title = "Automation and Reporting",
+        descriptionBase = "Visually control a browser and more",
+        currentUrl = resolveArchetypeUrl(launcherProperties),
+        releasedUrl = launcherProperties.getProperty("archetype.project.released"))
     val projectRepo = ProjectRepo()
     val projectCreator = ProjectCreator(archetypeRepo)
     val restHandler = RestHandler(archetypeRepo, projectRepo, projectCreator)

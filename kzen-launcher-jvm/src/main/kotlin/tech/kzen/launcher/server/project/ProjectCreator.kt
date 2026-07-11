@@ -60,27 +60,13 @@ class ProjectCreator(
 
         val archetypeInfo = archetypeRepo.get(archetypeName)
 
-        @Suppress("MoveVariableDeclarationIntoWhen")
-        val artifactExtension = MoreFiles.getFileExtension(archetypeInfo.location)
-
         val staging = home.resolveSibling(home.fileName.toString() + stagingSuffix)
         if (Files.exists(staging)) {
             MoreFiles.deleteRecursively(staging, RecursiveDeleteOption.ALLOW_INSECURE)
         }
         Files.createDirectories(staging)
 
-        when (artifactExtension) {
-            "zip" -> {
-                extractGradle(staging, archetypeInfo.location)
-            }
-
-            "jar" -> {
-                Files.copy(archetypeInfo.location, staging.resolve(mainJarName))
-            }
-
-            else ->
-                    throw IllegalStateException("Unknown archetype: ${archetypeInfo.location}")
-        }
+        extractGradle(staging, archetypeInfo.location)
 
         check(Files.exists(staging.resolve(mainJarName))) {
             "archetype missing $mainJarName: ${archetypeInfo.location}"

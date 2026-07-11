@@ -69,11 +69,7 @@ class NewProjectScreen(
     override fun NewProjectScreenState.init(props: NewProjectScreenProps) {
         name = newInitialName()
         path = defaultImportPath
-        type = props.archetypes?.iterator()?.let {
-            if (it.hasNext())
-                it.next().name
-            else null
-        }
+        type = props.archetypes?.firstOrNull()?.name
         creating = false
         importing = false
     }
@@ -84,9 +80,11 @@ class NewProjectScreen(
         prevState: NewProjectScreenState,
         snapshot: Any
     ) {
-        if (state.type == null && props.archetypes != null) {
+        // firstOrNull: an offline boot can serve an empty catalogue, which must not crash here
+        val defaultType = props.archetypes?.firstOrNull()?.name
+        if (state.type == null && defaultType != null) {
             setState {
-                type = props.archetypes!!.iterator().next().name
+                type = defaultType
             }
         }
     }
@@ -287,7 +285,9 @@ class NewProjectScreen(
         else {
             div {
                 css {
-                    width = 36.em
+                    // Wide enough to show the longest catalogue entry without truncation, e.g.
+                    //  "Automation and Reporting - Visually control a browser and more - v0.30.0-SNAPSHOT"
+                    width = 46.em
                 }
 
                 val selectOptions = archetypes

@@ -197,18 +197,32 @@ class ProjectLauncher(
                         }
 
 //                        onChange = { _, index: Int ->
-                        asDynamic().onChange = { _: Any, index: Int ->
-                            if (state.creating && index == 0 ||
-                                !state.creating && index == 1) {
+                        asDynamic().onChange = { event: dynamic, index: Int ->
+                            // A modified click (Ctrl/Cmd/Shift/Alt) is the browser's
+                            //  open-in-new-tab/window gesture on the tab's link — leave it
+                            //  entirely to the default anchor navigation, or it would ALSO
+                            //  switch the current page.
+                            val modifiedClick =
+                                event.ctrlKey == true || event.metaKey == true ||
+                                event.shiftKey == true || event.altKey == true
+
+                            if (!modifiedClick &&
+                                    (state.creating && index == 0 ||
+                                        !state.creating && index == 1)) {
                                 onCreateToggle()
                             }
                         }
 
+                        // With an href, ButtonBase renders each tab as a real <a> — so
+                        //  middle-click / Ctrl+click open the section in a new browser tab.
+                        //  Plain clicks are handled by onChange above; the anchor's own
+                        //  navigation then writes the same fragment (a no-op).
                         Tab {
                             label = ReactNode("Open")
                             icon = Fragment.create {
                                 LaunchIcon::class.react {}
                             }
+                            asDynamic().href = "#"
                         }
 
                         // TODO: https://github.com/mui-org/material-ui/issues/11653
@@ -217,6 +231,7 @@ class ProjectLauncher(
                             icon = Fragment.create {
                                 AddCircleOutlinedIcon::class.react {}
                             }
+                            asDynamic().href = newProjectHash
                         }
                     }
                 }

@@ -58,11 +58,12 @@ fun ChildrenBuilder.sectionHeading(text: String) {
 }
 
 
-// The 36em labelled text field used by every name / path / rename / jvm-args input.
+// The 46em labelled text field used by every name / path / rename / jvm-args input —
+//  matches the New Project Type dropdown so form rows line up.
 fun ChildrenBuilder.wideTextField(label: String, value: String, onValueChange: (String) -> Unit) {
     TextField {
         sx {
-            width = 36.em
+            width = 46.em
         }
 
         this.label = ReactNode(label)

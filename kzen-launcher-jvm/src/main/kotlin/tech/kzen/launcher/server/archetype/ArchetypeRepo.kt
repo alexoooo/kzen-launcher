@@ -1,212 +1,132 @@
 package tech.kzen.launcher.server.archetype
 
 import com.google.common.collect.ImmutableMap
-import com.google.common.collect.ImmutableSet
-import com.google.common.collect.Maps
 import org.slf4j.LoggerFactory
 import tech.kzen.launcher.server.environment.LauncherEnvironment
-import tech.kzen.launcher.server.properties.KzenProperties
 import tech.kzen.launcher.server.service.DownloadService
-import tools.jackson.databind.JsonNode
-import tools.jackson.databind.ObjectMapper
-import tools.jackson.databind.node.ObjectNode
-import tools.jackson.databind.node.StringNode
-import tools.jackson.dataformat.yaml.YAMLFactory
-import tools.jackson.dataformat.yaml.YAMLWriteFeature
 import java.net.URI
 import java.nio.file.AtomicMoveNotSupportedException
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 
 
+// The cache directory of zips IS the catalogue: every `<archetypeName>-<version>.zip` present in
+//  archetypeHome is offered as a per-version entry, with the display metadata derived from the
+//  configured title/description plus the version parsed from the filename. There is no metadata
+//  file to drift out of sync with the config or the artifacts (the previous design kept a
+//  kzen-archetypes.yaml beside the zips, reconciled incrementally per boot — every stale-dropdown
+//  bug was a drift between the two).
 class ArchetypeRepo(
     private val downloadService: DownloadService,
-    private val kzenProperties: KzenProperties
+    private val archetypeName: String,
+    private val title: String,
+    private val descriptionBase: String,
+    private val currentUrl: String,
+    private val releasedUrl: String?,
+    private val archetypeHome: Path = LauncherEnvironment.projectHome.resolve("kzen-archetypes")
 ) {
     //-----------------------------------------------------------------------------------------------------------------
     @Suppress("ConstPropertyName")
     companion object {
         private val logger = LoggerFactory.getLogger(ArchetypeRepo::class.java)!!
 
-        private val archetypeHome = LauncherEnvironment.projectHome
-                .resolve("kzen-archetypes")
+        private const val zipSuffix = ".zip"
+        private const val snapshotSuffix = "-SNAPSHOT"
 
-        private val archetypeMetadata = archetypeHome
-                .resolve("kzen-archetypes.yaml")
-
-        private val parser = ObjectMapper(
-            YAMLFactory.builder()
-                .disable(YAMLWriteFeature.SPLIT_LINES)
-                .build())
-
-        private const val titleKey = "title"
-        private const val descriptionKey = "description"
-        private const val locationKey = "location"
-
-        // Downloaded to a sibling .part file and atomically moved into place, so the cached artifact
+        // Downloaded to a sibling .part file and atomically moved into place, so a cached artifact
         //  only ever exists complete — a truncated download can't be mistaken for an installed archetype.
         private const val partSuffix = ".part"
 
-        init {
-            logger.info("archetypeMetadata: {}", archetypeMetadata.toAbsolutePath().normalize())
-        }
+        // Metadata file of the previous catalogue design, superseded by the directory scan.
+        private const val legacyMetadataName = "kzen-archetypes.yaml"
     }
 
 
     //-----------------------------------------------------------------------------------------------------------------
-//    @PostConstruct
+    // Boot reconciliation. Failures degrade to serving whatever is already cached (an offline or
+    //  404 boot must not kill the process — the current-version candidate legitimately 404s for a
+    //  whole dev cycle when the config's GitHub URL points at the not-yet-published next release).
     fun init() {
-        for (archetype in kzenProperties.archetypes) {
-            val locationUri = URI(archetype.url!!)
-            val artifactName = archetype.url!!.substringAfterLast('/')
+        logger.info("archetypeHome: {}", archetypeHome.toAbsolutePath().normalize())
 
-            val archetypeInfo = ArchetypeInfo(
-                    archetype.title!!,
-                    archetype.description!!,
-                    locate(artifactName)
-            )
+        // A file: source is a mutable dev snapshot — re-acquire so a rebuilt zip is picked up.
+        //  An https release artifact is immutable per version — download only if absent.
+        val currentArtifact = artifactName(currentUrl)
+        val currentAcquired = acquire(currentUrl, reacquire = URI(currentUrl).scheme == "file")
 
-            val existing = read()[archetype.name]
-            if (existing != null) {
-                // Dev (file://) sources are mutable SNAPSHOTs — re-acquire so a rebuilt project
-                //  zip is picked up. https release artifacts are immutable per *version*: keep
-                //  the cached artifact only while the config still names the same file — a
-                //  version bump (new artifact filename) re-acquires, so an upgraded install
-                //  can't stay pinned to the previous version's template.
-                val artifactUpToDate =
-                    locationUri.scheme != "file" &&
-                    existing.location.fileName.toString() == artifactName
+        // The latest published release, so it is offered even where the current candidate is a
+        //  dev snapshot. On a released build it names the same artifact as the current candidate,
+        //  and the absence check above/below dedupes naturally.
+        releasedUrl?.let { acquire(it, reacquire = false) }
 
-                if (artifactUpToDate) {
-                    // The artifact is current, but the displayed metadata (title/description,
-                    //  which carries the visible version) still follows the config.
-                    if (existing.title != archetypeInfo.title ||
-                            existing.description != archetypeInfo.description) {
-                        update(archetype.name!!, archetypeInfo)
-                    }
-                    continue
-                }
-
-                remove(archetype.name!!)
-            }
-
-            install(archetype.name!!, archetypeInfo, locationUri)
+        // Old snapshots are unmaintained — only the current one is offered. Skipped when the
+        //  current acquisition failed: a stale snapshot the user can still create from beats
+        //  deleting the only copy of it.
+        if (currentAcquired) {
+            pruneStaleSnapshots(currentArtifact)
         }
 
-        pruneDangling()
+        cleanResidue()
     }
 
 
-    // A catalog entry whose cached artifact is gone can only fail at create time — drop it.
-    //  Config-declared sources were just (re-)acquired above; a legacy per-version entry without
-    //  its zip has nothing left to offer.
-    private fun pruneDangling() {
-        val current = read()
+    private fun acquire(url: String, reacquire: Boolean): Boolean {
+        val target = archetypeHome.resolve(artifactName(url))
 
-        val dangling = current.filterValues { !Files.exists(it.location) }.keys
-        if (dangling.isEmpty()) {
+        if (!reacquire && Files.exists(target)) {
+            return true
+        }
+
+        return try {
+            val partial = target.resolveSibling(target.fileName.toString() + partSuffix)
+            downloadService.download(URI(url), partial)
+            moveIntoPlace(partial, target)
+            true
+        }
+        catch (e: Exception) {
+            logger.error("archetype acquisition failed: {}", url, e)
+            Files.exists(target)
+        }
+    }
+
+
+    private fun pruneStaleSnapshots(currentArtifact: String) {
+        val stale = scanArtifacts()
+            .filter { it.endsWith(snapshotSuffix + zipSuffix) && it != currentArtifact }
+
+        for (artifact in stale) {
+            logger.info("pruning stale snapshot archetype: {}", artifact)
+            deleteQuietly(archetypeHome.resolve(artifact))
+        }
+    }
+
+
+    // Leftover .part files (from a failed download) and the legacy metadata file.
+    private fun cleanResidue() {
+        if (!Files.exists(archetypeHome)) {
             return
         }
 
-        logger.info("Pruning archetypes with missing artifacts: {}", dangling)
-        write(ImmutableMap.copyOf(
-                Maps.filterKeys(current) { it !in dangling }))
-    }
-
-
-    //-----------------------------------------------------------------------------------------------------------------
-    fun contains(name: String): Boolean {
-        return read().keys.contains(name)
-    }
-
-
-    fun list(): List<String> {
-        return read().keys.asList()
-    }
-
-
-    fun all(): ImmutableMap<String, ArchetypeInfo> {
-        return read()
-    }
-
-
-    fun get(name: String): ArchetypeInfo {
-        val current = read()
-
-//        @Suppress("UnnecessaryVariable")
-        val info = current[name]
-                ?: throw IllegalArgumentException("Archetype not found: $name")
-
-        return info
-    }
-
-
-//    fun read(name: String): ByteArray {
-//        val info = get(name)
-//        return Files.readAllBytes(info.artifact)
-//    }
-
-
-    fun add(name: String, artifact: ArchetypeInfo) {
-        val previous = read()
-
-        val next = ImmutableMap.builder<String, ArchetypeInfo>()
-                .putAll(previous)
-                .put(name, artifact)
-                .build()
-
-        write(next)
-    }
-
-
-    fun remove(name: String) {
-        val previous = read()
-
-        val artifact = previous[name]?.location
-                ?: throw IllegalArgumentException("Archetype not found: $name")
-
-        // The cached zip can be shared (e.g. a legacy per-version entry pointing at the same
-        //  artifact as the config-declared one): only delete the file when no other entry
-        //  references it.
-        val shared = previous.any { it.key != name && it.value.location == artifact }
-        if (!shared) {
-            Files.deleteIfExists(artifact)
+        Files.list(archetypeHome).use { stream ->
+            stream
+                .filter { it.fileName.toString().endsWith(partSuffix) }
+                .forEach { deleteQuietly(it) }
         }
 
-        val next = ImmutableMap.copyOf(
-                Maps.filterKeys(previous) { it != name})
-
-        write(next)
+        deleteQuietly(archetypeHome.resolve(legacyMetadataName))
     }
 
 
-    private fun update(name: String, archetypeInfo: ArchetypeInfo) {
-        val asMutable = read().toMutableMap()
-        asMutable[name] = archetypeInfo
-        write(ImmutableMap.copyOf(asMutable))
-    }
-
-
-    fun locate(artifactName: String): Path {
-        return archetypeHome.resolve(artifactName)
-    }
-
-
-    fun install(
-            name: String,
-            archetypeInfo: ArchetypeInfo,
-            download: URI
-    ) {
-        check(!contains(name)) {"Already installed: $name"}
-
-        val target = archetypeInfo.location
-        val partial = target.resolveSibling(target.fileName.toString() + partSuffix)
-        downloadService.download(download, partial)
-        moveIntoPlace(partial, target)
-
-        add(name, archetypeInfo)
+    // Prune/cleanup deletes are best-effort: another process sharing the cache dir can hold a
+    //  zip open (Windows locks it), and that must not fail the boot.
+    private fun deleteQuietly(path: Path) {
+        try {
+            Files.deleteIfExists(path)
+        }
+        catch (e: Exception) {
+            logger.warn("unable to delete: {} - {}", path, e.toString())
+        }
     }
 
 
@@ -223,81 +143,86 @@ class ArchetypeRepo(
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    private fun write(archetypes: Map<String, ArchetypeInfo>) {
-        val asJsonValue: Map<String, Any> =
-                Maps.transformValues(archetypes) { unbind(it) }
+    fun all(): ImmutableMap<String, ArchetypeInfo> {
+        val sorted = scanArtifacts()
+            .sortedWith(
+                Comparator<String> { a, b -> compareVersions(versionOf(b), versionOf(a)) }
+                    .thenBy { it })
 
-        val metadataBytes = parser.writeValueAsBytes(asJsonValue)
-
-        if (!Files.exists(archetypeMetadata)) {
-            Files.createDirectories(archetypeMetadata.toAbsolutePath().parent)
+        val builder = ImmutableMap.builder<String, ArchetypeInfo>()
+        for (artifact in sorted) {
+            val name = artifact.removeSuffix(zipSuffix)
+            builder.put(name, ArchetypeInfo(
+                title,
+                "$descriptionBase - v${versionOf(artifact)}",
+                archetypeHome.resolve(artifact)))
         }
-
-        Files.write(archetypeMetadata, metadataBytes)
+        return builder.build()
     }
 
 
-    private fun unbind(info: ArchetypeInfo): Map<String, Any> {
-        return ImmutableMap.of(
-                titleKey, info.title,
-                descriptionKey, info.description,
-                locationKey, info.location.toAbsolutePath().normalize().toString())
+    // NB: lookup against the scan, never a path resolve — the name is client-supplied (the
+    //  create-project `type` param) and must not become a path-traversal surface.
+    fun get(name: String): ArchetypeInfo {
+        return all()[name]
+            ?: throw IllegalArgumentException("Archetype not found: $name")
     }
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    private fun read(): ImmutableMap<String, ArchetypeInfo> {
-        if (!Files.exists(archetypeMetadata)) {
-            return ImmutableMap.of()
+    private fun scanArtifacts(): List<String> {
+        if (!Files.exists(archetypeHome)) {
+            return listOf()
         }
 
-        val metadataBytes = Files.readAllBytes(archetypeMetadata)
-
-        val metadataRoot = parser.readTree(metadataBytes)
-            as? ObjectNode
-            ?: throw IllegalArgumentException("Key-value map expected")
-
-        val names = ImmutableSet.copyOf(metadataRoot.propertyNames())
-
-        val archetypesBuilder = ImmutableMap.builder<String, ArchetypeInfo>()
-        for (name in names) {
-            val value = metadataRoot[name]
-            val info = bindInfo(name, value)
-
-            archetypesBuilder.put(name, info)
+        return Files.list(archetypeHome).use { stream ->
+            stream
+                .filter { Files.isRegularFile(it) }
+                .map { it.fileName.toString() }
+                .filter { it.startsWith("$archetypeName-") && it.endsWith(zipSuffix) }
+                .toList()
         }
-
-        @Suppress("UnnecessaryVariable", "RedundantSuppression")
-        val archetypes = archetypesBuilder.build()
-
-        return archetypes
     }
 
 
-    private fun bindInfo(name: String, jsonNode: JsonNode): ArchetypeInfo {
-        val properties = jsonNode as? ObjectNode
-                ?: throw IllegalArgumentException("Key-value map expected ($name): $jsonNode")
-
-        val title = properties[titleKey] as? StringNode
-                ?: throw IllegalStateException("Text expected ($name.$titleKey): ${properties[titleKey]}")
-
-        val description = properties[descriptionKey] as? StringNode
-                ?: throw IllegalStateException("Text expected ($name.$descriptionKey): ${properties[descriptionKey]}")
-
-        val location = properties[locationKey] as? StringNode
-                ?: throw IllegalStateException("Text expected ($name.$locationKey): ${properties[locationKey]}")
-
-        return ArchetypeInfo(
-                title.asString(),
-                description.asString(),
-                Paths.get(location.asString()))
+    private fun artifactName(url: String): String {
+        return url.substringAfterLast('/')
     }
 
 
-//    //-----------------------------------------------------------------------------------------------------------------
-//    private fun initArchetypes(): ImmutableMap<String, ArchetypeInfo> {
-//        return ImmutableMap.of(
-//                automationZipName, ArchetypeInfo(artifact = automationZip),
-//                automationJarName, ArchetypeInfo(artifact = automationJar)
-//    }
+    private fun versionOf(artifact: String): String {
+        return artifact
+            .removePrefix("$archetypeName-")
+            .removeSuffix(zipSuffix)
+    }
+
+
+    // Numeric sort key: version components plus a trailing snapshot flag, so a snapshot sorts
+    //  above its equal release (the dev-current entry leads while the pair transiently coexists).
+    //  An unparseable version sorts last but is still offered — never hide a cached artifact.
+    private fun versionKey(version: String): List<Int> {
+        val snapshot = version.endsWith(snapshotSuffix)
+        val base = version.removeSuffix(snapshotSuffix)
+
+        val components = base.split('.').map {
+            it.toIntOrNull()
+                ?: return listOf(Int.MIN_VALUE)
+        }
+
+        return components + (if (snapshot) 1 else 0)
+    }
+
+
+    private fun compareVersions(a: String, b: String): Int {
+        val aKey = versionKey(a)
+        val bKey = versionKey(b)
+
+        for (i in 0 until maxOf(aKey.size, bKey.size)) {
+            val comparison = aKey.getOrElse(i) { 0 }.compareTo(bKey.getOrElse(i) { 0 })
+            if (comparison != 0) {
+                return comparison
+            }
+        }
+        return 0
+    }
 }
