@@ -1,7 +1,7 @@
 package tech.kzen.launcher.server
 
 import io.ktor.http.*
-import io.ktor.serialization.jackson.*
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.html.*
@@ -10,6 +10,8 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.Properties
@@ -260,7 +262,7 @@ fun Application.ktorMain(
     context: KzenLauncherContext
 ) {
     install(ContentNegotiation) {
-        jackson()
+        json()
     }
 
     SecurityGate.install(this)
@@ -381,9 +383,13 @@ private suspend fun RoutingContext.respondCommand(command: () -> Unit) {
         call.response.status(HttpStatusCode.OK)
     }
     catch (e: IllegalArgumentException) {
-        call.respond(HttpStatusCode.BadRequest, mapOf("message" to (e.message ?: "invalid request")))
+        call.respond(HttpStatusCode.BadRequest, buildJsonObject {
+            put("message", e.message ?: "invalid request")
+        })
     }
     catch (e: IllegalStateException) {
-        call.respond(HttpStatusCode.Conflict, mapOf("message" to (e.message ?: "conflicting state")))
+        call.respond(HttpStatusCode.Conflict, buildJsonObject {
+            put("message", e.message ?: "conflicting state")
+        })
     }
 }

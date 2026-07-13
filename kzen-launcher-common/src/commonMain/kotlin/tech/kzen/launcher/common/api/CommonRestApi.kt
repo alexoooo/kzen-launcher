@@ -25,7 +25,6 @@ object CommonRestApi {
     const val projectName = "name"
     const val projectPath = "path"
     const val projectLocation = "location"
-    const val projectExists = "exists"
     const val projectJvmArgs = "args"
     const val createProjectType = "type"
     const val projectNewName = "new"

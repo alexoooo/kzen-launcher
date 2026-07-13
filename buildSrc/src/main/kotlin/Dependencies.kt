@@ -10,7 +10,7 @@ const val ktorVersion = "3.5.1"
 const val logbackVersion = "1.5.37"
 const val guavaVersion = "33.6.0-jre"
 const val commonsCompressVersion = "1.28.0"
-const val jacksonModuleKotlin = "3.2.0"
+const val jacksonDatabind = "3.2.0"
 const val jacksonDataformatYaml = "3.2.0"
 
 const val coreJsVersion = "3.49.0"

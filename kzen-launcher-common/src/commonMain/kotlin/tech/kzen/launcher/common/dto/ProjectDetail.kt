@@ -9,7 +9,8 @@ data class ProjectDetail(
     val name: String,
     val path: String,
 
-    // The server emits this under the JSON key `args` (see RestHandler.listProjects).
+    // Both sides serialize this DTO with kotlinx, so the annotation is the single source of the
+    //  wire name `args` (kept from the pre-kotlinx server encoding).
     @SerialName("args")
     val jvmArgs: String,
 

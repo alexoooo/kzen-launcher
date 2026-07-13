@@ -31,15 +31,16 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("com.google.guava:guava:$guavaVersion")
     implementation("org.apache.commons:commons-compress:$commonsCompressVersion")
-    implementation("tools.jackson.module:jackson-module-kotlin:$jacksonModuleKotlin")
+    // Jackson 3 tree API, used only by ProjectRepo for the kzen-projects.yaml registry (standard
+    //  YAML escaping for user-file compatibility); the REST wire is kotlinx.serialization.
+    implementation("tools.jackson.core:jackson-databind:$jacksonDatabind")
     implementation("tools.jackson.dataformat:jackson-dataformat-yaml:$jacksonDataformatYaml")
 
 
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-server-html-builder-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
-//    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-    implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:$kotlinxHtmlVersion")
 
     testImplementation(kotlin("test"))

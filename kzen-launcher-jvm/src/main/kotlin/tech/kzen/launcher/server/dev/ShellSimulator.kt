@@ -1,5 +1,7 @@
 package tech.kzen.launcher.server.dev
 
+import tech.kzen.launcher.common.dto.RunningProject
+import tech.kzen.launcher.common.dto.RunningState
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
@@ -14,22 +16,12 @@ import java.util.concurrent.atomic.AtomicLong
 //  processes, no persistence. Replaces RestHandler.runningProjectsDummy (which returned random noise).
 class ShellSimulator {
     //-----------------------------------------------------------------------------------------------------------------
-    enum class State(val wire: String) {
-        STARTING("starting"),
-        RUNNING("running"),
-        STOPPING("stopping"),
-        FAILED("failed")
-    }
-
-    // Wire shape mirrors kzen-shell's RunningProjectStatus and the client's RunningProject DTO:
-    //  {"name": ..., "state": "starting"|"running"|"stopping"|"failed"}. Serialized by Jackson.
-    data class Status(val name: String, val state: String)
-
-
     // Per-project record. `sequence` is a monotonic start ordinal so list() can render newest-first,
     //  matching the real ProjectRegistry; it is preserved across a starting->running/failed transition.
+    //  States are the client's RunningProject/RunningState DTO directly (the @SerialName values are the
+    //  wire strings kzen-shell's RunningProjectStatus emits), serialized by kotlinx via ContentNegotiation.
     private class Entry(
-        @Volatile var state: State,
+        @Volatile var state: RunningState,
         val sequence: Long
     )
 
@@ -57,10 +49,10 @@ class ShellSimulator {
 
     //-----------------------------------------------------------------------------------------------------------------
     // Newest-first, matching kzen-shell's ProjectRegistry.list().
-    fun list(): List<Status> {
+    fun list(): List<RunningProject> {
         return states.entries
             .sortedByDescending { it.value.sequence }
-            .map { Status(it.key, it.value.state.wire) }
+            .map { RunningProject(it.key, it.value.state) }
     }
 
 
@@ -69,22 +61,22 @@ class ShellSimulator {
     fun start(name: String) {
         var created: Entry? = null
         states.compute(name) { _, existing ->
-            if (existing != null && existing.state != State.FAILED) {
+            if (existing != null && existing.state != RunningState.FAILED) {
                 existing
             }
             else {
-                Entry(State.STARTING, sequenceCounter.incrementAndGet()).also { created = it }
+                Entry(RunningState.STARTING, sequenceCounter.incrementAndGet()).also { created = it }
             }
         }
 
         val fresh = created
             ?: return
 
-        val target = if (name.contains(failTrigger)) State.FAILED else State.RUNNING
+        val target = if (name.contains(failTrigger)) RunningState.FAILED else RunningState.RUNNING
         scheduler.schedule({
             // Preserve the entry (and its sequence); only flip state, and only if still starting and
             //  still the entry we created (a stop/restart may have replaced it in the meantime).
-            if (fresh.state == State.STARTING && states[name] === fresh) {
+            if (fresh.state == RunningState.STARTING && states[name] === fresh) {
                 fresh.state = target
             }
         }, startMillis, TimeUnit.MILLISECONDS)
@@ -96,12 +88,12 @@ class ShellSimulator {
             ?: return false
 
         // FAILED -> dismiss immediately; anything else -> brief STOPPING then gone.
-        if (entry.state == State.FAILED) {
+        if (entry.state == RunningState.FAILED) {
             states.remove(name, entry)
             return true
         }
 
-        entry.state = State.STOPPING
+        entry.state = RunningState.STOPPING
         scheduler.schedule({
             states.remove(name, entry)
         }, stopMillis, TimeUnit.MILLISECONDS)

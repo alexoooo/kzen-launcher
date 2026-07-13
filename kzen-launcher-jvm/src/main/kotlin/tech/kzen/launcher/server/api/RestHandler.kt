@@ -3,6 +3,7 @@ package tech.kzen.launcher.server.api
 import com.google.common.collect.ImmutableMap
 import io.ktor.http.*
 import tech.kzen.launcher.common.api.CommonRestApi
+import tech.kzen.launcher.common.dto.ProjectDetail
 import tech.kzen.launcher.server.archetype.ArchetypeInfo
 import tech.kzen.launcher.server.archetype.ArchetypeRepo
 import tech.kzen.launcher.server.project.ProjectCreator
@@ -23,7 +24,7 @@ class RestHandler(
     }
 
 
-    fun listProjects(): List<Map<String, Any>> {
+    fun listProjects(): List<ProjectDetail> {
         return projectRepo
             .all()
             .map {
@@ -31,11 +32,11 @@ class RestHandler(
                 val normalized = path.toString().replace('\\', '/')
                 val exists = Files.exists(path)
 
-                mapOf(
-                    CommonRestApi.projectName to it.key,
-                    CommonRestApi.projectPath to normalized,
-                    CommonRestApi.projectJvmArgs to it.value.jvmArguments,
-                    CommonRestApi.projectExists to exists)
+                ProjectDetail(
+                    name = it.key,
+                    path = normalized,
+                    jvmArgs = it.value.jvmArguments,
+                    exists = exists)
             }
     }
 
