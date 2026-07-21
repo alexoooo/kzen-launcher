@@ -6,7 +6,6 @@ import com.google.common.io.MoreFiles
 import com.google.common.io.RecursiveDeleteOption
 import org.slf4j.LoggerFactory
 import tech.kzen.launcher.server.archetype.ArchetypeRepo
-import tech.kzen.launcher.server.environment.LauncherEnvironment
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
@@ -22,7 +21,8 @@ import java.util.zip.ZipInputStream
 
 //@Component
 class ProjectCreator(
-    val archetypeRepo: ArchetypeRepo
+    val archetypeRepo: ArchetypeRepo,
+    private val projectHome: Path
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(ProjectCreator::class.java)!!
@@ -54,7 +54,7 @@ class ProjectCreator(
     fun create(
             name: String, archetypeName: String
     ): Path {
-        val home = LauncherEnvironment.projectHome.resolve(name)
+        val home = projectHome.resolve(name)
 
         check(!Files.exists(home)) {"already exists: $home"}
 

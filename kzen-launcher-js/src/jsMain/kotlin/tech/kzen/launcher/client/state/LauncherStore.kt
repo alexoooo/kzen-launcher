@@ -204,13 +204,13 @@ object LauncherStore {
             var ticksSinceFetch = idleTicksPerFetch  // fetch on the first tick
             while (polling) {
                 delay(fastTickMs)
-                if (! polling) {
+                if (!polling) {
                     break
                 }
 
                 ticksSinceFetch++
                 val due = isTransitioning() || ticksSinceFetch >= idleTicksPerFetch
-                if (! due) {
+                if (!due) {
                     continue
                 }
                 ticksSinceFetch = 0

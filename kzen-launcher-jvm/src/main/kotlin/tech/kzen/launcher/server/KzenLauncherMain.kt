@@ -12,7 +12,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import org.slf4j.LoggerFactory
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.Properties
 import kotlin.system.exitProcess
@@ -87,6 +89,10 @@ data class KzenLauncherConfig(
     val port: Int = 80,
     val host: String = "127.0.0.1",
 
+    // Root directory holding the user's projects and the project registry. CWD-relative by default, which
+    //  differs between an interactive run and a kzen-shell-spawned one — the shell passes it explicitly.
+    val projectHome: Path = defaultProjectHome,
+
     // Managed-child lifeline flags (set by kzen-shell when it spawns the launcher; absent for
     //  interactive runs). See KzenLauncherMain.startManagedLifeline.
     val managedLifeline: Boolean = false,
@@ -103,6 +109,9 @@ data class KzenLauncherConfig(
 ) {
     //-----------------------------------------------------------------------------------------------------------------
     companion object {
+        // Sibling of the launcher's working directory, which for an interactive run is the repo root.
+        val defaultProjectHome: Path = Paths.get("../kzen-proj")
+
         @Suppress("ConstPropertyName")
         private const val serverPortPrefix = "--server.port="
 
@@ -114,6 +123,9 @@ data class KzenLauncherConfig(
 
         @Suppress("ConstPropertyName")
         private const val parentPidPrefix = "--parent.pid="
+
+        @Suppress("ConstPropertyName")
+        private const val projectHomePrefix = "--project.home="
 
         fun readPort(args: Array<String>): Int? {
             val match = args
@@ -139,6 +151,14 @@ data class KzenLauncherConfig(
 
             return match.substring(parentPidPrefix.length).toLongOrNull()
         }
+
+        fun readProjectHome(args: Array<String>): Path? {
+            val match = args
+                .lastOrNull { it.startsWith(projectHomePrefix) }
+                ?: return null
+
+            return Paths.get(match.substring(projectHomePrefix.length))
+        }
     }
 
 
@@ -160,7 +180,15 @@ data class KzenLauncherContext(
     val archetypeRepo: ArchetypeRepo,
     val shellSimulator: ShellSimulator,
 ) {
+    companion object {
+        private val logger = LoggerFactory.getLogger(KzenLauncherContext::class.java)!!
+    }
+
     fun init() {
+        // Where the project list came from: an interactive run and a kzen-shell-spawned one resolve
+        //  different homes, which otherwise reads as projects mysteriously going missing.
+        logger.info("projectHome: {}", config.projectHome.toAbsolutePath().normalize())
+
         archetypeRepo.init()
     }
 }
@@ -218,6 +246,9 @@ private fun resolveArchetypeUrl(properties: Properties): String {
 fun buildContext(args: Array<String>): KzenLauncherContext {
     val launcherProperties = loadLauncherProperties()
 
+    val projectHome = KzenLauncherConfig.readProjectHome(args)
+        ?: KzenLauncherConfig.defaultProjectHome
+
     val downloadService = DownloadService()
     val archetypeRepo = ArchetypeRepo(
         downloadService,
@@ -225,9 +256,10 @@ fun buildContext(args: Array<String>): KzenLauncherContext {
         title = "Automation and Reporting",
         descriptionBase = "Visually control a browser and more",
         currentUrl = resolveArchetypeUrl(launcherProperties),
-        releasedUrl = launcherProperties.getProperty("archetype.project.released"))
-    val projectRepo = ProjectRepo()
-    val projectCreator = ProjectCreator(archetypeRepo)
+        releasedUrl = launcherProperties.getProperty("archetype.project.released"),
+        archetypeHome = projectHome.resolve("kzen-archetypes"))
+    val projectRepo = ProjectRepo(projectHome)
+    val projectCreator = ProjectCreator(archetypeRepo, projectHome)
     val restHandler = RestHandler(archetypeRepo, projectRepo, projectCreator)
 //    val serverRestApi = ServerRestApi(restHandler)
 
@@ -236,6 +268,7 @@ fun buildContext(args: Array<String>): KzenLauncherContext {
     val config = KzenLauncherConfig(
         kzenLauncherJsModuleName,
         port = port,
+        projectHome = projectHome,
         managedLifeline = KzenLauncherConfig.readManagedLifeline(args),
         parentPid = KzenLauncherConfig.readParentPid(args),
         buildInfo = BuildInfo.load("/kzen-launcher-build.properties")

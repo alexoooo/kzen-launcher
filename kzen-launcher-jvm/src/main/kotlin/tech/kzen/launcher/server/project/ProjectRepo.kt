@@ -5,26 +5,33 @@ import com.google.common.collect.ImmutableSet
 import com.google.common.collect.Maps
 import org.slf4j.LoggerFactory
 import tech.kzen.launcher.common.api.CommonRestApi
-import tech.kzen.launcher.server.environment.LauncherEnvironment
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.databind.node.ObjectNode
 import tools.jackson.databind.node.StringNode
 import tools.jackson.dataformat.yaml.YAMLFactory
 import tools.jackson.dataformat.yaml.YAMLWriteFeature
+import java.nio.file.AtomicMoveNotSupportedException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 
 
-class ProjectRepo {
+// The user's project list, held as an immutable snapshot loaded once at construction: reads serve the
+//  snapshot, mutations are serialized and each persists via a temp sibling plus an atomic move, so
+//  concurrent commands can't lose an update and a crash mid-write can't leave a half-written file.
+//  Consequence of load-once: the yaml stays hand-editable while the launcher is stopped (a relaunch
+//  reflects the edit), but an edit made while it runs is invisible and is overwritten by the next
+//  mutation. One launcher process per project home is assumed — two would last-writer-wins each other.
+class ProjectRepo(projectHome: Path) {
     //-----------------------------------------------------------------------------------------------------------------
     @Suppress("ConstPropertyName")
     companion object {
         private val logger = LoggerFactory.getLogger(ProjectRepo::class.java)!!
 
-        private val projectMetadata = LauncherEnvironment.projectHome
-                .resolve("kzen-projects.yaml")
+        private const val metadataFileName = "kzen-projects.yaml"
+        private const val tempSuffix = ".tmp"
 
         private val parser = ObjectMapper(
             YAMLFactory.builder()
@@ -36,57 +43,73 @@ class ProjectRepo {
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    fun contains(name: String): Boolean {
-        return read().keys.contains(name)
-    }
+    private val projectMetadata = projectHome.resolve(metadataFileName)
+    private val projectMetadataTemp = projectHome.resolve(metadataFileName + tempSuffix)
 
+    @Volatile
+    private var projects: ImmutableMap<String, ProjectInfo> = readFromDisk()
 
-    fun list(): List<String> {
-        return read().keys.asList()
-    }
-
-
-    fun all(): ImmutableMap<String, ProjectInfo> {
-        return read()
-    }
-
-
-    fun get(name: String): ProjectInfo {
-        val current = read()
-
-//        @Suppress("UnnecessaryVariable")
-        val info = current[name]
-                ?: throw IllegalArgumentException("Archetype not found: $name")
-
-        return info
+    init {
+        // Residue of a persist that died between the temp write and the move.
+        try {
+            Files.deleteIfExists(projectMetadataTemp)
+        }
+        catch (e: Exception) {
+            logger.warn("unable to delete: {} - {}", projectMetadataTemp, e.toString())
+        }
     }
 
 
     //-----------------------------------------------------------------------------------------------------------------
+    fun contains(name: String): Boolean {
+        return projects.keys.contains(name)
+    }
+
+
+    fun list(): List<String> {
+        return projects.keys.asList()
+    }
+
+
+    fun all(): ImmutableMap<String, ProjectInfo> {
+        return projects
+    }
+
+
+    fun get(name: String): ProjectInfo {
+        return projects[name]
+            ?: throw IllegalArgumentException("Project not found: $name")
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
+    @Synchronized
     fun add(name: String, home: Path) {
         val info = ProjectInfo(
                 home = home)
 
-        val previous = read()
+        val previous = projects
 
         val next = ImmutableMap.builder<String, ProjectInfo>()
                 .putAll(previous)
                 .put(name, info)
                 .build()
 
-        write(next)
+        publish(next)
     }
 
 
+    @Synchronized
     fun remove(name: String) {
-        val previous = read()
+        val previous = projects
 
         removeAndWrite(name, previous)
     }
 
 
+    @Synchronized
     fun delete(name: String) {
-        val previous = read()
+        val previous = projects
 
         val location = previous[name]?.home
                 ?: throw IllegalArgumentException("Project not found: $name")
@@ -105,8 +128,9 @@ class ProjectRepo {
     }
 
 
+    @Synchronized
     fun rename(name: String, newName: String) {
-        val previous = read()
+        val previous = projects
 
         val location = previous[name]?.home
                 ?: throw IllegalArgumentException("Project not found: $name")
@@ -123,12 +147,13 @@ class ProjectRepo {
         asMutable[newName] = newInfo
         val next = ImmutableMap.copyOf(asMutable)
 
-        write(next)
+        publish(next)
     }
 
 
+    @Synchronized
     fun changeArguments(name: String, jvmArguments: String) {
-        val previous = read()
+        val previous = projects
 
         val previousProject = previous[name]
             ?: throw IllegalArgumentException("Project not found: $name")
@@ -137,7 +162,7 @@ class ProjectRepo {
         asMutable[name] = previousProject.copy(jvmArguments = jvmArguments)
         val next = ImmutableMap.copyOf(asMutable)
 
-        write(next)
+        publish(next)
     }
 
 
@@ -148,22 +173,45 @@ class ProjectRepo {
         val next = ImmutableMap.copyOf(
                 Maps.filterKeys(previous) { it != name})
 
-        write(next)
+        publish(next)
     }
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    private fun write(archetypes: Map<String, ProjectInfo>) {
+    // Persist before publishing: a failed write leaves memory and disk consistent at the prior state, and
+    //  surfaces to the caller as the command failure it is.
+    private fun publish(next: ImmutableMap<String, ProjectInfo>) {
+        persist(next)
+        projects = next
+    }
+
+
+    private fun persist(next: Map<String, ProjectInfo>) {
         val asJsonValue: Map<String, Any> =
-                Maps.transformValues(archetypes) { unbind(it) }
+                Maps.transformValues(next) { unbind(it) }
 
         val metadataBytes = parser.writeValueAsBytes(asJsonValue)
 
-        if (!Files.exists(projectMetadata)) {
-            Files.createDirectories(projectMetadata.toAbsolutePath().parent)
-        }
+        Files.createDirectories(projectMetadata.toAbsolutePath().parent)
+        Files.write(projectMetadataTemp, metadataBytes)
 
-        Files.write(projectMetadata, metadataBytes)
+        moveIntoPlace()
+    }
+
+
+    private fun moveIntoPlace() {
+        try {
+            Files.move(
+                projectMetadataTemp, projectMetadata,
+                StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
+        }
+        catch (e: AtomicMoveNotSupportedException) {
+            // temp and target on different stores — a plain move copies then deletes.
+            logger.info(
+                "atomic move unsupported ({}), copying across stores: {} -> {}",
+                e.message, projectMetadataTemp, projectMetadata)
+            Files.move(projectMetadataTemp, projectMetadata, StandardCopyOption.REPLACE_EXISTING)
+        }
     }
 
 
@@ -175,30 +223,37 @@ class ProjectRepo {
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    private fun read(): ImmutableMap<String, ProjectInfo> {
+    private fun readFromDisk(): ImmutableMap<String, ProjectInfo> {
         if (!Files.exists(projectMetadata)) {
             return ImmutableMap.of()
         }
 
-        val metadataBytes = Files.readAllBytes(projectMetadata)
+        try {
+            val metadataBytes = Files.readAllBytes(projectMetadata)
 
-        val metadataRoot = parser.readTree(metadataBytes)
-                as? ObjectNode
-                ?: throw IllegalArgumentException("Key-value map expected")
+            val metadataRoot = parser.readTree(metadataBytes)
+                    as? ObjectNode
+                    ?: throw IllegalArgumentException("Key-value map expected")
 
-        val names = ImmutableSet.copyOf(metadataRoot.propertyNames())
+            val names = ImmutableSet.copyOf(metadataRoot.propertyNames())
 
-        val archetypesBuilder = ImmutableMap.builder<String, ProjectInfo>()
-        for (name in names) {
-            val value = metadataRoot[name]
-            val info = bindInfo(name, value)
+            val projectsBuilder = ImmutableMap.builder<String, ProjectInfo>()
+            for (name in names) {
+                val value = metadataRoot[name]
+                val info = bindInfo(name, value)
 
-            archetypesBuilder.put(name, info)
+                projectsBuilder.put(name, info)
+            }
+
+            return projectsBuilder.build()
         }
-//        @Suppress("UnnecessaryVariable")
-        val archetypes = archetypesBuilder.build()
-
-        return archetypes
+        catch (e: Exception) {
+            // Only a bad hand-edit can get here, and starting empty would let the next mutation persist an
+            //  empty registry over the user's project list. Fail the boot instead.
+            throw IllegalStateException(
+                "Unable to read project registry, please correct or remove it: " +
+                    "${projectMetadata.toAbsolutePath().normalize()} - ${e.message}", e)
+        }
     }
 
 

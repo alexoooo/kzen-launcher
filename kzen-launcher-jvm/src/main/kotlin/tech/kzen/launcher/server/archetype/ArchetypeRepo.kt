@@ -2,7 +2,6 @@ package tech.kzen.launcher.server.archetype
 
 import com.google.common.collect.ImmutableMap
 import org.slf4j.LoggerFactory
-import tech.kzen.launcher.server.environment.LauncherEnvironment
 import tech.kzen.launcher.server.service.DownloadService
 import java.net.URI
 import java.nio.file.AtomicMoveNotSupportedException
@@ -24,7 +23,7 @@ class ArchetypeRepo(
     private val descriptionBase: String,
     private val currentUrl: String,
     private val releasedUrl: String?,
-    private val archetypeHome: Path = LauncherEnvironment.projectHome.resolve("kzen-archetypes")
+    private val archetypeHome: Path
 ) {
     //-----------------------------------------------------------------------------------------------------------------
     @Suppress("ConstPropertyName")
