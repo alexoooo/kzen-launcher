@@ -171,6 +171,20 @@ object LauncherStore {
     }
 
 
+    // Restart of a project that died: the shell replaces its terminal entry with a fresh attempt. No
+    //  optimistic row — the name is already in the running list, so a synthetic one would be discarded
+    //  anyway; the immediate refresh plus the transitional poll cadence give feedback within a round trip.
+    fun restartProject(name: String) {
+        val detail = projects?.find { it.name == name }
+            ?: return
+
+        launchUiAction {
+            shellRestApi.startProject(detail.name, detail.path, detail.jvmArgs)
+            publishRunning(shellRestApi.runningProjects())
+        }
+    }
+
+
     //-----------------------------------------------------------------------------------------------------------------
     // Background polling of the shell-side lifecycle state and the project list. Started by the root
     //  component while the manage screen is mounted; stopped on unmount. This is what makes starting/
@@ -219,8 +233,8 @@ object LauncherStore {
     }
 
 
-    // "Something is happening": a project is mid-transition, so poll at the fast cadence. RUNNING and FAILED
-    //  are steady states (nothing pending) and fall back to the idle cadence.
+    // "Something is happening": a project is mid-transition, so poll at the fast cadence. RUNNING, FAILED
+    //  and EXITED are steady states (nothing pending) and fall back to the idle cadence.
     private fun isTransitioning(): Boolean {
         return runningProjects?.any {
             it.state == RunningState.STARTING || it.state == RunningState.STOPPING

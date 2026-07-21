@@ -23,16 +23,29 @@ class ShellSimulator {
     private class Entry(
         @Volatile var state: RunningState,
         val sequence: Long
-    )
+    ) {
+        @Volatile var exitCode: Int? = null
+        @Volatile var recentOutput: List<String>? = null
+    }
 
 
     private companion object {
         const val startMillis = 2_000L
         const val stopMillis = 1_000L
+        const val runMillis = 5_000L
 
         // A project name containing this token resolves to FAILED instead of RUNNING, so the
         //  failed-state UI can be exercised without contriving a real spawn error.
         const val failTrigger = "fail"
+
+        // Likewise for a child that dies after it was running.
+        const val exitTrigger = "exit"
+
+        const val simulatedExitCode = 3
+
+        val simulatedOutput = listOf(
+            "INFO  starting simulated project",
+            "ERROR simulated project died unexpectedly")
     }
 
 
@@ -52,16 +65,16 @@ class ShellSimulator {
     fun list(): List<RunningProject> {
         return states.entries
             .sortedByDescending { it.value.sequence }
-            .map { RunningProject(it.key, it.value.state) }
+            .map { RunningProject(it.key, it.value.state, it.value.exitCode, it.value.recentOutput) }
     }
 
 
     // Idempotent, matching the real ProjectRegistry: a start for an already-active name is a no-op; a
-    //  start for a previously-FAILED name restarts it (fresh sequence, so it jumps to the top).
+    //  start for a name in a terminal state restarts it (fresh sequence, so it jumps to the top).
     fun start(name: String) {
         var created: Entry? = null
         states.compute(name) { _, existing ->
-            if (existing != null && existing.state != RunningState.FAILED) {
+            if (existing != null && !isTerminal(existing.state)) {
                 existing
             }
             else {
@@ -77,9 +90,30 @@ class ShellSimulator {
             // Preserve the entry (and its sequence); only flip state, and only if still starting and
             //  still the entry we created (a stop/restart may have replaced it in the meantime).
             if (fresh.state == RunningState.STARTING && states[name] === fresh) {
+                if (target == RunningState.FAILED) {
+                    fresh.exitCode = simulatedExitCode
+                    fresh.recentOutput = simulatedOutput
+                }
                 fresh.state = target
             }
         }, startMillis, TimeUnit.MILLISECONDS)
+
+        if (name.contains(exitTrigger)) {
+            scheduleSimulatedExit(name, fresh)
+        }
+    }
+
+
+    // A child that comes up and then dies on its own, so the exited-state UI (chip, restart, crash tail)
+    //  can be exercised without a real crash.
+    private fun scheduleSimulatedExit(name: String, entry: Entry) {
+        scheduler.schedule({
+            if (entry.state == RunningState.RUNNING && states[name] === entry) {
+                entry.exitCode = simulatedExitCode
+                entry.recentOutput = simulatedOutput
+                entry.state = RunningState.EXITED
+            }
+        }, startMillis + runMillis, TimeUnit.MILLISECONDS)
     }
 
 
@@ -87,8 +121,8 @@ class ShellSimulator {
         val entry = states[name]
             ?: return false
 
-        // FAILED -> dismiss immediately; anything else -> brief STOPPING then gone.
-        if (entry.state == RunningState.FAILED) {
+        // Terminal -> dismiss immediately; anything else -> brief STOPPING then gone.
+        if (isTerminal(entry.state)) {
             states.remove(name, entry)
             return true
         }
@@ -98,5 +132,10 @@ class ShellSimulator {
             states.remove(name, entry)
         }, stopMillis, TimeUnit.MILLISECONDS)
         return true
+    }
+
+
+    private fun isTerminal(state: RunningState): Boolean {
+        return state == RunningState.FAILED || state == RunningState.EXITED
     }
 }

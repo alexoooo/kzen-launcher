@@ -38,6 +38,7 @@ class ManageProjectsScreen(
     private fun ChildrenBuilder.renderRunning() {
         ProjectRunning::class.react {
             projects = props.runningProjects
+            restartableNames = props.projects?.map { it.name }?.toSet()
         }
     }
 

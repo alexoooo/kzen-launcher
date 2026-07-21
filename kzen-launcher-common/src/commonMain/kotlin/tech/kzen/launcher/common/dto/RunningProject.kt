@@ -10,7 +10,13 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class RunningProject(
     val name: String,
-    val state: RunningState
+    val state: RunningState,
+
+    // Set when the child died on its own — after it was running (EXITED) or during boot (FAILED).
+    val exitCode: Int? = null,
+
+    // Tail of the child's output, populated for the FAILED and EXITED states.
+    val recentOutput: List<String>? = null
 )
 
 
@@ -30,5 +36,10 @@ enum class RunningState {
 
     // Start failed (spawn error, child died during boot, or readiness timeout). Dismissed via stop.
     @SerialName("failed")
-    FAILED
+    FAILED,
+
+    // Child died on its own after it was running. Terminal: restarted by starting it again, or dismissed
+    //  via stop.
+    @SerialName("exited")
+    EXITED
 }

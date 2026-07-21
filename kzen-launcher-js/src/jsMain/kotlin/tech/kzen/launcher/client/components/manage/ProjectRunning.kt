@@ -25,16 +25,20 @@ import tech.kzen.launcher.client.components.buttonIcon
 import tech.kzen.launcher.client.components.sectionHeading
 import tech.kzen.launcher.client.state.LauncherStore
 import tech.kzen.launcher.client.wrap.IconProps
+import tech.kzen.launcher.client.wrap.PlayArrowIcon
 import tech.kzen.launcher.client.wrap.RComponent
 import tech.kzen.launcher.client.wrap.RemoveCircleOutlinedIcon
 import tech.kzen.launcher.client.wrap.StopIcon
 import tech.kzen.launcher.common.dto.RunningProject
 import tech.kzen.launcher.common.dto.RunningState
 import web.cssom.AlignItems
+import web.cssom.Auto
 import web.cssom.Color
 import web.cssom.Display
+import web.cssom.FontFamily
 import web.cssom.FontWeight
 import web.cssom.Padding
+import web.cssom.WhiteSpace
 import web.cssom.em
 import web.cssom.number
 import web.cssom.px
@@ -44,6 +48,10 @@ import kotlin.reflect.KClass
 //---------------------------------------------------------------------------------------------------------------------
 external interface ProjectRunningProps: Props {
     var projects: List<RunningProject>?
+
+    // Names the Available section still holds: a project deleted while it was running can be dismissed
+    //  but not restarted.
+    var restartableNames: Set<String>?
 }
 
 
@@ -98,13 +106,15 @@ class ProjectRunning(
                 }
 
                 renderProjectRow(project)
+                renderRecentOutput(project)
             }
         }
     }
 
 
     // One project as a flex row: name/link on the left, then a status chip (with a spinner while it is
-    //  transitioning) and an action, pushed to the right. Running = link + Stop; failed = Dismiss.
+    //  transitioning) and an action, pushed to the right. Running = link + Stop; failed = Dismiss;
+    //  exited = Restart + Dismiss.
     private fun ChildrenBuilder.renderProjectRow(project: RunningProject) {
         div {
             css {
@@ -136,20 +146,70 @@ class ProjectRunning(
                 }
             }
 
-            renderStatusChip(project.state)
+            renderStatusChip(project)
 
             when (project.state) {
                 RunningState.RUNNING ->
-                    renderActionButton(project.name, "Stop", StopIcon::class)
+                    renderActionButton("Stop", StopIcon::class) {
+                        onStop(project.name)
+                    }
 
                 RunningState.FAILED ->
-                    renderActionButton(project.name, "Dismiss", RemoveCircleOutlinedIcon::class)
+                    renderDismissButton(project.name)
+
+                RunningState.EXITED -> {
+                    renderRestartButton(project.name)
+                    renderDismissButton(project.name)
+                }
 
                 RunningState.STARTING,
                 RunningState.STOPPING -> {
                     // Transitional: no action, just the chip + spinner above.
                 }
             }
+        }
+    }
+
+
+    private fun ChildrenBuilder.renderRestartButton(name: String) {
+        if (props.restartableNames?.contains(name) != true) {
+            return
+        }
+
+        renderActionButton("Restart", PlayArrowIcon::class) {
+            LauncherStore.restartProject(name)
+        }
+    }
+
+
+    private fun ChildrenBuilder.renderDismissButton(name: String) {
+        renderActionButton("Dismiss", RemoveCircleOutlinedIcon::class) {
+            onStop(name)
+        }
+    }
+
+
+    // The dead child's last output, always shown: a failed or exited row is exactly when the user needs it.
+    private fun ChildrenBuilder.renderRecentOutput(project: RunningProject) {
+        val recentOutput = project.recentOutput
+        if (recentOutput.isNullOrEmpty()) {
+            return
+        }
+
+        div {
+            css {
+                fontFamily = FontFamily.monospace
+                fontSize = 0.8.em
+                whiteSpace = WhiteSpace.preWrap
+                maxHeight = 10.em
+                overflowY = Auto.auto
+                padding = Padding(0.5.em, 0.75.em)
+                marginBottom = 0.5.em
+                backgroundColor = Color("rgba(0, 0, 0, 0.06)")
+                borderRadius = 6.px
+            }
+
+            +recentOutput.joinToString("\n")
         }
     }
 
@@ -168,12 +228,12 @@ class ProjectRunning(
     }
 
 
-    private fun ChildrenBuilder.renderStatusChip(state: RunningState) {
+    private fun ChildrenBuilder.renderStatusChip(project: RunningProject) {
         Chip {
             size = Size.small
             variant = ChipVariant.filled
-            label = ReactNode(statusLabel(state))
-            color = statusColor(state)
+            label = ReactNode(statusLabel(project))
+            color = statusColor(project.state)
 
             sx {
                 marginLeft = 0.5.em
@@ -182,12 +242,13 @@ class ProjectRunning(
     }
 
 
-    private fun statusLabel(state: RunningState): String {
-        return when (state) {
+    private fun statusLabel(project: RunningProject): String {
+        return when (project.state) {
             RunningState.STARTING -> "starting"
             RunningState.RUNNING -> "running"
             RunningState.STOPPING -> "stopping"
             RunningState.FAILED -> "failed"
+            RunningState.EXITED -> project.exitCode?.let { "exited ($it)" } ?: "exited"
         }
     }
 
@@ -197,15 +258,16 @@ class ProjectRunning(
             RunningState.STARTING -> ChipColor.info
             RunningState.RUNNING -> ChipColor.success
             RunningState.STOPPING -> ChipColor.warning
-            RunningState.FAILED -> ChipColor.error
+            RunningState.FAILED,
+            RunningState.EXITED -> ChipColor.error
         }
     }
 
 
     private fun ChildrenBuilder.renderActionButton(
-        name: String,
         label: String,
-        icon: KClass<out Component<IconProps, *>>
+        icon: KClass<out Component<IconProps, *>>,
+        onAction: () -> Unit
     ) {
         Button {
             variant = ButtonVariant.outlined
@@ -215,7 +277,7 @@ class ProjectRunning(
             }
 
             onClick = {
-                onStop(name)
+                onAction()
             }
 
             buttonIcon(icon)
