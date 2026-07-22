@@ -18,6 +18,7 @@ import tech.kzen.launcher.client.wrap.*
 import tech.kzen.launcher.client.wrap.select.SelectOption
 import tech.kzen.launcher.client.wrap.select.muiAutocompleteField
 import tech.kzen.launcher.common.dto.ArchetypeDetail
+import tech.kzen.launcher.common.util.VersionNumbers
 import web.cssom.*
 import kotlin.js.Date
 
@@ -61,6 +62,28 @@ class NewProjectScreen(
                     ("0" + date.getSeconds()).takeLast(2)
 
             return "$defaultNamePrefix - $timestampSuffix"
+        }
+
+
+        // New Project offers only the LATEST version per archetype name (the full per-version list is for the
+        //  Upgrade action, not fresh creation). The server sorts entries version-descending, so the first
+        //  parseable entry of each base name is its latest. Unparseable-version entries are always shown
+        //  individually — never hide a cached artifact (the kzen-project-custom.zip case).
+        fun latestPerName(archetypes: List<ArchetypeDetail>): List<ArchetypeDetail> {
+            val result = mutableListOf<ArchetypeDetail>()
+            val seenBase = mutableSetOf<String>()
+            for (archetype in archetypes) {
+                if (!VersionNumbers.parses(archetype.version)) {
+                    result.add(archetype)
+                    continue
+                }
+                if (archetype.archetype in seenBase) {
+                    continue
+                }
+                seenBase.add(archetype.archetype)
+                result.add(archetype)
+            }
+            return result
         }
     }
 
@@ -290,7 +313,7 @@ class NewProjectScreen(
                     width = 46.em
                 }
 
-                val selectOptions = archetypes
+                val selectOptions = latestPerName(archetypes)
                         .map {
                             val option: SelectOption = unsafeJso {
                                 value = it.name

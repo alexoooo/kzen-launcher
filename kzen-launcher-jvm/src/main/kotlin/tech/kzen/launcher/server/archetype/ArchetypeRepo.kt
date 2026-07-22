@@ -2,6 +2,7 @@ package tech.kzen.launcher.server.archetype
 
 import com.google.common.collect.ImmutableMap
 import org.slf4j.LoggerFactory
+import tech.kzen.launcher.common.util.VersionNumbers
 import tech.kzen.launcher.server.service.DownloadService
 import java.net.URI
 import java.nio.file.AtomicMoveNotSupportedException
@@ -145,16 +146,19 @@ class ArchetypeRepo(
     fun all(): ImmutableMap<String, ArchetypeInfo> {
         val sorted = scanArtifacts()
             .sortedWith(
-                Comparator<String> { a, b -> compareVersions(versionOf(b), versionOf(a)) }
+                Comparator<String> { a, b -> VersionNumbers.compare(versionOf(b), versionOf(a)) }
                     .thenBy { it })
 
         val builder = ImmutableMap.builder<String, ArchetypeInfo>()
         for (artifact in sorted) {
             val name = artifact.removeSuffix(zipSuffix)
+            val version = versionOf(artifact)
             builder.put(name, ArchetypeInfo(
                 title,
-                "$descriptionBase - v${versionOf(artifact)}",
-                archetypeHome.resolve(artifact)))
+                "$descriptionBase - v$version",
+                archetypeHome.resolve(artifact),
+                archetypeName,
+                version))
         }
         return builder.build()
     }
@@ -193,35 +197,5 @@ class ArchetypeRepo(
         return artifact
             .removePrefix("$archetypeName-")
             .removeSuffix(zipSuffix)
-    }
-
-
-    // Numeric sort key: version components plus a trailing snapshot flag, so a snapshot sorts
-    //  above its equal release (the dev-current entry leads while the pair transiently coexists).
-    //  An unparseable version sorts last but is still offered — never hide a cached artifact.
-    private fun versionKey(version: String): List<Int> {
-        val snapshot = version.endsWith(snapshotSuffix)
-        val base = version.removeSuffix(snapshotSuffix)
-
-        val components = base.split('.').map {
-            it.toIntOrNull()
-                ?: return listOf(Int.MIN_VALUE)
-        }
-
-        return components + (if (snapshot) 1 else 0)
-    }
-
-
-    private fun compareVersions(a: String, b: String): Int {
-        val aKey = versionKey(a)
-        val bKey = versionKey(b)
-
-        for (i in 0 until maxOf(aKey.size, bKey.size)) {
-            val comparison = aKey.getOrElse(i) { 0 }.compareTo(bKey.getOrElse(i) { 0 })
-            if (comparison != 0) {
-                return comparison
-            }
-        }
-        return 0
     }
 }

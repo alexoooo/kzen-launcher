@@ -85,3 +85,9 @@ external class RedoIcon: Component<IconProps, react.State> {
 external class InfoIcon: Component<IconProps, react.State> {
     override fun render(): ReactElement<IconProps>?
 }
+
+
+@JsName("Upgrade")
+external class UpgradeIcon: Component<IconProps, react.State> {
+    override fun render(): ReactElement<IconProps>?
+}

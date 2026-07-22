@@ -36,7 +36,9 @@ class RestHandler(
                     name = it.key,
                     path = normalized,
                     jvmArgs = it.value.jvmArguments,
-                    exists = exists)
+                    exists = exists,
+                    archetype = it.value.archetype,
+                    version = it.value.version)
             }
     }
 
@@ -47,8 +49,12 @@ class RestHandler(
 
         ProjectNameValidation.check(projectName)
 
+        // Resolve the archetype once so its base name + version are recorded on the project — the same
+        //  lookup ProjectCreator.create does internally (a scan lookup, not a path resolve; safe input).
+        val archetypeInfo = archetypeRepo.get(archetypeName)
+
         val projectHome = projectCreator.create(projectName, archetypeName)
-        projectRepo.add(projectName, projectHome)
+        projectRepo.add(projectName, projectHome, archetypeInfo.archetype, archetypeInfo.version)
     }
 
 
@@ -56,7 +62,20 @@ class RestHandler(
         val projectHome = parameters.getParam(CommonRestApi.projectPath, Paths::get)
         val projectName = projectHome.fileName.toString()
 
+        // An imported project has no known archetype source, so it records unknown/unknown (add's defaults).
         projectRepo.add(projectName, projectHome)
+    }
+
+
+    fun upgradeProject(parameters: Parameters) {
+        val projectName = parameters.getParam(CommonRestApi.projectName)
+        val archetypeName = parameters.getParam(CommonRestApi.createProjectType)
+
+        val projectInfo = projectRepo.get(projectName)
+        val archetypeInfo = archetypeRepo.get(archetypeName)
+
+        projectCreator.upgrade(projectInfo.home, archetypeInfo)
+        projectRepo.recordArchetype(projectName, archetypeInfo.archetype, archetypeInfo.version)
     }
 
 

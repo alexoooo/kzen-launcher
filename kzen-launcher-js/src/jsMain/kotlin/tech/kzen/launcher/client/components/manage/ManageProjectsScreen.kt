@@ -6,6 +6,7 @@ import react.State
 import tech.kzen.launcher.client.components.whiteCard
 import tech.kzen.launcher.client.wrap.RComponent
 import tech.kzen.launcher.client.wrap.react
+import tech.kzen.launcher.common.dto.ArchetypeDetail
 import tech.kzen.launcher.common.dto.ProjectDetail
 import tech.kzen.launcher.common.dto.RunningProject
 
@@ -14,6 +15,7 @@ import tech.kzen.launcher.common.dto.RunningProject
 external interface ManageProjectsScreenProps: Props {
     var projects: List<ProjectDetail>?
     var runningProjects: List<RunningProject>?
+    var archetypes: List<ArchetypeDetail>?
 }
 
 
@@ -50,6 +52,7 @@ class ManageProjectsScreen(
             //  is shown in the Running section instead.
             projects = props.projects
                 ?.filter { it.name !in activeNames }
+            archetypes = props.archetypes
         }
     }
 }

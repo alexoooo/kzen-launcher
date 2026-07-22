@@ -135,6 +135,56 @@ class ProjectRepoTest {
 
     //-----------------------------------------------------------------------------------------------------------------
     @Test
+    fun `archetype and version round-trip through a relaunch`() {
+        val first = repo()
+        first.add("alpha", projectHome.resolve("alpha"), "kzen-project", "0.30.0-SNAPSHOT")
+        first.add("beta", projectHome.resolve("beta"))
+
+        val relaunched = repo()
+        assertEquals("kzen-project", relaunched.get("alpha").archetype)
+        assertEquals("0.30.0-SNAPSHOT", relaunched.get("alpha").version)
+        // add() without archetype/version records unknown
+        assertEquals(ProjectRepo.unknownValue, relaunched.get("beta").archetype)
+        assertEquals(ProjectRepo.unknownValue, relaunched.get("beta").version)
+    }
+
+
+    @Test
+    fun `legacy yaml without archetype fields binds to unknown`() {
+        val home = projectHome.resolve("legacy").toAbsolutePath().normalize().toString()
+        Files.writeString(metadata,
+            "legacy:\n" +
+            "  home: \"${home.replace("\\", "\\\\")}\"\n" +
+            "  args: \"\"\n")
+
+        val repo = repo()
+        assertEquals(ProjectRepo.unknownValue, repo.get("legacy").archetype)
+        assertEquals(ProjectRepo.unknownValue, repo.get("legacy").version)
+    }
+
+
+    @Test
+    fun `recordArchetype persists the new archetype and version`() {
+        val repo = repo()
+        repo.add("alpha", projectHome.resolve("alpha"), "kzen-project", "0.29.1")
+
+        repo.recordArchetype("alpha", "kzen-project", "0.30.0-SNAPSHOT")
+
+        assertEquals("0.30.0-SNAPSHOT", repo.get("alpha").version)
+        assertEquals("0.30.0-SNAPSHOT", repo().get("alpha").version)
+    }
+
+
+    @Test
+    fun `recordArchetype on a missing project is rejected`() {
+        assertFailsWith<IllegalArgumentException> {
+            repo().recordArchetype("nope", "kzen-project", "0.30.0")
+        }
+    }
+
+
+    //-----------------------------------------------------------------------------------------------------------------
+    @Test
     fun `concurrent mutations neither lose an update nor corrupt the file`() {
         val addCount = 40
         val renameCount = 10

@@ -14,5 +14,10 @@ data class ProjectDetail(
     @SerialName("args")
     val jvmArgs: String,
 
-    val exists: Boolean
+    val exists: Boolean,
+
+    // Archetype the project was last created / upgraded from (kotlinx defaults ⇒ additive on the wire).
+    //  "unknown" for imports and pre-SH4 projects. Drives the per-row Upgrade offer and the shown version.
+    val archetype: String = "unknown",
+    val version: String = "unknown"
 )

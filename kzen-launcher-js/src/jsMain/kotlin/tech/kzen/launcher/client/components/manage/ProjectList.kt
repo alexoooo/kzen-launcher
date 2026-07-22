@@ -15,6 +15,7 @@ import tech.kzen.launcher.client.components.sectionHeading
 import tech.kzen.launcher.client.state.LauncherStore
 import tech.kzen.launcher.client.wrap.RComponent
 import tech.kzen.launcher.client.wrap.react
+import tech.kzen.launcher.common.dto.ArchetypeDetail
 import tech.kzen.launcher.common.dto.ProjectDetail
 import web.cssom.em
 import kotlin.js.Promise
@@ -23,6 +24,7 @@ import kotlin.js.Promise
 //---------------------------------------------------------------------------------------------------------------------
 external interface ProjectListProps: Props {
     var projects: List<ProjectDetail>?
+    var archetypes: List<ArchetypeDetail>?
 }
 
 
@@ -53,6 +55,13 @@ class ProjectList(
     //  settles. The store also refreshes the project list, dropping the deleted project (and its row).
     private fun onDelete(project: ProjectDetail): Promise<Unit> {
         return LauncherStore.deleteProject(project.name)
+    }
+
+
+    // Delegates to the store (Promise-returning, like onDelete) so ProjectItem can show an upgrade spinner.
+    //  The store refreshes the list on success, so the row's recorded version updates in place.
+    private fun onUpgrade(project: ProjectDetail, archetypeName: String): Promise<Unit> {
+        return LauncherStore.upgradeProject(project.name, archetypeName)
     }
 
 
@@ -105,10 +114,12 @@ class ProjectList(
 
                 ProjectItem::class.react {
                     this.project = project
+                    this.archetypes = props.archetypes
 
                     onStart = ::onStart
                     onRemove = ::onRemove
                     onDelete = ::onDelete
+                    onUpgrade = ::onUpgrade
                     onRename = ::onRename
                     onChangeJvmArgs = ::onChangeJvmArguments
                 }

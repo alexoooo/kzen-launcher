@@ -135,6 +135,15 @@ object LauncherStore {
     }
 
 
+    // Upgrade + refresh, returned as a Promise so the row can await completion to clear its upgrade spinner.
+    //  On success the project's row shows the new recorded version; on failure (e.g. a 409 while running) it
+    //  stays unchanged with the error surfaced via the interceptor.
+    fun upgradeProject(name: String, type: String): Promise<Unit> = async {
+        clientRestApi.upgradeProject(name, type)
+        publishProjects(clientRestApi.listProjects())
+    }
+
+
     // Immediate (error-surfacing) refresh of the running list after a start/stop click, so the UI reacts
     //  without waiting for the next poll tick. Does not null the field first — the Running section updates
     //  in place rather than flashing "Loading...".

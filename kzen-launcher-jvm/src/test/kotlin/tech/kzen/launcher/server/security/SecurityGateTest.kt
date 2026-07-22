@@ -61,6 +61,7 @@ class SecurityGateTest {
 
         assertTrue(denied(site = "cross-site", mode = "navigate", path = "/rs/command/project/delete"))
         assertTrue(denied(site = "cross-site", mode = "navigate", path = "/rs/command/project/rename"))
+        assertTrue(denied(site = "cross-site", mode = "navigate", path = "/rs/command/project/upgrade"))
         assertTrue(denied(site = "cross-site", mode = "navigate", path = "/shell/project/start"))
         assertTrue(denied(site = "cross-site", mode = "navigate", path = "/shell/project/stop"))
     }

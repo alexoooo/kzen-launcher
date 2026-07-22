@@ -43,6 +43,13 @@ class ClientProjectRestApi(
     }
 
 
+    suspend fun upgradeProject(name: String, type: String) {
+        get(CommonRestApi.upgradeProject,
+                CommonRestApi.projectName to name,
+                CommonRestApi.createProjectType to type)
+    }
+
+
     suspend fun removeProject(name: String) {
         get(CommonRestApi.removeProject,
                 CommonRestApi.projectName to name)

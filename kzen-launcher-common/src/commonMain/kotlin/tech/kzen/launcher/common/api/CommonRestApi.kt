@@ -12,6 +12,7 @@ object CommonRestApi {
     private const val projectCommandPrefix = "${commandPrefix}project/"
     const val createProject = "${projectCommandPrefix}create"
     const val importProject = "${projectCommandPrefix}import"
+    const val upgradeProject = "${projectCommandPrefix}upgrade"
     const val removeProject = "${projectCommandPrefix}remove"
     const val deleteProject = "${projectCommandPrefix}delete"
     const val renameProject = "${projectCommandPrefix}rename"

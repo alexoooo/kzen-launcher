@@ -152,6 +152,7 @@ class ProjectLauncher(
             ManageProjectsScreen::class.react {
                 projects = LauncherStore.projects
                 runningProjects = LauncherStore.runningProjects
+                archetypes = LauncherStore.archetypes
             }
         }
     }

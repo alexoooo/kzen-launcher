@@ -39,6 +39,12 @@ class ProjectRepo(projectHome: Path) {
                 .build())
 
         private const val homeProperty = "home"
+        private const val archetypeProperty = "archetype"
+        private const val versionProperty = "version"
+
+        // Archetype/version recorded for imported and pre-SH4 projects (no known archetype source). Such a
+        //  project is offered every cached version as an upgrade, so it can adopt version tracking via one.
+        const val unknownValue = "unknown"
     }
 
 
@@ -84,9 +90,16 @@ class ProjectRepo(projectHome: Path) {
 
     //-----------------------------------------------------------------------------------------------------------------
     @Synchronized
-    fun add(name: String, home: Path) {
+    fun add(
+        name: String,
+        home: Path,
+        archetype: String = unknownValue,
+        version: String = unknownValue
+    ) {
         val info = ProjectInfo(
-                home = home)
+                home = home,
+                archetype = archetype,
+                version = version)
 
         val previous = projects
 
@@ -166,6 +179,23 @@ class ProjectRepo(projectHome: Path) {
     }
 
 
+    // Records the archetype a project was upgraded to (after ProjectCreator.upgrade swapped its jar in), so
+    //  the manage list reflects the new version and the offer recomputes. Read-copy-write like changeArguments.
+    @Synchronized
+    fun recordArchetype(name: String, archetype: String, version: String) {
+        val previous = projects
+
+        val previousProject = previous[name]
+            ?: throw IllegalArgumentException("Project not found: $name")
+
+        val asMutable = previous.toMutableMap()
+        asMutable[name] = previousProject.copy(archetype = archetype, version = version)
+        val next = ImmutableMap.copyOf(asMutable)
+
+        publish(next)
+    }
+
+
     private fun removeAndWrite(
             name: String,
             previous: ImmutableMap<String, ProjectInfo>
@@ -218,7 +248,9 @@ class ProjectRepo(projectHome: Path) {
     private fun unbind(info: ProjectInfo): Map<String, Any> {
         return ImmutableMap.of(
             homeProperty, info.home.toAbsolutePath().normalize().toString(),
-            CommonRestApi.projectJvmArgs, info.jvmArguments)
+            CommonRestApi.projectJvmArgs, info.jvmArguments,
+            archetypeProperty, info.archetype,
+            versionProperty, info.version)
     }
 
 
@@ -269,8 +301,14 @@ class ProjectRepo(projectHome: Path) {
 
         val jvmArgs = (properties[CommonRestApi.projectJvmArgs] as? StringNode)?.asString() ?: ""
 
+        // Additive: legacy registries (pre-SH4) and hand-edits without these keys bind to unknown.
+        val archetype = (properties[archetypeProperty] as? StringNode)?.asString() ?: unknownValue
+        val version = (properties[versionProperty] as? StringNode)?.asString() ?: unknownValue
+
         return ProjectInfo(
             Paths.get(path.asString()),
-            jvmArgs)
+            jvmArgs,
+            archetype,
+            version)
     }
 }

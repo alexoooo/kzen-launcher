@@ -81,7 +81,10 @@ class ArchetypeRepoTest {
         assertEquals("Automation and Reporting", info.title)
         assertEquals("Visually control a browser and more - v0.29.1", info.description)
         assertEquals(archetypeHome.resolve("kzen-project-0.29.1.zip"), info.location)
+        assertEquals("kzen-project", info.archetype)
+        assertEquals("0.29.1", info.version)
         assertEquals("Visually control a browser and more - v0.28.0", all["kzen-project-0.28.0"]!!.description)
+        assertEquals("0.28.0", all["kzen-project-0.28.0"]!!.version)
     }
 
 

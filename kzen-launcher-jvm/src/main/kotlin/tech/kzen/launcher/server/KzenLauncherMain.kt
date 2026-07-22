@@ -376,7 +376,9 @@ private fun Routing.routeRest(
             e.key,
             e.value.title,
             e.value.description,
-            e.value.location.toAbsolutePath().normalize().toString())
+            e.value.location.toAbsolutePath().normalize().toString(),
+            e.value.archetype,
+            e.value.version)
         })
     }
 
@@ -389,6 +391,9 @@ private fun Routing.routeRest(
     }
     get(CommonRestApi.importProject) {
         respondCommand { restHandler.importProject(call.parameters) }
+    }
+    get(CommonRestApi.upgradeProject) {
+        respondCommand { restHandler.upgradeProject(call.parameters) }
     }
     get(CommonRestApi.removeProject) {
         respondCommand { restHandler.removeProject(call.parameters) }
