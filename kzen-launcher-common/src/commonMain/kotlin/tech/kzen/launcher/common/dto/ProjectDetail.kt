@@ -17,7 +17,15 @@ data class ProjectDetail(
     val exists: Boolean,
 
     // Archetype the project was last created / upgraded from (kotlinx defaults ⇒ additive on the wire).
-    //  "unknown" for imports and pre-SH4 projects. Drives the per-row Upgrade offer and the shown version.
-    val archetype: String = "unknown",
-    val version: String = "unknown"
-)
+    //  Drives the per-row Upgrade offer and the shown version.
+    val archetype: String = unknownValue,
+    val version: String = unknownValue
+) {
+    @Suppress("ConstPropertyName")
+    companion object {
+        // Archetype/version of a project with no known archetype source (an import, or a registry entry
+        //  predating version tracking). Such a project is offered every cached version as an upgrade, so
+        //  one upgrade lets it adopt tracking. Written by the server registry, read by the client.
+        const val unknownValue = "unknown"
+    }
+}

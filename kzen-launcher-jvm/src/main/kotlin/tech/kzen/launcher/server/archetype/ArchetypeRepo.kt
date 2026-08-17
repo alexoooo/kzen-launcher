@@ -4,11 +4,10 @@ import com.google.common.collect.ImmutableMap
 import org.slf4j.LoggerFactory
 import tech.kzen.launcher.common.util.VersionNumbers
 import tech.kzen.launcher.server.service.DownloadService
+import tech.kzen.launcher.server.util.AtomicMoveUtil
 import java.net.URI
-import java.nio.file.AtomicMoveNotSupportedException
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.StandardCopyOption
 
 
 // The cache directory of zips IS the catalogue: every `<archetypeName>-<version>.zip` present in
@@ -81,7 +80,7 @@ class ArchetypeRepo(
         return try {
             val partial = target.resolveSibling(target.fileName.toString() + partSuffix)
             downloadService.download(URI(url), partial)
-            moveIntoPlace(partial, target)
+            AtomicMoveUtil.move(partial, target, replaceExisting = true)
             true
         }
         catch (e: Exception) {
@@ -126,18 +125,6 @@ class ArchetypeRepo(
         }
         catch (e: Exception) {
             logger.warn("unable to delete: {} - {}", path, e.toString())
-        }
-    }
-
-
-    private fun moveIntoPlace(partial: Path, target: Path) {
-        try {
-            Files.move(partial, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
-        }
-        catch (e: AtomicMoveNotSupportedException) {
-            // partial and target on different stores — a plain move copies then deletes.
-            logger.info("atomic move unsupported ({}), copying across stores: {} -> {}", e.message, partial, target)
-            Files.move(partial, target, StandardCopyOption.REPLACE_EXISTING)
         }
     }
 

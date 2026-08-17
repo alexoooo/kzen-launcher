@@ -1,26 +1,22 @@
 package tech.kzen.launcher.server.project
 
-//import org.springframework.stereotype.Component
-import com.google.common.io.ByteStreams
 import com.google.common.io.MoreFiles
 import com.google.common.io.RecursiveDeleteOption
 import org.slf4j.LoggerFactory
 import tech.kzen.launcher.server.archetype.ArchetypeInfo
 import tech.kzen.launcher.server.archetype.ArchetypeRepo
+import tech.kzen.launcher.server.util.AtomicMoveUtil
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
-import java.nio.file.AtomicMoveNotSupportedException
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.StandardCopyOption
 import java.nio.file.attribute.PosixFilePermission
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
 
-//@Component
 class ProjectCreator(
     val archetypeRepo: ArchetypeRepo,
     private val projectHome: Path
@@ -79,7 +75,7 @@ class ProjectCreator(
             "archetype missing $mainJarName: ${archetypeInfo.location}"
         }
 
-        swapIntoPlace(staging, home)
+        AtomicMoveUtil.move(staging, home)
 
         return home
     }
@@ -201,18 +197,6 @@ class ProjectCreator(
     }
 
 
-    private fun swapIntoPlace(staging: Path, home: Path) {
-        try {
-            Files.move(staging, home, StandardCopyOption.ATOMIC_MOVE)
-        }
-        catch (e: AtomicMoveNotSupportedException) {
-            // staging and home on different stores — a plain move copies then deletes.
-            logger.info("atomic move unsupported ({}), copying across stores: {} -> {}", e.message, staging, home)
-            Files.move(staging, home)
-        }
-    }
-
-
     private fun extractGradle(path: Path, zipLocation: Path) {
         Files.newInputStream(zipLocation).use { input ->
             unzip(input, path)
@@ -229,8 +213,10 @@ class ProjectCreator(
 
 
 
-    private fun unzip(zipFile: InputStream, destDirectory: Path) {
-        ZipInputStream(zipFile).use { zipIn ->
+    // Intentionally duplicated in kzen-shell's ArtifactInstaller (unzip/resolveEntry — the launcher
+    //  and shell share no module; same rationale as SecurityGate) — keep the copies in sync.
+    private fun unzip(zipInput: InputStream, destDirectory: Path) {
+        ZipInputStream(zipInput).use { zipIn ->
             while (true) {
                 val entry: ZipEntry =
                         zipIn.nextEntry
@@ -244,7 +230,7 @@ class ProjectCreator(
                 else {
                     Files.createDirectories(filePath.parent)
                     Files.newOutputStream(filePath).use {
-                        ByteStreams.copy(zipIn, it)
+                        zipIn.copyTo(it)
                     }
                 }
                 zipIn.closeEntry()

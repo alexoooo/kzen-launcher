@@ -9,7 +9,8 @@ import java.nio.file.Path
 
 // Downloads executable artifacts (archetype zips/jars), so TLS certificates are validated with
 //  the JVM's default trust store — corporate-MITM environments can supply their own via
-//  -Djavax.net.ssl.trustStore (see README).
+//  -Djavax.net.ssl.trustStore (see README). Intentionally duplicated in kzen-shell's
+//  DownloadService (no shared module — same rationale as SecurityGate) — keep the copies in sync.
 class DownloadService {
     //-----------------------------------------------------------------------------------------------------------------
     companion object {
@@ -21,7 +22,7 @@ class DownloadService {
     fun download(location: URI, destination: Path) {
         Files.createDirectories(destination.parent)
 
-        logger.info("downloading: {}", location)
+        logger.info("downloading: {} to {}", location, destination)
 
         val bytes = BufferedOutputStream(
             Files.newOutputStream(destination)

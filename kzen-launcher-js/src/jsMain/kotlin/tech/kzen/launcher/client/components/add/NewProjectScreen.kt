@@ -3,7 +3,6 @@ package tech.kzen.launcher.client.components.add
 import emotion.react.css
 import js.objects.unsafeJso
 import mui.material.*
-import mui.system.sx
 import react.ChildrenBuilder
 import react.Props
 import react.State
@@ -11,6 +10,7 @@ import react.dom.html.ReactHTML.div
 import tech.kzen.launcher.client.api.clientRestApi
 import tech.kzen.launcher.client.api.launchUiAction
 import tech.kzen.launcher.client.components.buttonIcon
+import tech.kzen.launcher.client.components.buttonSpinner
 import tech.kzen.launcher.client.components.sectionHeading
 import tech.kzen.launcher.client.components.whiteCard
 import tech.kzen.launcher.client.components.wideTextField
@@ -224,13 +224,7 @@ class NewProjectScreen(
                     onClick = { onCreate() }
 
                     if (state.creating) {
-                        CircularProgress {
-                            sx {
-                                width = 1.em
-                                height = 1.em
-                                marginRight = 0.25.em
-                            }
-                        }
+                        buttonSpinner()
                     }
                     else {
                         buttonIcon(CreateIcon::class)
@@ -264,13 +258,7 @@ class NewProjectScreen(
                     onClick = { onImport() }
 
                     if (state.importing) {
-                        CircularProgress {
-                            sx {
-                                width = 1.em
-                                height = 1.em
-                                marginRight = 0.25.em
-                            }
-                        }
+                        buttonSpinner()
                     }
                     else {
                         buttonIcon(RedoIcon::class)

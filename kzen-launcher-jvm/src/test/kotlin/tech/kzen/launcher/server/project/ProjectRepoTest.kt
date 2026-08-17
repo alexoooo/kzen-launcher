@@ -6,6 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import tech.kzen.launcher.common.dto.ProjectDetail
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.test.AfterTest
@@ -144,8 +145,8 @@ class ProjectRepoTest {
         assertEquals("kzen-project", relaunched.get("alpha").archetype)
         assertEquals("0.30.0-SNAPSHOT", relaunched.get("alpha").version)
         // add() without archetype/version records unknown
-        assertEquals(ProjectRepo.unknownValue, relaunched.get("beta").archetype)
-        assertEquals(ProjectRepo.unknownValue, relaunched.get("beta").version)
+        assertEquals(ProjectDetail.unknownValue, relaunched.get("beta").archetype)
+        assertEquals(ProjectDetail.unknownValue, relaunched.get("beta").version)
     }
 
 
@@ -158,8 +159,8 @@ class ProjectRepoTest {
             "  args: \"\"\n")
 
         val repo = repo()
-        assertEquals(ProjectRepo.unknownValue, repo.get("legacy").archetype)
-        assertEquals(ProjectRepo.unknownValue, repo.get("legacy").version)
+        assertEquals(ProjectDetail.unknownValue, repo.get("legacy").archetype)
+        assertEquals(ProjectDetail.unknownValue, repo.get("legacy").version)
     }
 
 

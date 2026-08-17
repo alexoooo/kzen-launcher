@@ -29,10 +29,19 @@ class SecurityGateTest {
 
 
     @Test
-    fun `local hosts pass, non-local denied`() {
+    fun `local hosts pass with and without port`() {
         assertFalse(denied(host = "localhost"))
+        assertFalse(denied(host = "127.0.0.1"))
         assertFalse(denied(host = "127.0.0.1:8080"))
+        assertFalse(denied(host = "LocalHost:8080"))
+    }
+
+
+    @Test
+    fun `non-local host denied (DNS rebinding)`() {
         assertTrue(denied(host = "evil.test:8080"))
+        assertTrue(denied(host = "evil.test"))
+        assertTrue(denied(host = "localhost.evil.test:8080"))
         assertTrue(denied(host = "localhost.evil.test"))
     }
 
@@ -47,9 +56,11 @@ class SecurityGateTest {
 
     @Test
     fun `cross-site subresource and fetch denied`() {
+        // <img src>, script, fetch() from another page
         assertTrue(denied(site = "cross-site", mode = "no-cors"))
         assertTrue(denied(site = "cross-site", mode = "cors"))
         assertTrue(denied(site = "cross-site", mode = "no-cors", path = "/rs/command/project/delete"))
+        // unknown future values treated as cross-site
         assertTrue(denied(site = "other", mode = "cors"))
     }
 

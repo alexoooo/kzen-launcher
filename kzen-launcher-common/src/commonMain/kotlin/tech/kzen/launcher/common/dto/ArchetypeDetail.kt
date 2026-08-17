@@ -6,8 +6,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ArchetypeDetail(
     val name: String,
-    var title: String,
-    var description: String,
+    val title: String,
+    val description: String,
     val location: String,
 
     // Split identity (kotlinx defaults ⇒ additive on the wire): base name groups per-version entries,

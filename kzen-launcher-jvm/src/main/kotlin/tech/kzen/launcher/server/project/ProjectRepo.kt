@@ -5,17 +5,18 @@ import com.google.common.collect.ImmutableSet
 import com.google.common.collect.Maps
 import org.slf4j.LoggerFactory
 import tech.kzen.launcher.common.api.CommonRestApi
+import tech.kzen.launcher.common.dto.ProjectDetail
+import tech.kzen.launcher.server.util.AtomicMoveUtil
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.databind.node.ObjectNode
 import tools.jackson.databind.node.StringNode
 import tools.jackson.dataformat.yaml.YAMLFactory
 import tools.jackson.dataformat.yaml.YAMLWriteFeature
-import java.nio.file.AtomicMoveNotSupportedException
+import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.nio.file.StandardCopyOption
 
 
 // The user's project list, held as an immutable snapshot loaded once at construction: reads serve the
@@ -41,10 +42,6 @@ class ProjectRepo(projectHome: Path) {
         private const val homeProperty = "home"
         private const val archetypeProperty = "archetype"
         private const val versionProperty = "version"
-
-        // Archetype/version recorded for imported and pre-SH4 projects (no known archetype source). Such a
-        //  project is offered every cached version as an upgrade, so it can adopt version tracking via one.
-        const val unknownValue = "unknown"
     }
 
 
@@ -67,11 +64,6 @@ class ProjectRepo(projectHome: Path) {
 
 
     //-----------------------------------------------------------------------------------------------------------------
-    fun contains(name: String): Boolean {
-        return projects.keys.contains(name)
-    }
-
-
     fun list(): List<String> {
         return projects.keys.asList()
     }
@@ -93,8 +85,8 @@ class ProjectRepo(projectHome: Path) {
     fun add(
         name: String,
         home: Path,
-        archetype: String = unknownValue,
-        version: String = unknownValue
+        archetype: String = ProjectDetail.unknownValue,
+        version: String = ProjectDetail.unknownValue
     ) {
         val info = ProjectInfo(
                 home = home,
@@ -150,7 +142,16 @@ class ProjectRepo(projectHome: Path) {
 
         val newLocation = location.resolveSibling(newName)
 
-        Files.move(location, newLocation)
+        try {
+            Files.move(location, newLocation)
+        }
+        catch (e: IOException) {
+            // On Windows a running project holds files in its directory open, so the rename fails —
+            //  surface it as the state conflict it is (→ 409), matching delete above, rather than a
+            //  message-less 500.
+            throw IllegalStateException(
+                "Could not rename project directory (is the project still running?): $location", e)
+        }
 
         val oldInfo = previous[name]!!
         val newInfo = oldInfo.copy(home = newLocation)
@@ -225,23 +226,7 @@ class ProjectRepo(projectHome: Path) {
         Files.createDirectories(projectMetadata.toAbsolutePath().parent)
         Files.write(projectMetadataTemp, metadataBytes)
 
-        moveIntoPlace()
-    }
-
-
-    private fun moveIntoPlace() {
-        try {
-            Files.move(
-                projectMetadataTemp, projectMetadata,
-                StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
-        }
-        catch (e: AtomicMoveNotSupportedException) {
-            // temp and target on different stores — a plain move copies then deletes.
-            logger.info(
-                "atomic move unsupported ({}), copying across stores: {} -> {}",
-                e.message, projectMetadataTemp, projectMetadata)
-            Files.move(projectMetadataTemp, projectMetadata, StandardCopyOption.REPLACE_EXISTING)
-        }
+        AtomicMoveUtil.move(projectMetadataTemp, projectMetadata, replaceExisting = true)
     }
 
 
@@ -302,8 +287,8 @@ class ProjectRepo(projectHome: Path) {
         val jvmArgs = (properties[CommonRestApi.projectJvmArgs] as? StringNode)?.asString() ?: ""
 
         // Additive: legacy registries (pre-SH4) and hand-edits without these keys bind to unknown.
-        val archetype = (properties[archetypeProperty] as? StringNode)?.asString() ?: unknownValue
-        val version = (properties[versionProperty] as? StringNode)?.asString() ?: unknownValue
+        val archetype = (properties[archetypeProperty] as? StringNode)?.asString() ?: ProjectDetail.unknownValue
+        val version = (properties[versionProperty] as? StringNode)?.asString() ?: ProjectDetail.unknownValue
 
         return ProjectInfo(
             Paths.get(path.asString()),

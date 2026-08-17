@@ -32,6 +32,9 @@ fun HTML.indexPage(
         }
     }
 
+    // Splash body intentionally duplicated from kzen-auto's indexPage (server/backend/Pages.kt —
+    //  no shared module), so both apps show the same logo-and-loader while the bundle boots —
+    //  keep the copies in sync.
     body {
         style = "background-color: rgb(225, 225, 225)"
 

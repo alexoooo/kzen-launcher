@@ -3,6 +3,7 @@ package tech.kzen.launcher.client.components
 import js.objects.unsafeJso
 import mui.material.Card
 import mui.material.CardContent
+import mui.material.CircularProgress
 import mui.material.TextField
 import mui.material.Typography
 import mui.material.styles.TypographyVariant
@@ -81,6 +82,19 @@ fun ChildrenBuilder.wideTextField(label: String, value: String, onValueChange: (
 fun ChildrenBuilder.buttonIcon(icon: KClass<out Component<IconProps, *>>) {
     icon.react {
         style = unsafeJso {
+            marginRight = 0.25.em
+        }
+    }
+}
+
+
+// Stands in for a button's leading icon while that button's action is in flight — same size and
+//  right margin as buttonIcon, so the label doesn't shift when the spinner appears.
+fun ChildrenBuilder.buttonSpinner() {
+    CircularProgress {
+        sx {
+            width = 1.em
+            height = 1.em
             marginRight = 0.25.em
         }
     }

@@ -10,6 +10,8 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.slf4j.LoggerFactory
@@ -21,7 +23,6 @@ import kotlin.system.exitProcess
 import tech.kzen.launcher.common.api.CommonRestApi
 import tech.kzen.launcher.common.api.staticResourceDir
 import tech.kzen.launcher.common.api.staticResourcePath
-import tech.kzen.launcher.common.dto.ArchetypeDetail
 import tech.kzen.launcher.server.api.RestHandler
 import tech.kzen.launcher.server.archetype.ArchetypeRepo
 import tech.kzen.launcher.server.backend.indexPage
@@ -48,10 +49,11 @@ fun main(args: Array<String>) {
 
 // Managed-child lifeline (intentionally duplicated from kzen-auto's KzenAutoMain — the launcher
 //  depends on neither kzen-lib nor kzen-auto, so there is no shared home worth the coupling for
-//  ~20 lines). kzen-shell keeps our stdin open as a PIPE; when it closes that stream (graceful
-//  stop) or dies (the OS then closes the inherited pipe on every platform) we observe EOF, and
-//  exitProcess(0) frees the port. OS-agnostic, unlike Process.destroy() which is a hookless hard
-//  kill (TerminateProcess) on Windows. The launcher holds no resources needing orderly shutdown.
+//  ~20 lines — keep the copies in sync). kzen-shell keeps our stdin open as a PIPE; when it
+//  closes that stream (graceful stop) or dies (the OS then closes the inherited pipe on every
+//  platform) we observe EOF, and exitProcess(0) frees the port. OS-agnostic, unlike
+//  Process.destroy() which is a hookless hard kill (TerminateProcess) on Windows. The launcher
+//  holds no resources needing orderly shutdown.
 private fun startManagedLifeline() {
     val thread = Thread({
         try {
@@ -112,6 +114,9 @@ data class KzenLauncherConfig(
         // Sibling of the launcher's working directory, which for an interactive run is the repo root.
         val defaultProjectHome: Path = Paths.get("../kzen-proj")
 
+        // --server.port= parsing is intentionally duplicated across the spawn protocol's mains
+        //  (kzen-auto's KzenAutoConfig, kzen-shell's KzenShellProperties — no shared module);
+        //  keep the copies in sync.
         @Suppress("ConstPropertyName")
         private const val serverPortPrefix = "--server.port="
 
@@ -198,8 +203,6 @@ data class KzenLauncherContext(
 //---------------------------------------------------------------------------------------------------------------------
 const val kzenLauncherJsModuleName = "kzen-launcher-js"
 
-//const val jsResourcePath = "$staticResourcePath/$jsFileName"
-
 private const val indexFileName = "index.html"
 private const val indexFilePath = "/$indexFileName"
 
@@ -261,7 +264,6 @@ fun buildContext(args: Array<String>): KzenLauncherContext {
     val projectRepo = ProjectRepo(projectHome)
     val projectCreator = ProjectCreator(archetypeRepo, projectHome)
     val restHandler = RestHandler(archetypeRepo, projectRepo, projectCreator)
-//    val serverRestApi = ServerRestApi(restHandler)
 
     val port = KzenLauncherConfig.readPort(args) ?: 8080
 
@@ -370,20 +372,15 @@ private fun Routing.routeShellSimulator(
 private fun Routing.routeRest(
     restHandler: RestHandler
 ) {
+    // Both queries read the filesystem — the archetype catalogue is a directory scan, and each project's
+    //  existence is a stat — so they run off the request dispatcher, like the commands below.
     get(CommonRestApi.listArchetypes) {
-        val response = restHandler.listArchetypes()
-        call.respond(response.entries.map { e -> ArchetypeDetail(
-            e.key,
-            e.value.title,
-            e.value.description,
-            e.value.location.toAbsolutePath().normalize().toString(),
-            e.value.archetype,
-            e.value.version)
-        })
+        val response = withContext(Dispatchers.IO) { restHandler.listArchetypes() }
+        call.respond(response)
     }
 
     get(CommonRestApi.listProjects) {
-        val response = restHandler.listProjects()
+        val response = withContext(Dispatchers.IO) { restHandler.listProjects() }
         call.respond(response)
     }
     get(CommonRestApi.createProject) {
@@ -410,6 +407,10 @@ private fun Routing.routeRest(
 }
 
 
+// Every command runs on Dispatchers.IO: they are blocking filesystem work — archetype downloads, zip
+//  extraction, recursive deletes, registry persistence — and would otherwise occupy a request thread
+//  for the whole operation.
+//
 // Command failures are user-actionable, not server bugs: IllegalArgumentException (missing or
 //  malformed params, rejected project names) → 400; IllegalStateException (state conflicts —
 //  project already exists, directory still locked by a running project) → 409. Both would
@@ -417,7 +418,7 @@ private fun Routing.routeRest(
 //  shape the client parses (see ajaxUtil.httpGet).
 private suspend fun RoutingContext.respondCommand(command: () -> Unit) {
     try {
-        command()
+        withContext(Dispatchers.IO) { command() }
         call.response.status(HttpStatusCode.OK)
     }
     catch (e: IllegalArgumentException) {

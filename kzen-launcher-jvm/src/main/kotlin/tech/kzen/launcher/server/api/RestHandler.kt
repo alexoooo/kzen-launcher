@@ -1,10 +1,9 @@
 package tech.kzen.launcher.server.api
 
-import com.google.common.collect.ImmutableMap
 import io.ktor.http.*
 import tech.kzen.launcher.common.api.CommonRestApi
+import tech.kzen.launcher.common.dto.ArchetypeDetail
 import tech.kzen.launcher.common.dto.ProjectDetail
-import tech.kzen.launcher.server.archetype.ArchetypeInfo
 import tech.kzen.launcher.server.archetype.ArchetypeRepo
 import tech.kzen.launcher.server.project.ProjectCreator
 import tech.kzen.launcher.server.project.ProjectNameValidation
@@ -19,8 +18,18 @@ class RestHandler(
     private val projectCreator: ProjectCreator
 ) {
     //-----------------------------------------------------------------------------------------------------------------
-    fun listArchetypes(): ImmutableMap<String, ArchetypeInfo> {
-        return archetypeRepo.all()
+    fun listArchetypes(): List<ArchetypeDetail> {
+        return archetypeRepo
+            .all()
+            .map {
+                ArchetypeDetail(
+                    name = it.key,
+                    title = it.value.title,
+                    description = it.value.description,
+                    location = it.value.location.toAbsolutePath().normalize().toString(),
+                    archetype = it.value.archetype,
+                    version = it.value.version)
+            }
     }
 
 
@@ -61,6 +70,11 @@ class RestHandler(
     fun importProject(parameters: Parameters) {
         val projectHome = parameters.getParam(CommonRestApi.projectPath, Paths::get)
         val projectName = projectHome.fileName.toString()
+
+        // The name is derived from the path's last segment, so it needs the same validation as a
+        //  user-typed name — e.g. importing a directory named "main" or "shell" would collide with
+        //  kzen-shell's reserved routing prefixes.
+        ProjectNameValidation.check(projectName)
 
         // An imported project has no known archetype source, so it records unknown/unknown (add's defaults).
         projectRepo.add(projectName, projectHome)
@@ -123,30 +137,6 @@ class RestHandler(
         val queryParamValues: List<String>? = getAll(parameterName)
         require(!queryParamValues.isNullOrEmpty()) { "'$parameterName' required" }
         require(queryParamValues.size == 1) { "Single '$parameterName' expected: $queryParamValues" }
-        return parser(queryParamValues.single())
-    }
-
-
-    private fun <T> Parameters.getParamList(
-        parameterName: String,
-        parser: (String) -> T
-    ): List<T> {
-        val queryParamValues: List<String> = getAll(parameterName)
-            ?: return listOf()
-        return queryParamValues.map(parser)
-    }
-
-
-    private fun <T> Parameters.getParamOrNull(
-        parameterName: String,
-        parser: (String) -> T
-    ): T? {
-        val queryParamValues: List<String> = getAll(parameterName)
-            ?: return null
-
-        require(queryParamValues.isNotEmpty()) { "'$parameterName' required" }
-        require(queryParamValues.size == 1) { "Single '$parameterName' expected: $queryParamValues" }
-
         return parser(queryParamValues.single())
     }
 }
